@@ -162,8 +162,6 @@ def EquipmentDashboard():
         msg = "No Equipments Found."
         return render_template('equipmentDashboard.html', msg=msg)
 
-        return render_template('equipmentDashboard.html')
-
 @app.route('/add-equipment', methods=['POST','GET'])
 @is_logged_in
 def addEquipment():
