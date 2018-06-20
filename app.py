@@ -186,8 +186,19 @@ def addEquipment():
 @is_logged_in
 def addReservation():
     form = ReservationForm()
-    equip = ["equip1","equip2","equip3"]
+    # equip = ["equip1","equip2","equip3"]
+    equip = []
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM equipment")
+    result = cur.fetchall()
+    for res in result:
+        equip.append(res["equipmentName"])
     fac = ["fac1","fac2","fac3"]
+    fac = []
+    cur.execute("SELECT * FROM facility")
+    re = cur.fetchall()
+    for r in re:
+        fac.append(r["facilityName"])
     if form.validate_on_submit():
         for i in equip:
             return str(form.i.data)
