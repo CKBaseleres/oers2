@@ -1,0 +1,15 @@
+{% extends 'layout.html' %} {% block body %}
+<div class="jumbotron text-center">
+  <div class="container">
+    <h1 class="display-3">Welcome</h1>
+    <p>This is the Online Reservation System for Equipment and Facilities of PUP San Juan.</p>
+    <p>
+      {% if session.logged_in == NULL %}
+      <a class="btn btn-primary btn-lg" href="/register">Register</a>
+      <a class="btn btn-success btn-lg" href="/login">Login</a> {% else %}
+      <a class="btn btn-primary btn-lg" href="/newres">Make Reservation</a>
+      <a class="btn btn-success btn-lg" href="/logout">Logout</a> {% endif %}
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark mb-4">
+    <div class="container">
+        <a href="" class="navbar-brand">PUPSJ-OERS</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggle-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a href="/" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/about" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/equipment/dashboard" class="nav-link">Equipment</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/facility/dashboard" class="nav-link">Facility</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/newres" class="nav-link">Reservation</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin" class="nav-link">Reports</a>
+                </li>
+            </ul>
+            {% if session.logged_in %}
+            <ul class="navbar-nav navbar-right">
+                <li class="nav-item">
+                    <a href="/logout" class="nav-link">Logout</a>
+                </li>
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</nav>

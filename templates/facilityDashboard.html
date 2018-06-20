@@ -1,0 +1,27 @@
+{% extends 'layout.html' %} {% block body %}
+<h1>Dashboard
+  <small>
+    Welcome {{session.lastName}}, {{session.firstName}}
+  </small>
+  <a href="/add-equipment" class="btn btn-success btn-lg float-right">Add Equipment</a>
+</h1>
+<!-- <a href="/add_article" class="btn btn-success">Add Article</a> -->
+<hr>
+<table class="table table-striped">
+  <tr>
+    <th>Property Number</th>
+    <th>Name</th>
+    <th>Availability</th>
+    <th></th>
+    <th></th>
+  </tr>
+  {% for facility in facilities %}
+  <tr>
+    <td>{{facility.facilityPropertyNumber}}</td>
+    <td>{{facility.facilityName}}</td>
+    <td>{{facility.availability}}</td>
+    <td><a href="edit_article/{{facility.facilityPropertyNumber}}" class="btn btn-primary float-right">Edit</a></td>
+  </tr>
+  {% endfor%}
+</table>
+{% endblock %}
