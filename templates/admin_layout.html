@@ -38,11 +38,12 @@
     .sidebar-sticky {
       position: relative;
       top: 0;
-      margin-top: 140px;
+      margin-top: 0px;
       height: calc(100vh - 48px);
       padding-top: .5rem;
       overflow-x: hidden;
       overflow-y: auto;
+      background-color: #8D0D00;
       /* Scrollable contents if viewport is shorter than content. */
     }
 
@@ -55,12 +56,12 @@
 
     .sidebar .nav-link {
       font-weight: 500;
-      color: #333;
+      color: #FFF3F2;
     }
 
     .sidebar .nav-link .feather {
       margin-right: 4px;
-      color: #999;
+      color: #FFF3F2;
     }
 
     .sidebar .nav-link.active {
@@ -93,6 +94,7 @@
     .navbar {
       position: relative;
       z-index: 101;
+      background-color: #B95348;
     }
 
     .navbar-brand {
@@ -137,39 +139,44 @@
       position: relative;
       z-index: 101;
     }
+    .blog-footer {
+      padding: 2.5rem 0;
+      color: #999;
+      text-align: center;
+      background-color: #f9f9f9;
+      border-top: .02rem solid #e5e5e5;
+    }
+    .blog-footer p:last-child {
+      margin-bottom: 0;
+    }
   </style>
 </head>
 
 <body>
-  <header>
-    <img src="/static/banner.jpg" class="img-fluid fixed head" width="100%" />
-  </header>
   {% include 'includes/_adminside.html' %}
   <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-      <!-- <div class="">
-        <h1>Dashboard
-            <small> Welcome {{session.lastName}}, {{session.firstName}}
-            </small>
-            <a href="/add-equipment" class="btn btn-success btn-lg float-right">Add Equipment</a>
-          </h1>
-          <hr>
-      </div> -->
-
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+      <!-- <h1 class="h2">Dashboard</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group mr-2">
+                <button class="btn btn-sm btn-outline-secondary">Share</button>
+                <button class="btn btn-sm btn-outline-secondary">Export</button>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary dropdown-toggle">
+                <span data-feather="calendar"></span>
+                This week
+              </button>
+            </div> -->
+          </div>
       {% block body %}{% endblock%}
+      <footer class="blog-footer">
+        <p>Blog template built for <a href="https://getbootstrap.com/">Bootstrap</a> by <a href="https://twitter.com/mdo">@mdo</a>.</p>
+        <p>
+          <a href="#">Back to top</a>
+        </p>
+      </footer>
     </div>
 
-
-    <!-- <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-
-
-        </main> -->
-
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
