@@ -1,11 +1,12 @@
 {% extends 'admin_layout.html'%}
 {% block body  %}
-<h1>Dashboard
+<h1>Equipment</h1>
+<h3>Dashboard
   <small>
     Welcome {{session.lastName}}, {{session.firstName}}
   </small>
-  <a href="/add-equipment" class="btn btn-success btn-lg float-right">Add Equipment</a>
-</h1>
+  <a href="/add-equipment" class="btn btn-success btn-md float-right">Add Equipment</a>
+</h3>
 <hr>
   <table class="table table-striped">
     <tr>
@@ -21,12 +22,12 @@
       <td>{{equipment.equipmentName}}</td>
       <td>{{equipment.quantity}}</td>
       <td>
-        <a href="edit_article/{{equipment.equipmentPropertyNumber}}" class="btn btn-primary float-right">Edit</a>
+        <a href="/editEquipment/{{equipment.equipmentPropertyNumber}}" class="btn btn-primary float-right">Edit</a>
       </td>
       <td>
         <form action="{{ url_for('delete_equipment', equipmentPropertyNumber = equipment.equipmentPropertyNumber)}}" method="POST">
           <input type="hidden" name="_method" value="Delete">
-          <input type="submit" value="Delete" class="btn btn-danger">
+          <input type="submit" value="Remove" class="btn btn-danger">
         </form>
       </td>
     </tr>

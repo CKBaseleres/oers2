@@ -1,10 +1,12 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from flask_mysqldb import MySQL
-from flask_wtf import Form
-from wtforms import StringField, TextAreaField, PasswordField, validators, BooleanField, DateTimeField, IntegerField
+from flask_wtf import FlaskForm
+from wtforms import StringField, TextAreaField, PasswordField, validators, BooleanField, DateTimeField, IntegerField, widgets, SelectMultipleField
 from wtforms.validators import DataRequired
 from passlib.hash import sha256_crypt
 from functools import wraps
+import sys
+import os
 
 app = Flask(__name__, static_url_path="/static", static_folder="static")
 
@@ -18,6 +20,24 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # Initialize MySql
 mysql = MySQL(app)
 
+
+
+# global equip
+# global fac
+# equip = []
+# fac = []
+# cur = mysql.connection.cursor()
+# # GET DATA FROM DATABASE FOR EQUIPMENTS
+# cur.execute("SELECT * FROM equipment")
+# result = cur.fetchall()
+# for res in result:
+#     equip.append(res["equipmentName"])
+#     # GET DATA FROM DATABASE FOR FACILITIES
+# cur.execute("SELECT * FROM facility")
+# re = cur.fetchall()
+# for r in re:
+#     fac.append(r["facilityName"])
+
 # Checks Session
 def is_logged_in(f):
     @wraps(f)
@@ -30,7 +50,7 @@ def is_logged_in(f):
     return wrap
 
 # Student Registration Form
-class StudentRegisterForm(Form):
+class StudentRegisterForm(FlaskForm):
     def validate_studentNumber(form,field):
         if len(field.data) > 15 or len(field.data) < 15:
             raise ValueError('Student Number must be 15 characters long.')
@@ -68,7 +88,7 @@ class StudentRegisterForm(Form):
             "placeholder": "Confirm Password",
             "class": "form-control"})
 
-class AddEquipmentForm(Form):
+class AddEquipmentForm(FlaskForm):
     equipmentPropertyNumber = StringField('Property Number',
         [validators.length(min=5, max=50)],
         render_kw={
@@ -85,13 +105,13 @@ class AddEquipmentForm(Form):
             "class": "form-control"
         })
 
-class AddFacilityForm(Form):
+class AddFacilityForm(FlaskForm):
     facilityPropertyNumber = StringField('Property Number',
         [validators.length(min=5, max=50)],
         render_kw={
             "class": "form-control"
         })
-    facilityName = StringField('Equipment Name',
+    facilityName = StringField('Facility Name',
         [validators.length(min=1, max=50)],
         render_kw={
             "class": "form-control"
@@ -102,19 +122,17 @@ class AddFacilityForm(Form):
             "class": "form-control"
         })
 
-class ReservationForm(Form):
-    checkbox = BooleanField('Agree?', [validators.DataRequired(), ])
-    equip = ["equip1","equip2","equip3"]
-    fac = ["fac1","fac2","fac3"]
-    for i in equip:
-        i = BooleanField('Equipments',  [validators.DataRequired()])
-    for j in fac:
-        j = BooleanField('Facilities', [validators.DataRequired()])
-    res = DateTimeField('From',
-        render_kw={"type": "datetime-local",
-                    "id":"datetime"
-                    })
-    rese = DateTimeField('To',render_kw={"type": "time"})
+class ReservationForm(FlaskForm):
+    checkbox = BooleanField('Agree?',)
+    # for i in equip:
+    #     i = BooleanField('Equipments',  render_kw={"value": i})
+    # for j in fac:
+    #     j = BooleanField('Facilities', render_kw={"value": j})
+    # res = DateTimeField('From',
+    #     render_kw={"type": "datetime-local",
+    #                 "id":"datetime"
+    #                 })
+    # rese = DateTimeField('To',render_kw={"type": "time"})
 
 @app.route('/add-facility', methods=['POST','GET'])
 @is_logged_in
@@ -136,6 +154,21 @@ def addfacility():
         return redirect(url_for('index'))
     return render_template('add_facility.html', form=form)
 
+@app.route('/equipment/dashboard')
+@is_logged_in
+def EquipmentDashboard():
+    cur = mysql.connection.cursor()
+    result = cur.execute("SELECT * FROM equipment")
+    equipments = cur.fetchall()
+
+    if result > 0:
+        return render_template('equipmentDashboard.html', equipments=equipments)
+    else:
+        msg = "No Equipments Found."
+        return render_template('equipmentDashboard.html', msg=msg)
+    return render_template('equipmentDashboard.html')
+
+
 @app.route('/facility/dashboard')
 @is_logged_in
 def FacilityDashboard():
@@ -148,19 +181,66 @@ def FacilityDashboard():
     else:
         msg = "No Facilities Found."
         return render_template('facilityDashboard.html', msg=msg)
+    return render_template('facilityDashboard.html')
 
-@app.route('/equipment/dashboard')
+@app.route('/facility/editFacility/<string:facilityPropertyNumber>', methods=['GET', 'POST'])
 @is_logged_in
-def EquipmentDashboard():
+def editFacility(facilityPropertyNumber):
+    # create cursor
     cur = mysql.connection.cursor()
-    result = cur.execute("SELECT * FROM equipment")
-    equipments = cur.fetchall()
 
-    if result > 0:
-        return render_template('equipmentDashboard.html', equipments=equipments)
-    else:
-        msg = "No Equipments Found."
-        return render_template('admin/equipmentDashboard.html', msg=msg)
+    result = cur.execute("SELECT * from facility where facilityPropertyNumber = %s", [facilityPropertyNumber])
+
+    facility = cur.fetchone()
+
+    form = AddFacilityForm()
+    # populate fields
+    form.facilityPropertyNumber.data = facility['facilityPropertyNumber']
+    form.facilityName.data = facility['facilityName']
+    form.availability.data = facility['availability']
+
+    if request.method == 'POST' and form.validate():
+        title = request.form['facilityName']
+        body = request.form['availability']
+        # create cursor
+        cur = mysql.connection.cursor()
+        # execute
+        cur.execute("UPDATE facility SET facilityName=%s, availability=%s WHERE facilityPropertyNumber = %s", (title,body,facilityPropertyNumber))
+        # commit
+        mysql.connection.commit()
+        # close connection
+        cur.close()
+
+        flash("Facility Updated.","success")
+
+        return redirect(url_for('FacilityDashboard'))
+
+    return render_template('editFacility.html', form=form)
+
+
+@app.route('/editEquipment/<string:equipmentPropertyNumber>', methods=['GET','POST'])
+@is_logged_in
+def editEquipment(equipmentPropertyNumber):
+
+    cur = mysql.connection.cursor()
+    result = cur.execute('SELECT * FROM equipment WHERE equipmentPropertyNumber = %s', [equipmentPropertyNumber])
+    equipment = cur.fetchone()
+    form = AddEquipmentForm()
+    form.equipmentPropertyNumber.data = equipment['equipmentPropertyNumber']
+    form.equipmentName.data = equipment['equipmentName']
+    form.quantity.data = equipment['quantity']
+    if request.method == 'POST' and form.validate():
+        equipName = request.form['equipmentName']
+        quan = request.form['quantity']
+
+        cur = mysql.connection.cursor()
+        cur.execute('UPDATE equipment SET equipmentName=%s,quantity=%s WHERE equipmentPropertyNumber=%s', (equipName,quan,equipmentPropertyNumber))
+        mysql.connection.commit()
+        cur.close()
+
+        flash('Equipment Updated','success')
+        return redirect(url_for('EquipmentDashboard'))
+    return render_template('editEquipment.html', form=form)
 
 @app.route('/add-equipment', methods=['POST','GET'])
 @is_logged_in
@@ -198,24 +278,38 @@ def addReservation():
     result = cur.fetchall()
     for res in result:
         equip.append(res["equipmentName"])
+        resEquip.append(res["equipmentPropertyNumber"])
     # GET DATA FROM DATABASE FOR FACILITIES
     cur.execute("SELECT * FROM facility")
     re = cur.fetchall()
     for r in re:
         fac.append(r["facilityName"])
+        resFac.append(r["facilityPropertyNumber"])
+
+    cur.close()
+    print(resEquip)
 
     if form.validate_on_submit():
         for i in equip:
-            i = form.i.data
-            # return str(form.i.data)
+            j = request.form['resEquip']
         for j in fac:
-            j = form.j.data
-            # return str(form.j.data)
-        res = form.res.data
-        rese = form.rese.data
+            k = request.form['resFac']
+
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO reservation(equipment_id,facility_id,studentNumber) VALUES (%s,%s,%s)",(j,k,str(session.get("studentNumber"))))
+        mysql.connection.commit()
+        cur.close()
+
+        flash("Reservation Added", "Success")
+            #
+            #
+            #
+            #
+            # res = form.res.data
+            # rese = form.rese.data
         return redirect(url_for('index'))
     return render_template('createReservation.html',
-        form=form,equip=equip,fac=fac)
+        form=form,equip=equip,fac=fac,resFac=resFac,resEquip=resEquip)
 
 @app.route('/')
 def index():
@@ -261,6 +355,7 @@ def login():
             password = data['password']
             firstName = data['firstName']
             lastName = data['lastName']
+            studentNumber = data['studentNumber']
 
             # COMPARE PASSWORDS
             if sha256_crypt.verify(password_test, password):
@@ -268,6 +363,7 @@ def login():
                 session['logged_in'] = True
                 session['firstName'] = firstName
                 session['lastName'] = lastName
+                session['studentNumber'] = studentNumber
 
                 flash("You are now Logged in","success")
                 ## Might Change the directory for the return statement below

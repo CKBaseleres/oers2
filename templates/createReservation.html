@@ -3,15 +3,12 @@
 <form method="POST">
   <div class="form-row">
     <div class="form-group col-6">
-      <h3>Equipments</h3> {% for equi in equip %} {{ form.hidden_tag()}} {{ form.checkbox() }} {{equi}} {% endfor %}
+      <h3>Equipments</h3> {% for equi in equip %} {{ form.hidden_tag()}} {{ form.checkbox(name='resEquip',value=request.form.resEquip) }} {{equi}} {% endfor %}
     </div>
     <div class="form-group col-6">
-      <h3>Facilities</h3> {% for fa in fac %} {{ form.hidden_tag()}} {{ form.checkbox() }} {{fa}} {% endfor %}
+      <h3>Facilities</h3> {% for fa in fac %} {{ form.hidden_tag()}} {{ form.checkbox(name='resFac',value=request.form.resEquip) }} {{fa}} {% endfor %}
     </div>
-  </div>
-  <div class="form-group">
-    {{ render_field(form.res, class_= "form-control")}} {{ render_field(form.rese, class_= "form-control")}}
-  </div>
+
 
   <p><input type="submit" class="btn btn-primary" value="Submit"></p>
 </form>

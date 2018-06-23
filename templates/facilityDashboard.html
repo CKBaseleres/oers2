@@ -1,11 +1,12 @@
 {% extends 'admin_layout.html'%}
 {% block body %}
-<h1>Dashboard
+<h1>Facility</h1>
+<h3>Dashboard
   <small>
     Welcome {{session.lastName}}, {{session.firstName}}
   </small>
-  <a href="/add-facility" class="btn btn-success btn-lg float-right">Add Facility</a>
-</h1>
+  <a href="/add-facility" class="btn btn-success btn-md float-right">Add Facility</a>
+</h3>
 <hr>
   <table class="table table-striped">
     <tr>
@@ -21,7 +22,7 @@
       <td>{{facility.facilityName}}</td>
       <td>{{facility.availability}}</td>
       <td>
-        <a href="edit_article/{{facility.facilityPropertyNumber}}" class="btn btn-primary float-right">Edit</a>
+        <a href="editFacility/{{facility.facilityPropertyNumber}}" class="btn btn-primary float-right">Edit</a>
       </td>
     </tr>
     {% endfor%}
