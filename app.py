@@ -389,6 +389,13 @@ def logout():
     flash('You are now logged out.', 'success')
     return redirect(url_for('login'))
 
+@app.route('/logoutadmin')
+@is_logged_in
+def logoutAdmin():
+    session.clear()
+    flash('You are now logged out.', 'success')
+    return redirect(url_for('login'))
+
 # Delete
 @app.route('/delete_equipment/<string:equipmentPropertyNumber>', methods=['POST'])
 @is_logged_in

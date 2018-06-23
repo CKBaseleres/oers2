@@ -5,7 +5,9 @@
   <small>
     Welcome {{session.lastName}}, {{session.firstName}}
   </small>
-  <a href="/add-equipment" class="btn btn-success btn-md float-right">Add Equipment</a>
+  <a href="/add-equipment" class="btn btn-success btn-md float-right">
+    <span data-feather="plus"></span>
+    Equipment</a>
 </h3>
 <hr>
   <table class="table table-striped">
@@ -22,9 +24,12 @@
       <td>{{equipment.equipmentName}}</td>
       <td>{{equipment.quantity}}</td>
       <td>
-        <a href="/editEquipment/{{equipment.equipmentPropertyNumber}}" class="btn btn-primary float-right">Edit</a>
+        <a href="/editEquipment/{{equipment.equipmentPropertyNumber}}" class="btn btn-primary float-right">
+          <span data-feather="edit-2"></span>
+          Edit</a>
       </td>
       <td>
+
         <form action="{{ url_for('delete_equipment', equipmentPropertyNumber = equipment.equipmentPropertyNumber)}}" method="POST">
           <input type="hidden" name="_method" value="Delete">
           <input type="submit" value="Remove" class="btn btn-danger">

@@ -5,7 +5,9 @@
   <small>
     Welcome {{session.lastName}}, {{session.firstName}}
   </small>
-  <a href="/add-facility" class="btn btn-success btn-md float-right">Add Facility</a>
+  <a href="/add-facility" class="btn btn-success btn-md float-right">
+    <span data-feather="plus"></span>
+    Facility</a>
 </h3>
 <hr>
   <table class="table table-striped">
@@ -14,7 +16,6 @@
       <th>Name</th>
       <th>Availability</th>
       <th></th>
-      <th></th>
     </tr>
     {% for facility in facilities %}
     <tr>
@@ -22,7 +23,9 @@
       <td>{{facility.facilityName}}</td>
       <td>{{facility.availability}}</td>
       <td>
-        <a href="editFacility/{{facility.facilityPropertyNumber}}" class="btn btn-primary float-right">Edit</a>
+        <a href="editFacility/{{facility.facilityPropertyNumber}}" class="btn btn-primary float-left">
+          <span data-feather="edit-2"></span>
+          Edit</a>
       </td>
     </tr>
     {% endfor%}
