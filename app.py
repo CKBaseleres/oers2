@@ -7,7 +7,7 @@ from wtforms.fields.html5 import DateField
 from wtforms_components import TimeField, TimeRange
 from datetime import time
 from passlib.hash import sha256_crypt
-
+import datetime
 from functools import wraps
 import sys
 import os
@@ -272,35 +272,45 @@ def addEquipment():
 @is_logged_in
 def addReservation():
     form = ReservationForm()
-    equip = []
-    fac = []
+    equip = {}
+    fac = {}
     cur = mysql.connection.cursor()
     # GET DATA FROM DATABASE FOR EQUIPMENTS
     cur.execute("SELECT * FROM equipment")
     result = cur.fetchall()
     for res in result:
-        equip.append(res["equipmentName"])
-        # resEquip.append(res["equipmentPropertyNumber"])
+        equip[res["equipmentName"]] = res["equipmentPropertyNumber"]
     # GET DATA FROM DATABASE FOR FACILITIES
     cur.execute("SELECT * FROM facility")
     re = cur.fetchall()
     for r in re:
-        fac.append(r["facilityName"])
-        # resFac.append(r["facilityPropertyNumber"])
+        fac[r["facilityName"]] = r["facilityPropertyNumber"]
+
+    now = datetime.datetime.now()
+    today = now.strftime("%d %B %Y")
+    print(today)
 
     if form.validate_on_submit():
-        resFrom = form.resFrom.data
-        reseFrom = form.reseTo.data
-        resTo = form.resTo.data
-        for i in equip:
-            i = request.form['']
-        for j in fac:
-            j = form.j.data
-
+        # resFrom = form.resFrom.data
+        # reseFrom = form.reseFrom.data
+        # resTo = form.resTo.data
+        # i = {}
+        # x = ''.join(i)
+        #
+        # for r in equip:
+        #     r = request.form.get(r)
+        #     i.append(r)
+        #
+        #     # r = request.form[r]
+        #     # i.append(r)
+        #
+        #
+        # j = request.form['fac']
         # cur = mysql.connection.cursor()
-        # cur.execute("INSERT INTO reservation(equipment_id,facility_id,studentNumber) VALUES (%s,%s,%s)",(j,k,str(session.get("studentNumber"))))
+        # cur.execute("INSERT INTO reservation(equipment_id,facility_id,studentNumber,lastname,firstname) VALUES (%s,%s,%s,%s,%s)",(x,j,session.get("studentNumber"),session.get("lastName"),session.get("firstName")))
         # mysql.connection.commit()
         # cur.close()
+
 
         flash("Reservation Added", "Success")
 
@@ -318,7 +328,7 @@ def about():
 
 @app.route('/register', methods=['GET','POST'])
 def register():
-    form = StudentRegisterForm(request.form)
+    form = StudentRegisterForm()
     if request.method == 'POST' and form.validate():
         studentNumber = form.studentNumber.data
         firstName = form.firstName.data
