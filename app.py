@@ -1,10 +1,13 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, PasswordField, validators, BooleanField, DateTimeField, IntegerField, widgets, SelectMultipleField, SelectField
+from wtforms import StringField, TextAreaField, PasswordField, validators, BooleanField, IntegerField, widgets, SelectMultipleField, SelectField
 from wtforms.validators import DataRequired
-from wtforms.fiels import DateField
+from wtforms.fields.html5 import DateField
+from wtforms_components import TimeField, TimeRange
+from datetime import time
 from passlib.hash import sha256_crypt
+
 from functools import wraps
 import sys
 import os
@@ -125,12 +128,17 @@ class AddFacilityForm(FlaskForm):
 
 class ReservationForm(FlaskForm):
     checkbox = BooleanField('Agree?',)
-    # for i in equip:
-    #     i = BooleanField('Equipments',  render_kw={"value": i})
-    # for j in fac:
-    #     j = BooleanField('Facilities', render_kw={"value": j})
-    res = DateField('From', format= "%Y-%m-%d")
-    # rese = DateTimeField('To',render_kw={"type": "time"})
+    resFrom = DateField('From', format= "%Y-%m-%d", render_kw={"class": "form-control"})
+    reseFrom = TimeField('To', format= "%H:%M",validators=[TimeRange(
+            min=time(7,30),
+            max=time(17,00)
+        )],
+         render_kw={"class" : "form-control"})
+    resTo = TimeField('To', format="%H:%M",validators=[TimeRange(
+            min=time(7,30),
+            max=time(19,00)
+        )],
+        render_kw={"class" : "form-control"})
 
 @app.route('/add-facility', methods=['POST','GET'])
 @is_logged_in
@@ -272,33 +280,33 @@ def addReservation():
     result = cur.fetchall()
     for res in result:
         equip.append(res["equipmentName"])
-        resEquip.append(res["equipmentPropertyNumber"])
+        # resEquip.append(res["equipmentPropertyNumber"])
     # GET DATA FROM DATABASE FOR FACILITIES
     cur.execute("SELECT * FROM facility")
     re = cur.fetchall()
     for r in re:
         fac.append(r["facilityName"])
-        resFac.append(r["facilityPropertyNumber"])
-
-    cur.close()
-    print(resEquip)
+        # resFac.append(r["facilityPropertyNumber"])
 
     if form.validate_on_submit():
+        resFrom = form.resFrom.data
+        reseFrom = form.reseTo.data
+        resTo = form.resTo.data
         for i in equip:
-            j = request.form['resEquip']
+            i = request.form['']
         for j in fac:
-            k = request.form['resFac']
+            j = form.j.data
 
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO reservation(equipment_id,facility_id,studentNumber) VALUES (%s,%s,%s)",(j,k,str(session.get("studentNumber"))))
-        mysql.connection.commit()
-        cur.close()
+        # cur = mysql.connection.cursor()
+        # cur.execute("INSERT INTO reservation(equipment_id,facility_id,studentNumber) VALUES (%s,%s,%s)",(j,k,str(session.get("studentNumber"))))
+        # mysql.connection.commit()
+        # cur.close()
 
         flash("Reservation Added", "Success")
 
         return redirect(url_for('index'))
     return render_template('createReservation.html',
-        form=form,equip=equip,fac=fac,resFac=resFac,resEquip=resEquip)
+        form=form,equip=equip,fac=fac)
 
 @app.route('/')
 def index():

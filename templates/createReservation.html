@@ -2,12 +2,43 @@
 <h1>Reservation</h1> {% from "includes/_formhelpers.html" import render_field %}
 <form method="POST">
   <div class="form-row">
+    {{ form.hidden_tag()}}
     <div class="form-group col-6">
-      <h3>Equipments</h3> {% for equi in equip %} {{ form.hidden_tag()}} {{ form.checkbox(name='resEquip',value=request.form.resEquip) }} {{equi}} {% endfor %}
+      <h3>Equipments</h3>
+      {% for equi in equip %}
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="{{ equi }}" id="equip">
+        <label class="form-check-label" for="equip">
+        {{ equi }}
+        </label>
+      </div>
+      {% endfor %}
     </div>
     <div class="form-group col-6">
-      <h3>Facilities</h3> {% for fa in fac %} {{ form.hidden_tag()}} {{ form.checkbox(name='resFac',value=request.form.resEquip) }} {{fa}} {% endfor %}
+      <h3>Facilities</h3> {% for fa in fac %}
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="{{ fa }}" id="fac">
+        <label class="form-check-label" for="fac">
+      {{ fa }}
+      </label>
+      </div>
+       {% endfor %}
     </div>
+  </div>
+  <div class="form-group mb-1">
+    <h5>{{ form.resFrom.label }}</h5>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-6">
+      {{ form.resFrom }}
+    </div>
+    <div class="form-group col-6">
+      {{ form.reseFrom }}
+    </div>
+  </div>
+  <div class="form-group">
+    <h5> {{form.resTo.label}}</h5> {{ form.resTo }}
+  </div>
 
 
   <p><input type="submit" class="btn btn-primary" value="Submit"></p>
