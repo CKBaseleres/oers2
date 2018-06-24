@@ -1,8 +1,9 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, PasswordField, validators, BooleanField, DateTimeField, IntegerField, widgets, SelectMultipleField
+from wtforms import StringField, TextAreaField, PasswordField, validators, BooleanField, DateTimeField, IntegerField, widgets, SelectMultipleField, SelectField
 from wtforms.validators import DataRequired
+from wtforms.fiels import DateField
 from passlib.hash import sha256_crypt
 from functools import wraps
 import sys
@@ -116,8 +117,8 @@ class AddFacilityForm(FlaskForm):
         render_kw={
             "class": "form-control"
         })
-    availability = StringField('Availability',
-        [validators.length(min=2, max=3)],
+    availability = SelectField('Availability',
+        choices = [('Yes','Yes'),('No','No')],
         render_kw={
             "class": "form-control"
         })
@@ -128,10 +129,7 @@ class ReservationForm(FlaskForm):
     #     i = BooleanField('Equipments',  render_kw={"value": i})
     # for j in fac:
     #     j = BooleanField('Facilities', render_kw={"value": j})
-    # res = DateTimeField('From',
-    #     render_kw={"type": "datetime-local",
-    #                 "id":"datetime"
-    #                 })
+    res = DateField('From', format= "%Y-%m-%d")
     # rese = DateTimeField('To',render_kw={"type": "time"})
 
 @app.route('/add-facility', methods=['POST','GET'])
@@ -268,10 +266,6 @@ def addReservation():
     form = ReservationForm()
     equip = []
     fac = []
-    # store chosen equipments
-    resEquip = []
-    # store chosen facilities
-    resFac = []
     cur = mysql.connection.cursor()
     # GET DATA FROM DATABASE FOR EQUIPMENTS
     cur.execute("SELECT * FROM equipment")
@@ -301,12 +295,7 @@ def addReservation():
         cur.close()
 
         flash("Reservation Added", "Success")
-            #
-            #
-            #
-            #
-            # res = form.res.data
-            # rese = form.rese.data
+
         return redirect(url_for('index'))
     return render_template('createReservation.html',
         form=form,equip=equip,fac=fac,resFac=resFac,resEquip=resEquip)
