@@ -1,6 +1,11 @@
 <html lang="en">
 <head>
   <title>PDF</title>
+  <style media="screen">
+    p{
+      font-size:20px;
+    }
+  </style>
 </head>
 <body>
   <br>
@@ -12,14 +17,12 @@
     Prof. Jaime P. Gutierrez, Jr. <br> Director <br> This Campus
   </p>
   <p style="text-align:center">
-    Thru: Joebert
+    Thru: Sir Joebert
     <br> Technical Officer
   </p>
   <br>
-  <p style="font-size:18px">
-    The {{ course }} will have a class in {{ subject }} at {{ date and time}}.
-    <br><br>
-    In line with this undertaking, we would like to reserve the {{ equipment }} for our {{ purpose }}.
+  <p style="font-size:20px">
+    In behalf of the whole class, {{ session.courseSection }} would like to reserve the {{ equipment }} for our {{ purpose }} at {{resFrom}} {{reseFrom}}.
     <br><br>
     We are hoping for your most positive and soonest response.
     <br><br>
@@ -29,14 +32,10 @@
   </p>
   <br>
   <p>
-    {{ session.firstName }}{{session.lastName}}
+    {{ session.firstName }} {{session.lastName}}
     <br>
-    Class Representative
+    Representative
   </p>
-
-  Noted:
-  {{ Name of Professor }}
-  Professor, {{ Subject }}
 
 
 

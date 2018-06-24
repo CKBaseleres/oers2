@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
+from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, make_response
 from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, PasswordField, validators, BooleanField, IntegerField, widgets, SelectMultipleField, SelectField
@@ -7,7 +7,7 @@ from wtforms.fields.html5 import DateField
 from wtforms_components import TimeField, TimeRange
 from datetime import time
 from passlib.hash import sha256_crypt
-import datetime
+import datetime, pdfkit
 from functools import wraps
 import sys
 import os
@@ -91,6 +91,11 @@ class StudentRegisterForm(FlaskForm):
         render_kw={
             "placeholder": "Confirm Password",
             "class": "form-control"})
+    cs = StringField('', [validators.length(min=1, max=10)],
+        render_kw={
+            "placeholder": "Course and Section",
+            "class": "form-control"
+            })
 
 class AddEquipmentForm(FlaskForm):
     equipmentPropertyNumber = StringField('Property Number',
@@ -128,17 +133,22 @@ class AddFacilityForm(FlaskForm):
 
 class ReservationForm(FlaskForm):
     checkbox = BooleanField('Agree?',)
-    resFrom = DateField('From', format= "%Y-%m-%d", render_kw={"class": "form-control"})
+    resFrom = DateField('Date and Time', format= "%Y-%m-%d", render_kw={"class": "form-control"})
     reseFrom = TimeField('To', format= "%H:%M",validators=[TimeRange(
             min=time(7,30),
             max=time(17,00)
         )],
-         render_kw={"class" : "form-control"})
-    resTo = TimeField('To', format="%H:%M",validators=[TimeRange(
-            min=time(7,30),
-            max=time(19,00)
-        )],
+    #      render_kw={"class" : "form-control"})
+    # resTo = TimeField('To', format="%H:%M",validators=[TimeRange(
+    #         min=time(7,30),
+    #         max=time(19,00)
+    #     )],
         render_kw={"class" : "form-control"})
+    purpose = SelectField('Purpose',
+        choices = [('Class','Class'),('Organization Event','Organization Event')],
+        render_kw={
+            "class": "form-control"
+        })
 
 @app.route('/add-facility', methods=['POST','GET'])
 @is_logged_in
@@ -289,32 +299,58 @@ def addReservation():
     now = datetime.datetime.now()
     today = now.strftime("%d %B %Y")
     print(today)
+    # purpose= 'reporting'
+    # prof='bebet'
+    # subject='econ'
+    # CaS = 'BSIT 3-1'
 
     if form.validate_on_submit():
-        # resFrom = form.resFrom.data
-        # reseFrom = form.reseFrom.data
+        resFrom = form.resFrom.data
+        reseFrom = form.reseFrom.data
         # resTo = form.resTo.data
+        purpose = form.purpose.data
         # i = {}
         # x = ''.join(i)
         #
         # for r in equip:
         #     r = request.form.get(r)
-        #     i.append(r)
-        #
-        #     # r = request.form[r]
         #     # i.append(r)
-        #
-        #
-        # j = request.form['fac']
-        # cur = mysql.connection.cursor()
-        # cur.execute("INSERT INTO reservation(equipment_id,facility_id,studentNumber,lastname,firstname) VALUES (%s,%s,%s,%s,%s)",(x,j,session.get("studentNumber"),session.get("lastName"),session.get("firstName")))
-        # mysql.connection.commit()
-        # cur.close()
+        #     if r:
+        #          b=r
+        b= request.form['equip']
 
+            # r = request.form[r]
+            # i.append(r)
+
+
+        j = request.form['fac']
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO reservation(equipment_id,facility_id,studentNumber,purpose,firstName,lastName,resDate,resTime) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",(b,j,session.get("studentNumber"),purpose,session.get("firstName"),session.get("lastName"),resFrom,reseFrom))
+        mysql.connection.commit()
+        cur.close()
+
+
+        # FOR PDF CREATION
+        path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+        config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+        rendered = render_template('pdf_template.html',
+            resFrom=resFrom,
+            reseFrom=reseFrom,
+            today=today,
+            purpose=purpose,
+            equipment=j
+            )
+        pdf = pdfkit.from_string(rendered, False ,configuration=config)
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
+        return response
 
         flash("Reservation Added", "Success")
 
         return redirect(url_for('index'))
+
+
     return render_template('createReservation.html',
         form=form,equip=equip,fac=fac)
 
@@ -335,10 +371,12 @@ def register():
         lastName = form.lastName.data
         email = form.email.data
         password = sha256_crypt.encrypt(str(form.password.data))
+        cs = form.cs.data
+
 
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO student(studentNumber,firstName,lastName,email,password)VALUES (%s,%s,%s,%s,%s)",
-            (studentNumber,firstName,lastName,email,password))
+        cur.execute("INSERT INTO student(studentNumber,firstName,lastName,email,password,courseSection)VALUES (%s,%s,%s,%s,%s,%s)",
+            (studentNumber,firstName,lastName,email,password,cs))
         mysql.connection.commit()
         cur.close()
 
@@ -363,6 +401,7 @@ def login():
             firstName = data['firstName']
             lastName = data['lastName']
             studentNumber = data['studentNumber']
+            cs = data['courseSection']
 
             # COMPARE PASSWORDS
             if sha256_crypt.verify(password_test, password):
@@ -371,6 +410,7 @@ def login():
                 session['firstName'] = firstName
                 session['lastName'] = lastName
                 session['studentNumber'] = studentNumber
+                session['courseSection'] = cs
 
                 flash("You are now Logged in","success")
                 ## Might Change the directory for the return statement below
