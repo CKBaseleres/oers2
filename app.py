@@ -53,6 +53,7 @@ def is_logged_in(f):
             return redirect(url_for('login'))
     return wrap
 
+
 # Student Registration Form
 class StudentRegisterForm(FlaskForm):
     def validate_studentNumber(form,field):
@@ -354,6 +355,84 @@ def addReservation():
     return render_template('createReservation.html',
         form=form,equip=equip,fac=fac)
 
+
+@app.route('/newres', methods=['POST','GET'])
+@is_logged_in
+def addReservationAd():
+    form = ReservationForm()
+    equip = {}
+    fac = {}
+    cur = mysql.connection.cursor()
+    # GET DATA FROM DATABASE FOR EQUIPMENTS
+    cur.execute("SELECT * FROM equipment")
+    result = cur.fetchall()
+    for res in result:
+        equip[res["equipmentName"]] = res["equipmentPropertyNumber"]
+    # GET DATA FROM DATABASE FOR FACILITIES
+    cur.execute("SELECT * FROM facility")
+    re = cur.fetchall()
+    for r in re:
+        fac[r["facilityName"]] = r["facilityPropertyNumber"]
+
+    now = datetime.datetime.now()
+    today = now.strftime("%d %B %Y")
+    print(today)
+    # purpose= 'reporting'
+    # prof='bebet'
+    # subject='econ'
+    # CaS = 'BSIT 3-1'
+
+    if form.validate_on_submit():
+        resFrom = form.resFrom.data
+        reseFrom = form.reseFrom.data
+        # resTo = form.resTo.data
+        purpose = form.purpose.data
+        # i = {}
+        # x = ''.join(i)
+        #
+        # for r in equip:
+        #     r = request.form.get(r)
+        #     # i.append(r)
+        #     if r:
+        #          b=r
+        b= request.form['equip']
+
+            # r = request.form[r]
+            # i.append(r)
+
+
+        j = request.form['fac']
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO reservation(equipment_id,facility_id,studentNumber,purpose,firstName,lastName,resDate,resTime) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",(b,j,session.get("studentNumber"),purpose,session.get("firstName"),session.get("lastName"),resFrom,reseFrom))
+        mysql.connection.commit()
+        cur.close()
+
+
+        # FOR PDF CREATION
+        path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+        config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+        rendered = render_template('pdf_template.html',
+            resFrom=resFrom,
+            reseFrom=reseFrom,
+            today=today,
+            purpose=purpose,
+            equipment=j
+            )
+        pdf = pdfkit.from_string(rendered, False ,configuration=config)
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
+        return response
+
+        flash("Reservation Added", "Success")
+
+        return redirect(url_for('index'))
+
+
+    return render_template('createReservationAd.html',
+        form=form,equip=equip,fac=fac)
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -424,6 +503,47 @@ def login():
             return render_template('login.html',error=error)
 
     return render_template('login.html')
+
+
+@app.route('/login/a',methods=['GET','POST'])
+def loginad():
+    if request.method == 'POST':
+        studentNumber = request.form['studentNumber']
+        password_test = request.form['password']
+
+        cur = mysql.connection.cursor()
+        result = cur.execute('SELECT * FROM student WHERE studentNumber = %s',
+            [studentNumber])
+        if result > 0:
+            # GET USER
+            data = cur.fetchone()
+            password = data['password']
+            firstName = data['firstName']
+            lastName = data['lastName']
+            studentNumber = data['studentNumber']
+            cs = data['courseSection']
+
+            # COMPARE PASSWORDS
+            if sha256_crypt.verify(password_test, password):
+                # IF PASSED
+                session['logged_in'] = True
+                session['firstName'] = firstName
+                session['lastName'] = lastName
+                session['studentNumber'] = studentNumber
+                session['courseSection'] = cs
+
+                flash("You are now Logged in","success")
+                ## Might Change the directory for the return statement below
+                return redirect(url_for('EquipmentDashboard'))
+            else:
+                error = 'Invalid Student Number/Password.'
+                return render_template('loginA.html',error=error)
+            cur.close()
+        else:
+            error = 'Invalid Student Number/Password.'
+            return render_template('loginA.html',error=error)
+
+    return render_template('loginA.html')
 
 @app.route('/admin')
 def admin():
