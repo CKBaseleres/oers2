@@ -98,6 +98,35 @@ class StudentRegisterForm(FlaskForm):
             "class": "form-control"
             })
 
+class AdminRegisterForm(FlaskForm):
+    username = StringField('',[validators.length(min=1, max=50)],
+        render_kw={
+            "placeholder": "Admin Number",
+            "class": "form-control"
+            })
+    firstName = StringField('', [validators.length(min=1, max=50)],
+        render_kw={
+            "placeholder": "First Name",
+            "class": "form-control"
+            })
+    lastName = StringField('', [validators.length(min=1, max=50)],\
+        render_kw={
+            "placeholder": "Last Name",
+            "class": "form-control"
+            })
+    password = PasswordField('', [
+        validators.DataRequired(),
+        validators.EqualTo('confirm', message='Password do not match.')
+    ],  render_kw={
+            "placeholder": "Password",
+            "class": "form-control"
+            })
+    confirm = PasswordField('',
+        render_kw={
+            "placeholder": "Confirm Password",
+            "class": "form-control"})
+
+
 class AddEquipmentForm(FlaskForm):
     equipmentPropertyNumber = StringField('Property Number',
         [validators.length(min=5, max=50)],
