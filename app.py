@@ -1,8 +1,9 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, make_response
 from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, PasswordField, validators, BooleanField, IntegerField, widgets, SelectMultipleField, SelectField
-from wtforms.validators import DataRequired
+from wtforms import StringField, TextAreaField, PasswordField, validators,\
+ BooleanField, IntegerField, widgets, SelectMultipleField, SelectField, SubmitField
+from wtforms.validators import DataRequired, Length, Email, EqualTo
 from wtforms.fields.html5 import DateField
 from wtforms_components import TimeField, TimeRange
 from datetime import time
@@ -59,44 +60,21 @@ class StudentRegisterForm(FlaskForm):
     def validate_studentNumber(form,field):
         if len(field.data) > 15 or len(field.data) < 15:
             raise ValueError('Student Number must be 15 characters long.')
-    studentNumber = StringField('',[],
-        render_kw={
-            "placeholder": "Student Number",
-            "class": "form-control"
-            })
-    firstName = StringField('', [validators.length(min=1, max=50)],
-        render_kw={
-            "placeholder": "First Name",
-            "class": "form-control"
-            })
-    lastName = StringField('', [validators.length(min=1, max=50)],\
-        render_kw={
-            "placeholder": "Last Name",
-            "class": "form-control"
-            })
-    email = StringField('', [
-        validators.length(min=6,max=50),
-        validators.email(message='Invalid e-mail')
-    ],  render_kw={
-            "placeholder": "E-mail",
-            "class": "form-control"
-            })
-    password = PasswordField('', [
-        validators.DataRequired(),
-        validators.EqualTo('confirm', message='Password do not match.')
-    ],  render_kw={
-            "placeholder": "Password",
-            "class": "form-control"
-            })
-    confirm = PasswordField('',
-        render_kw={
-            "placeholder": "Confirm Password",
-            "class": "form-control"})
-    cs = StringField('', [validators.length(min=1, max=10)],
-        render_kw={
-            "placeholder": "Course and Section",
-            "class": "form-control"
-            })
+    studentNumber = StringField('Student Number',
+                                validators=[DataRequired()])
+    firstName = StringField('First Name',
+                            validators=[DataRequired(), Length(min=1, max=50)])
+    lastName = StringField('Last Name',
+                            validators=[DataRequired(), Length(min=1, max=50)])
+    email = StringField('E-mail',
+                        validators=[DataRequired(),Email(message='Invalid e-mail')])
+    password = PasswordField('Password',
+                            validators=[DataRequired(),Length(min=8), EqualTo('confirm', message='Password do not match.')])
+    confirm = PasswordField('Confirm Password',
+                            validators=[DataRequired()])
+    crseSec = StringField('Course and Section',
+                            validators=[Length(min=3, max=10)])
+    submit = SubmitField('Sign Up')
 
 class AdminRegisterForm(FlaskForm):
     username = StringField('',[validators.length(min=1, max=50)],
@@ -432,7 +410,9 @@ def addReservationAd():
 
         j = request.form['fac']
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO reservation(equipment_id,facility_id,studentNumber,purpose,firstName,lastName,resDate,resTime) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",(b,j,session.get("studentNumber"),purpose,session.get("firstName"),session.get("lastName"),resFrom,reseFrom))
+        cur.execute("INSERT INTO reservation(equipment_id,facility_id,studentNumber,purpose,firstName,lastName,resDate,resTime)\
+         VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",\
+         (b,j,session.get("studentNumber"),purpose,session.get("firstName"),session.get("lastName"),resFrom,reseFrom))
         mysql.connection.commit()
         cur.close()
 
@@ -479,12 +459,13 @@ def register():
         lastName = form.lastName.data
         email = form.email.data
         password = sha256_crypt.encrypt(str(form.password.data))
-        cs = form.cs.data
+        crseSec = form.crseSec.data
 
 
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO student(studentNumber,firstName,lastName,email,password,courseSection)VALUES (%s,%s,%s,%s,%s,%s)",
-            (studentNumber,firstName,lastName,email,password,cs))
+        cur.execute("INSERT INTO student(studentNumber,firstName,lastName,email,password,courseSection)\
+            VALUES (%s,%s,%s,%s,%s,%s)",
+            (studentNumber,firstName,lastName,email,password,crseSec))
         mysql.connection.commit()
         cur.close()
 
