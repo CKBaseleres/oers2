@@ -3,21 +3,21 @@
 {% block body %}
 <div class="row">
     <div class="col-lg-3 col-md-2"></div>
-    <div class="col-lg-6 col-md-8 col-12">
+    <div class="col-lg-6 col-md-8 col-12 content-section">
         <h1>Add Facility</h1>
         <form action="" method="post">
             {{ form.hidden_tag() }}
             <div class="form-group mb-1">
                 <h5>{{ form.facilityPropertyNumber.label }}</h5>
-                {{ form.facilityPropertyNumber }}
+                {{ form.facilityPropertyNumber(class="form-control") }}
             </div>
             <div class="form-group mb-1">
                 <h5>{{ form.facilityName.label }}</h5>
-                {{ form.facilityName }}
+                {{ form.facilityName(class="form-control") }}
             </div>
             <div class="form-group mb-1">
                 <h5>{{ form.availability.label }}</h5>
-                {{ form.availability }}
+                {{ form.availability(class="form-control") }}
             </div>
             <p><input type="submit" class="btn btn-primary mt-4" value="Submit"></p>
         </form>

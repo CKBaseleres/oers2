@@ -3,7 +3,7 @@ from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, PasswordField, validators,\
  BooleanField, IntegerField, widgets, SelectMultipleField, SelectField, SubmitField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms.validators import DataRequired, Length, Email, EqualTo, NumberRange
 from wtforms.fields.html5 import DateField
 from wtforms_components import TimeField, TimeRange
 from datetime import time
@@ -76,68 +76,22 @@ class StudentRegisterForm(FlaskForm):
                             validators=[Length(min=3, max=10)])
     submit = SubmitField('Sign Up')
 
-class AdminRegisterForm(FlaskForm):
-    username = StringField('',[validators.length(min=1, max=50)],
-        render_kw={
-            "placeholder": "Admin Number",
-            "class": "form-control"
-            })
-    firstName = StringField('', [validators.length(min=1, max=50)],
-        render_kw={
-            "placeholder": "First Name",
-            "class": "form-control"
-            })
-    lastName = StringField('', [validators.length(min=1, max=50)],\
-        render_kw={
-            "placeholder": "Last Name",
-            "class": "form-control"
-            })
-    password = PasswordField('', [
-        validators.DataRequired(),
-        validators.EqualTo('confirm', message='Password do not match.')
-    ],  render_kw={
-            "placeholder": "Password",
-            "class": "form-control"
-            })
-    confirm = PasswordField('',
-        render_kw={
-            "placeholder": "Confirm Password",
-            "class": "form-control"})
-
 
 class AddEquipmentForm(FlaskForm):
     equipmentPropertyNumber = StringField('Property Number',
-        [validators.length(min=5, max=50)],
-        render_kw={
-            "class": "form-control"
-            })
+                                        validators=[DataRequired(),Length(min=5, max=50)])
     equipmentName = StringField('Equipment Name',
-        [validators.length(min=1, max=50)],
-        render_kw={
-            "class": "form-control"
-        })
+                                validators=[DataRequired(),Length(min=1, max=50)])
     quantity = IntegerField('Quantity',
-        [validators.NumberRange(message='Not a number value.')],
-        render_kw={
-            "class": "form-control"
-        })
+                            validators=[DataRequired(), NumberRange(message='Not a number value.')])
 
 class AddFacilityForm(FlaskForm):
     facilityPropertyNumber = StringField('Property Number',
-        [validators.length(min=5, max=50)],
-        render_kw={
-            "class": "form-control"
-        })
+                                        validators=[DataRequired(), Length(min=5, max=50)])
     facilityName = StringField('Facility Name',
-        [validators.length(min=1, max=50)],
-        render_kw={
-            "class": "form-control"
-        })
-    availability = SelectField('Availability',
-        choices = [('Yes','Yes'),('No','No')],
-        render_kw={
-            "class": "form-control"
-        })
+                                validators=[DataRequired(), Length(min=3, max=50)])
+    availability = SelectField('Availability',validators=[DataRequired()],
+                                choices = [('Yes','Yes'),('No','No')])
 
 class ReservationForm(FlaskForm):
     checkbox = BooleanField('Agree?',)
@@ -503,7 +457,7 @@ def login():
 
                 flash("You are now Logged in","success")
                 ## Might Change the directory for the return statement below
-                return redirect(url_for('index'))
+                return redirect(url_for('UserDashboard'))
             else:
                 error = 'Invalid Student Number/Password.'
                 return render_template('login.html',error=error)
@@ -572,6 +526,20 @@ def logoutAdmin():
     session.clear()
     flash('You are now logged out.', 'success')
     return redirect(url_for('login'))
+
+@app.route('/dashboard')
+@is_logged_in
+def UserDashboard():
+    cur = mysql.connection.cursor()
+    result = cur.execute("SELECT * FROM reservation")
+    reservations = cur.fetchall()
+
+    if result > 0:
+        return render_template('userDashboard.html', reservations=reservations)
+    else:
+        msg = "No Reservations Found."
+        return render_template('userDashboard.html', msg=msg)
+    return render_template('userDashboard.html')
 
 # Delete
 @app.route('/delete_equipment/<string:equipmentPropertyNumber>', methods=['POST'])

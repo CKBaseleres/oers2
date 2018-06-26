@@ -1,5 +1,6 @@
 {% extends 'layout.html' %} {% block body %}
 <h1>Reservation</h1> {% from "includes/_formhelpers.html" import render_field %}
+<div class="content-section">
 <form method="POST">
   <div class="form-row">
     {{ form.hidden_tag()}}
@@ -45,19 +46,5 @@
 
   <p><input type="submit" class="btn btn-primary" value="Submit"></p>
 </form>
-
-<script type="text/javascript">
-function myFunction() {
-  // Get the checkbox
-  var checkBox = document.getElementById("equip");
-  // Get the output text
-  // var text = document.getElementById("text");
-
-  // If the checkbox is checked, display the output text
-  if (equip.checked == false){
-    checkBox = "";
-  }
-}
-
-</script>
+</div>
 {% endblock %}

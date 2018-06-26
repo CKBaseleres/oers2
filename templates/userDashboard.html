@@ -1,0 +1,36 @@
+{% extends 'layout.html'%}
+{% block body %}
+<h1>Reservations</h1>
+<h3>Dashboard
+  <small>
+  {{session.lastName}}, {{session.firstName}}
+  </small>
+  <a href="/newres" class="btn btn-success float-right">
+    <span data-feather="plus-square"></span>
+  </a>
+</h3>
+    <hr>
+  <table class="table table-striped">
+    <tr>
+      <th>Equipment</th>
+      <th>Facility</th>
+      <th>Purpose</th>
+      <th>Date</th>
+      <th>Time</th>
+    </tr>
+    {% for res in reservations %}
+    <tr>
+      <td>{{res.equipment_id}}</td>
+      <td>{{res.facility_id}}</td>
+      <td>{{res.purpose}}</td>
+      <td>{{res.resDate}}</td>
+      <td>{{res.resTime}}</td>
+      <!-- <td>
+        <a href="editFacility/{{res.id}}" class="btn btn-primary float-left">
+          <span data-feather="edit-2"></span>
+          Edit</a>
+      </td> -->
+    </tr>
+    {% endfor%}
+  </table>
+  {% endblock %}
