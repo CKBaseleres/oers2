@@ -95,22 +95,18 @@ class AddFacilityForm(FlaskForm):
 
 class ReservationForm(FlaskForm):
     checkbox = BooleanField('Agree?',)
-    resFrom = DateField('Date and Time', format= "%Y-%m-%d", render_kw={"class": "form-control"})
+    resFrom = DateField('Date and Time', validators=[DataRequired()], format= "%Y-%m-%d")
     reseFrom = TimeField('To', format= "%H:%M",validators=[TimeRange(
             min=time(7,30),
             max=time(17,00)
-        )],
-    #      render_kw={"class" : "form-control"})
-    # resTo = TimeField('To', format="%H:%M",validators=[TimeRange(
-    #         min=time(7,30),
-    #         max=time(19,00)
-    #     )],
-        render_kw={"class" : "form-control"})
-    purpose = SelectField('Purpose',
-        choices = [('Class','Class'),('Organization Event','Organization Event')],
-        render_kw={
-            "class": "form-control"
-        })
+        ), DataRequired()])
+    resTo = TimeField('To', format="%H:%M",validators=[TimeRange(
+            min=time(7,30),
+            max=time(19,00)
+        ), DataRequired()])
+    purpose = SelectField('Purpose',validators=[DataRequired()],
+        choices = [('Class','Class'),('Organization Event','Organization Event')]
+)
 
 @app.route('/add-facility', methods=['POST','GET'])
 @is_logged_in
