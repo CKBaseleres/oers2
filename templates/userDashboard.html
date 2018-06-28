@@ -1,14 +1,15 @@
 {% extends 'layout.html'%}
 {% block body %}
-<h1>Reservations</h1>
-<h3>Dashboard
+
+<h3>Welcome
   <small>
   {{session.lastName}}, {{session.firstName}}
   </small>
   <a href="/newres" class="btn btn-success float-right">
-    <span data-feather="plus-square"></span>
+    Make Reservation
   </a>
 </h3>
+<h2>Your Reservations</h2>
     <hr>
   <table class="table table-striped">
     <tr>
@@ -20,8 +21,8 @@
     </tr>
     {% for res in reservations %}
     <tr>
-      <td>{{res.equipment_id}}</td>
-      <td>{{res.facility_id}}</td>
+      <td>{{res.equipment_name}}</td>
+      <td>{{res.facility_name}}</td>
       <td>{{res.purpose}}</td>
       <td>{{res.resDate}}</td>
       <td>{{res.resTime}}</td>

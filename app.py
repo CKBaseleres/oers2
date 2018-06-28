@@ -125,7 +125,7 @@ def addfacility():
 
         flash("Facility Added!","success")
 
-        return redirect(url_for('index'))
+        return redirect(url_for('UserDashboard'))
     return render_template('add_facility.html', form=form)
 
 @app.route('/equipment/dashboard')
@@ -233,7 +233,7 @@ def addEquipment():
 
         flash("Equipment Added!","success")
 
-        return redirect(url_for('index'))
+        return redirect(url_for('UserDashboard'))
     return render_template('add_equipment.html', form=form)
 
 @app.route('/newres', methods=['POST','GET'])
@@ -257,33 +257,17 @@ def addReservation():
     now = datetime.datetime.now()
     today = now.strftime("%d %B %Y")
     print(today)
-    # purpose= 'reporting'
-    # prof='bebet'
-    # subject='econ'
-    # CaS = 'BSIT 3-1'
-
     if form.validate_on_submit():
         resFrom = form.resFrom.data
         reseFrom = form.reseFrom.data
-        # resTo = form.resTo.data
         purpose = form.purpose.data
-        # i = {}
-        # x = ''.join(i)
-        #
-        # for r in equip:
-        #     r = request.form.get(r)
-        #     # i.append(r)
-        #     if r:
-        #          b=r
-        b= request.form['equip']
-
-            # r = request.form[r]
-            # i.append(r)
-
-
-        j = request.form['fac']
+        selectEquip= request.form['equips']
+        selectFac = request.form['facs']
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO reservation(equipment_id,facility_id,studentNumber,purpose,firstName,lastName,resDate,resTime) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",(b,j,session.get("studentNumber"),purpose,session.get("firstName"),session.get("lastName"),resFrom,reseFrom))
+        cur.execute("INSERT INTO reservation(equipment_name,facility_name,\
+            studentNumber,purpose,firstName,lastName,resDate,resTime)\
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",(selectEquip,selectFac,session.get("studentNumber"),\
+            purpose,session.get("firstName"),session.get("lastName"),resFrom,reseFrom))
         mysql.connection.commit()
         cur.close()
 
@@ -296,139 +280,28 @@ def addReservation():
             reseFrom=reseFrom,
             today=today,
             purpose=purpose,
-            equipment=j
+            equipment=selectEquip
             )
         pdf = pdfkit.from_string(rendered, False ,configuration=config)
         response = make_response(pdf)
         response.headers['Content-Type'] = 'application/pdf'
         response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
-        return response
+        # return response
+        print
 
-        flash("Reservation Added", "Success")
+        flash("Reservation Added", "success")
 
-        return redirect(url_for('index'))
+        return redirect(url_for('UserDashboard'))
 
 
     return render_template('createReservation.html',
         form=form,equip=equip,fac=fac)
 
-
-@app.route('/newres', methods=['POST','GET'])
-@is_logged_in
-def addReservationAd():
-    form = ReservationForm()
-    equip = {}
-    fac = {}
-    cur = mysql.connection.cursor()
-    # GET DATA FROM DATABASE FOR EQUIPMENTS
-    cur.execute("SELECT * FROM equipment")
-    result = cur.fetchall()
-    for res in result:
-        equip[res["equipmentName"]] = res["equipmentPropertyNumber"]
-    # GET DATA FROM DATABASE FOR FACILITIES
-    cur.execute("SELECT * FROM facility")
-    re = cur.fetchall()
-    for r in re:
-        fac[r["facilityName"]] = r["facilityPropertyNumber"]
-
-    now = datetime.datetime.now()
-    today = now.strftime("%d %B %Y")
-    print(today)
-    # purpose= 'reporting'
-    # prof='bebet'
-    # subject='econ'
-    # CaS = 'BSIT 3-1'
-
-    if form.validate_on_submit():
-        resFrom = form.resFrom.data
-        reseFrom = form.reseFrom.data
-        # resTo = form.resTo.data
-        purpose = form.purpose.data
-        # i = {}
-        # x = ''.join(i)
-        #
-        # for r in equip:
-        #     r = request.form.get(r)
-        #     # i.append(r)
-        #     if r:
-        #          b=r
-        b= request.form['equip']
-
-            # r = request.form[r]
-            # i.append(r)
-
-
-        j = request.form['fac']
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO reservation(equipment_id,facility_id,studentNumber,purpose,firstName,lastName,resDate,resTime)\
-         VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",\
-         (b,j,session.get("studentNumber"),purpose,session.get("firstName"),session.get("lastName"),resFrom,reseFrom))
-        mysql.connection.commit()
-        cur.close()
-
-
-        # FOR PDF CREATION
-        path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-        config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
-        rendered = render_template('pdf_template.html',
-            resFrom=resFrom,
-            reseFrom=reseFrom,
-            today=today,
-            purpose=purpose,
-            equipment=j
-            )
-        pdf = pdfkit.from_string(rendered, False ,configuration=config)
-        response = make_response(pdf)
-        response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
-        return response
-
-        flash("Reservation Added", "Success")
-
-        return redirect(url_for('index'))
-
-
-    return render_template('createReservationAd.html',
-        form=form,equip=equip,fac=fac)
-
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
-@app.route('/register', methods=['GET','POST'])
-def register():
-    form = StudentRegisterForm()
-    if request.method == 'POST' and form.validate():
-        studentNumber = form.studentNumber.data
-        firstName = form.firstName.data
-        lastName = form.lastName.data
-        email = form.email.data
-        password = sha256_crypt.encrypt(str(form.password.data))
-        crseSec = form.crseSec.data
-
-
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO student(studentNumber,firstName,lastName,email,password,courseSection)\
-            VALUES (%s,%s,%s,%s,%s,%s)",
-            (studentNumber,firstName,lastName,email,password,crseSec))
-        mysql.connection.commit()
-        cur.close()
-
-        flash("You are now registered, please login","success")
-
-        return redirect(url_for('index'))
-    return render_template('register.html', form=form)
-
 @app.route('/login',methods=['GET','POST'])
 def login():
     if request.method == 'POST':
         studentNumber = request.form['studentNumber']
-        password_test = request.form['password']
+        passsword_test = request.form['password']
 
         cur = mysql.connection.cursor()
         result = cur.execute('SELECT * FROM student WHERE studentNumber = %s',
@@ -523,11 +396,20 @@ def logoutAdmin():
     flash('You are now logged out.', 'success')
     return redirect(url_for('login'))
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 @app.route('/dashboard')
 @is_logged_in
 def UserDashboard():
     cur = mysql.connection.cursor()
-    result = cur.execute("SELECT * FROM reservation")
+    sn = str(session.get("studentNumber"))
+    result = cur.execute("SELECT * FROM reservation where studentNumber= %s",[sn])
     reservations = cur.fetchall()
 
     if result > 0:
