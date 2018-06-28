@@ -25,24 +25,6 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # Initialize MySql
 mysql = MySQL(app)
 
-
-
-# global equip
-# global fac
-# equip = []
-# fac = []
-# cur = mysql.connection.cursor()
-# # GET DATA FROM DATABASE FOR EQUIPMENTS
-# cur.execute("SELECT * FROM equipment")
-# result = cur.fetchall()
-# for res in result:
-#     equip.append(res["equipmentName"])
-#     # GET DATA FROM DATABASE FOR FACILITIES
-# cur.execute("SELECT * FROM facility")
-# re = cur.fetchall()
-# for r in re:
-#     fac.append(r["facilityName"])
-
 # Checks Session
 def is_logged_in(f):
     @wraps(f)
@@ -263,35 +245,37 @@ def addReservation():
         purpose = form.purpose.data
         selectEquip= request.form['equips']
         selectFac = request.form['facs']
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO reservation(equipment_name,facility_name,\
-            studentNumber,purpose,firstName,lastName,resDate,resTime)\
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",(selectEquip,selectFac,session.get("studentNumber"),\
-            purpose,session.get("firstName"),session.get("lastName"),resFrom,reseFrom))
-        mysql.connection.commit()
-        cur.close()
+        if(selectEquip == '--' and selectFac == '--'):
+            flash("No equipment or facility has been selected.","danger")
+        else:
+            cur = mysql.connection.cursor()
+            cur.execute("INSERT INTO reservation(equipment_name,facility_name,\
+                studentNumber,purpose,firstName,lastName,resDate,resTime)\
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",(selectEquip,selectFac,session.get("studentNumber"),\
+                purpose,session.get("firstName"),session.get("lastName"),resFrom,reseFrom))
+            mysql.connection.commit()
+            cur.close()
 
 
-        # FOR PDF CREATION
-        path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-        config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
-        rendered = render_template('pdf_template.html',
-            resFrom=resFrom,
-            reseFrom=reseFrom,
-            today=today,
-            purpose=purpose,
-            equipment=selectEquip
-            )
-        pdf = pdfkit.from_string(rendered, False ,configuration=config)
-        response = make_response(pdf)
-        response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
-        # return response
-        print
+            # FOR PDF CREATION
+            path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+            config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+            rendered = render_template('pdf_template.html',
+                resFrom=resFrom,
+                reseFrom=reseFrom,
+                today=today,
+                purpose=purpose,
+                equipment=selectEquip
+                )
+            pdf = pdfkit.from_string(rendered, False ,configuration=config)
+            response = make_response(pdf)
+            response.headers['Content-Type'] = 'application/pdf'
+            response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
+            # return response
 
-        flash("Reservation Added", "success")
+            flash("Reservation Added", "success")
 
-        return redirect(url_for('UserDashboard'))
+            return redirect(url_for('UserDashboard'))
 
 
     return render_template('createReservation.html',
@@ -301,7 +285,7 @@ def addReservation():
 def login():
     if request.method == 'POST':
         studentNumber = request.form['studentNumber']
-        passsword_test = request.form['password']
+        password_test = request.form['password']
 
         cur = mysql.connection.cursor()
         result = cur.execute('SELECT * FROM student WHERE studentNumber = %s',
