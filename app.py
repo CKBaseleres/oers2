@@ -87,8 +87,8 @@ class ReservationForm(FlaskForm):
             max=time(19,00)
         ), DataRequired()])
     purpose = SelectField('Purpose',validators=[DataRequired()],
-        choices = [('Class','Class'),('Organization Event','Organization Event')]
-)
+        choices = [('Academic','Academic'),('Organizational Event','Organizational Event')])
+
 
 @app.route('/add-facility', methods=['POST','GET'])
 @is_logged_in
@@ -281,6 +281,36 @@ def addReservation():
     return render_template('createReservation.html',
         form=form,equip=equip,fac=fac)
 
+
+
+@app.route('/register', methods=['GET','POST'])
+def register():
+    form = StudentRegisterForm()
+    if request.method == 'POST' and form.validate():
+        studentNumber = form.studentNumber.data
+        firstName = form.firstName.data
+        lastName = form.lastName.data
+        email = form.email.data
+        password = sha256_crypt.encrypt(str(form.password.data))
+        crseSec = form.crseSec.data
+
+
+        cur = mysql.connection.cursor()
+        result = cur.execute("SELECT * FROM student WHERE studentNumber = %s",[studentNumber])
+        if result > 0:
+            flash("Student number already registered.", 'danger')
+        else:
+            cur.execute("INSERT INTO student(studentNumber,firstName,lastName,email,password,courseSection)\
+                VALUES (%s,%s,%s,%s,%s,%s)",
+                (studentNumber,firstName,lastName,email,password,crseSec))
+            mysql.connection.commit()
+            cur.close()
+
+            flash("You are now registered, please login","success")
+
+            return redirect(url_for('index'))
+    return render_template('register.html', form=form)
+
 @app.route('/login',methods=['GET','POST'])
 def login():
     if request.method == 'POST':
@@ -322,45 +352,41 @@ def login():
     return render_template('login.html')
 
 
-@app.route('/login/a',methods=['GET','POST'])
+@app.route('/admin/login',methods=['GET','POST'])
 def loginad():
+    session.clear()
     if request.method == 'POST':
-        studentNumber = request.form['studentNumber']
+        username = request.form['username']
         password_test = request.form['password']
 
         cur = mysql.connection.cursor()
-        result = cur.execute('SELECT * FROM student WHERE studentNumber = %s',
-            [studentNumber])
+        result = cur.execute('SELECT * FROM admin WHERE username = %s',
+            [username])
         if result > 0:
             # GET USER
             data = cur.fetchone()
             password = data['password']
-            firstName = data['firstName']
-            lastName = data['lastName']
-            studentNumber = data['studentNumber']
-            cs = data['courseSection']
+            username = data['username']
+
 
             # COMPARE PASSWORDS
-            if sha256_crypt.verify(password_test, password):
+            if password_test == password:
                 # IF PASSED
                 session['logged_in'] = True
-                session['firstName'] = firstName
-                session['lastName'] = lastName
-                session['studentNumber'] = studentNumber
-                session['courseSection'] = cs
+                session['username'] = username
 
-                flash("You are now Logged in","success")
+                flash("You are now Logged in", "success")
                 ## Might Change the directory for the return statement below
                 return redirect(url_for('EquipmentDashboard'))
             else:
-                error = 'Invalid Student Number/Password.'
-                return render_template('loginA.html',error=error)
+                error = 'Invalid Username/Password.'
+                return render_template('adminsingin.html',error=error)
             cur.close()
         else:
-            error = 'Invalid Student Number/Password.'
-            return render_template('loginA.html',error=error)
+            error = 'Invalid Username/Password.'
+            return render_template('adminsingin.html',error=error)
 
-    return render_template('loginA.html')
+    return render_template('adminsingin.html')
 
 @app.route('/admin')
 def admin():
