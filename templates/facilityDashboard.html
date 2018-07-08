@@ -1,15 +1,24 @@
 {% extends 'admin_layout.html'%}
 {% block body %}
-<h1>Facility</h1>
-<h3>Dashboard
-  <small>
-    Welcome {{session.lastName}}, {{session.firstName}}
-  </small>
-  <a href="/add-facility" class="btn btn-success btn-md float-right">
-    <span data-feather="plus"></span>
-    Facility</a>
-</h3>
-<hr>
+<header id="main-header" class="py-2 bg-info text-white mb-3">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <h1><i data-feather="home"></i> Facilities</h1>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="container">
+  {% include 'includes/_messages.html' %}
+  <div class="card">
+    <div class="card-header">
+    <h4>
+    <a href="/facility/add" class="btn btn-success float-right">
+    <span class="small" data-feather="plus"></span>
+      Facility</a>
+    </h4>
+  </div>
   <table class="table table-striped">
     <tr>
       <th>Property Number</th>
@@ -17,17 +26,30 @@
       <th>Availability</th>
       <th></th>
     </tr>
-    {% for facility in facilities %}
+    {% for facility in facilities.items %}
     <tr>
       <td>{{facility.facilityPropertyNumber}}</td>
       <td>{{facility.facilityName}}</td>
       <td>{{facility.availability}}</td>
       <td>
-        <a href="editFacility/{{facility.facilityPropertyNumber}}" class="btn btn-primary float-left">
-          <span data-feather="edit-2"></span>
+        <a href="{{facility.id}}/edit" class="btn btn-primary float-left">
+          <span class="small"data-feather="edit-2"></span>
           Edit</a>
       </td>
     </tr>
     {% endfor%}
   </table>
+  </div>
+  {% for page_num in facilities.iter_pages() %}
+    {% if page_num %}
+      {% if facilities.page == page_num%}
+        <a class="btn btn-info mb-4 mt-4" href="{{url_for('FacilityDashboard', page=page_num) }}">{{ page_num}}</a>
+      {% else %}
+        <a class="btn btn-outline-info mt-4 mb-4" href="{{url_for('FacilityDashboard', page=page_num) }}">{{ page_num}}</a>
+      {% endif %}
+    {% else %}
+    ...
+    {% endif %}
+    {% endfor %}
+
   {% endblock %}

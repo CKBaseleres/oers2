@@ -21,6 +21,12 @@
       background-color: white;
     }
     .feather {
+      width: 65px;
+      height: 65px;
+      vertical-align: text-bottom;
+    }
+
+    .small {
       width: 16px;
       height: 16px;
       vertical-align: text-bottom;
@@ -146,13 +152,21 @@
       position: relative;
       z-index: 101;
     }
+
+    .content-section {
+    background: #ffffff;
+    padding: 10px 20px;
+    border: 1px solid #dddddd;
+    border-radius: 3px;
+    margin-bottom: 20px;
+  }
   </style>
 </head>
 
 <body>
-  {% include 'includes/_adminside.html' %}
-  <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+  <!-- {% include 'includes/_adminside.html' %} -->
+  <!-- <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center"> -->
       <!-- <h1 class="h2">Dashboard</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
               <div class="btn-group mr-2">
@@ -164,8 +178,10 @@
                 This week
               </button>
             </div> -->
-          </div>
-            {% include 'includes/_messages.html' %}
+          <!-- </div> -->
+  {% include 'includes/_adminnav.html'%}
+
+
       {% block body %}{% endblock%}
     </div>
 

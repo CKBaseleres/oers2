@@ -1,15 +1,25 @@
 {% extends 'admin_layout.html'%}
 {% block body  %}
-<h1>Equipment</h1>
-<h3>Dashboard
-  <small>
-    Welcome {{session.lastName}}, {{session.firstName}}
-  </small>
-  <a href="/add-equipment" class="btn btn-success btn-md float-right">
-    <span data-feather="plus"></span>
-    Equipment</a>
-</h3>
-<hr>
+<header id="main-header" class="py-2 bg-success text-white mb-3">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <h1><i data-feather="speaker"></i> Equipments</h1>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  {% include 'includes/_messages.html' %}
+  <div class="card">
+    <div class="card-header">
+    <h4>
+    <a href="/equipment/add" class="btn btn-success float-right">
+    <span class="small" data-feather="plus"></span>
+      Equipment</a>
+    </h4>
+  </div>
   <table class="table table-striped">
     <tr>
       <th>Property Number</th>
@@ -18,24 +28,55 @@
       <th></th>
       <th></th>
     </tr>
-    {% for equipment in equipments %}
+    {% for equipment in equipments.items %}
     <tr>
       <td>{{equipment.equipmentPropertyNumber}}</td>
       <td>{{equipment.equipmentName}}</td>
       <td>{{equipment.quantity}}</td>
       <td>
-        <a href="/editEquipment/{{equipment.equipmentPropertyNumber}}" class="btn btn-primary float-right">
-          <span data-feather="edit-2"></span>
+        <a href="/equipment/{{equipment.id}}/edit" class="btn btn-primary btn-sm float-right">
+          <span class="small" data-feather="edit-2"></span>
           Edit</a>
       </td>
       <td>
-
-        <form action="{{ url_for('delete_equipment', equipmentPropertyNumber = equipment.equipmentPropertyNumber)}}" method="POST">
-          <input type="hidden" name="_method" value="Delete">
-          <input type="submit" value="Remove" class="btn btn-danger">
-        </form>
+        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-ng-href="/equipment/{{equipment.id}}/delete_equipment">Delete</button>
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Equipment?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form action="{{ url_for('delete_equipment', equip_id=equipment.id) }}" method="POST">
+                  <input class="btn btn-danger" type="submit" value="Delete">
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
       </td>
     </tr>
     {% endfor%}
   </table>
+  </div>
+  {% for page_num in equipments.iter_pages() %}
+  {% if page_num %}
+    {% if equipments.page == page_num%}
+      <a class="btn btn-success mb-4 mt-4" href="{{url_for('EquipmentDashboard', page=page_num) }}">{{ page_num}}</a>
+    {% else %}
+      <a class="btn btn-outline-success mt-4 mb-4" href="{{url_for('EquipmentDashboard', page=page_num) }}">{{ page_num}}</a>
+    {% endif %}
+  {% else %}
+  ...
+  {% endif %}
+  {% endfor %}
+</div>
+
+
+  <!-- MODAL -->
+
 {% endblock %}

@@ -16,7 +16,7 @@ body {
  }
 
 .navigationBar{
-    background-image: '/static/2017.jpg';
+    background-color: white;
     font-family: californian fb;
     min-height: 55px;
     font-size: 40px;
@@ -185,8 +185,7 @@ body {
    margin:0;
    padding:0;
    height:100%;
-   background-color: #f6f6f6
-
+   background-color: #f5f5f5
 }
 
   .content-section {
@@ -206,11 +205,11 @@ body {
 
 
   .blog-footer {
-
+    position: absolute;
     padding: 1rem 0;
     color: #999;
     left: 0;
-    right: 0;
+    right: 0
     bottom: 0;
     height: 100px;
     width: 100%;
@@ -219,6 +218,7 @@ body {
     border-top: .02rem solid #e5e5e5;
     /* min-height: 400px; */
   	float: left;
+    position: absolute;
   	width: 100%;
     	background-color: rgb(31,29,24);
     	/* background-repeat: no-repeat; */
@@ -231,12 +231,12 @@ body {
    min-height:100%;
    position:relative;
 }
-/* #body 
+#body {
    padding:10px;
-   padding-bottom:70px;   /* Height of the footer 
-} */
+   padding-bottom:70px;   /* Height of the footer */
+}
 #footer {
-   /* position:absolute; */
+   position:absolute;
    bottom:0;
    width:100%;
    height:50px;   /* Height of the footer */
@@ -246,37 +246,14 @@ body {
 
 </style>
 
-<body>
+<body  background="static/2017.jpg" repeat>
   <div id="container">
     <!-- <img src="/static/banner.jpg" class="img-fluid" width="100%" /> -->
   {% include 'includes/_navbar.html' %}
-  <div class="container">
-  <div class="row mt-4 mb-2" id="body">
-  <div class="contents-section col-3" style="background-color:#f9f9f9;">
-    <h3>Menu</h3>
-    <div>
-          <a class="col-12 btn btn-outline-danger list-group-item" href="/">Home</a>
-    </div>
-    {% if session.logged_in %}
-    <div class="">
-      <a class="col-12 btn btn-outline-danger list-group-item" href="/dashboard">Dashboard</a>
-
-    </div>
-    <!-- <div class="">
-      <a class="col-12 btn btn-outline-danger list-group-item" href="/account/{{session.get['studentNumber']}}/edit">Account</a>
-
-    </div> -->
-
-    <div>
-          <a class="col-12 btn btn-outline-danger list-group-item" href="/logout">Logout</a>
-    </div>
-    {% endif %}
-  </div>
-  <div class="mt-2 col-9" id="body">
+  <div class="mt-5 container" id="body">
     {% include 'includes/_messages.html' %}
     {% block body %}{% endblock %}
   </div>
-</div>
   </div>
     <div id="footer">
     {% include 'includes/_footer.html' %}

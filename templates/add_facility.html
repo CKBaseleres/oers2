@@ -1,19 +1,37 @@
 {% extends 'admin_layout.html' %}
 
 {% block body %}
-<div class="row">
+<div class="row mt-5">
     <div class="col-lg-3 col-md-2"></div>
     <div class="col-lg-6 col-md-8 col-12 content-section">
         <h1>Add Facility</h1>
         <form action="" method="post">
             {{ form.hidden_tag() }}
-            <div class="form-group mb-1">
-                <h5>{{ form.facilityPropertyNumber.label }}</h5>
-                {{ form.facilityPropertyNumber(class="form-control") }}
+            <div class="form-group">
+                {{ form.facilityPropertyNumber.label(class="form-control-label") }}
+                {% if form.facilityPropertyNumber.errors %}
+                    {{ form.facilityPropertyNumber(class="form-control form-control-md is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.facilityPropertyNumber.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.facilityPropertyNumber(class="form-control form-control-md") }}
+                {% endif %}
             </div>
-            <div class="form-group mb-1">
-                <h5>{{ form.facilityName.label }}</h5>
-                {{ form.facilityName(class="form-control") }}
+            <div class="form-group">
+                {{ form.facilityName.label(class="form-control-label") }}
+                {% if form.facilityName.errors %}
+                    {{ form.facilityName(class="form-control form-control-md is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.facilityName.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.facilityName(class="form-control form-control-md") }}
+                {% endif %}
             </div>
             <div class="form-group mb-1">
                 <h5>{{ form.availability.label }}</h5>

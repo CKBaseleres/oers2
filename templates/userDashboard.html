@@ -1,17 +1,19 @@
 {% extends 'layout.html'%}
 {% block body %}
 
-<h3>Welcome
+<h3 class="">Welcome
   <small>
   {{session.lastName}}, {{session.firstName}}
   </small>
-  <a href="/newres" class="btn btn-success float-right">
-    Make Reservation
-  </a>
 </h3>
-<h2>Your Reservations</h2>
-    <hr>
-  <table class="table table-striped mb-5">
+<div class="card">
+  <div class="card-header">
+    <h4>Your Reservations
+      <a href="/newres" class="btn btn-success float-right">
+        Make Reservation
+      </a></h4>
+  </div>
+  <table class="table table-striped ">
     <tr>
       <th>Equipment</th>
       <th>Facility</th>
@@ -19,13 +21,13 @@
       <th>Date</th>
       <th>Time</th>
     </tr>
-    {% for res in reservations %}
+    {% for res in reservations.items %}
     <tr>
       <td>{{res.equipment_name}}</td>
       <td>{{res.facility_name}}</td>
       <td>{{res.purpose}}</td>
-      <td>{{res.resDate}}</td>
-      <td>{{res.resTime}}</td>
+      <td>{{res.dateFrom.strftime('%B %d %Y')}}</td>
+      <td>{{res.timeFrom.strftime('%I:%M%p')}}-{{res.timeTo.strftime('%I:%M%p')}}</td>
       <!-- <td>
         <a href="editFacility/{{res.id}}" class="btn btn-primary float-left">
           <span data-feather="edit-2"></span>
@@ -33,5 +35,19 @@
       </td> -->
     </tr>
     {% endfor%}
+
   </table>
-  {% endblock %}
+</div>
+{% for page_num in reservations.iter_pages() %}
+{% if page_num %}
+  {% if reservations.page == page_num%}
+    <a class="btn btn-danger mb-4 mt-4" href="{{url_for('UserDashboard', page=page_num) }}">{{ page_num}}</a>
+  {% else %}
+    <a class="btn btn-outline-danger mt-4 mb-4" href="{{url_for('UserDashboard', page=page_num) }}">{{ page_num}}</a>
+  {% endif %}
+{% else %}
+...
+{% endif %}
+{% endfor %}
+
+{% endblock %}

@@ -5,8 +5,12 @@
     <div class="col-lg-3 col-md-2"></div>
     <div class="col-lg-6 col-md-8 col-12 content-section">
         <h1>Edit Facility</h1>
-        <form action="" method="post">
+        <form action="" method="POST">
             {{ form.hidden_tag() }}
+            <div class="form-group mb-1">
+                <h5>{{ form.facilityPropertyNumber.label }}</h5>
+                {{ form.facilityPropertyNumber(class="form-control") }}
+            </div>
             <div class="form-group mb-1">
                 <h5>{{ form.facilityName.label }}</h5>
                 {{ form.facilityName(class="form-control") }}
@@ -15,7 +19,7 @@
                 <h5>{{ form.availability.label }}</h5>
                 {{ form.availability(class="form-control") }}
             </div>
-            <p><input type="submit" class="btn btn-primary mt-4" value="Submit"></p>
+            <p><input type="submit" class="btn btn-primary mt-4" value="Update"></p>
         </form>
     <div class="col-lg-3 col-md-2"></div>
 </div>

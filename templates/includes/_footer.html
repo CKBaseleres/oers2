@@ -1,8 +1,23 @@
 <footer class="blog-footer">
   <div class="container">
-  <p<span class="h5">Administrator </span>
-    <div class="my-1"></div>
-    <p class="h6"><a href="/admin/login">Admin Login</a></p>
-  </p>
+    <div class="row">
+    <div class="col-4">
+      <div class="subContainer1">
+          <h5> Contact Us </h5>
+          <ul class="">
+            <h6> Telephone </h6>
+            <li>+63 9158638726</li>
+          </ul>
+      </div>
+    </div>
+    {% if session.logged_in != True %}
+    <div class="col-4">
+    <p> <span class="h5">Administrator </span>
+      <div class="my-1"></div>
+      <p class="h6"><a href="/admin/login">Admin Login</a></p>
+    </p>
+    </div>
+    {%endif%}
+    </div>
   </div>
 </footer>
