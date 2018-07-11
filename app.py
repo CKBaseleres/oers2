@@ -125,6 +125,7 @@ class Reservation(db.Model):
     dateFrom = db.Column(db.Date, nullable=False)
     timeFrom = db.Column(db.Time, nullable=False)
     timeTo = db.Column(db.Time, nullable=False)
+    res_status = db.Column(db.String(15), nullable=False, default="Active")
     reservation_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
 
 
@@ -542,7 +543,7 @@ def UserDashboard():
 
     sn = str(session.get("studentNumber"))
     page = request.args.get('page',1,type=int)
-    reservations = Reservation.query.filter(Reservation.studentNumber == sn).paginate(page=page,per_page=5)
+    reservations = Reservation.query.filter(Reservation.studentNumber == sn).filter(Reservation.res_status == 'Active').paginate(page=page,per_page=5)
     # cur = mysql.connection.cursor()
     if reservations is None:
         msg = "No Reservations Found."
@@ -551,8 +552,18 @@ def UserDashboard():
         return render_template('userDashboard.html', reservations=reservations)
 
 # Delete
-@app.route('/equipment/<int:equip_id>/delete', methods=['POST'])
+@app.route('/dashboard/<int:res_id>/cancel',  methods=['POST'])
 @is_logged_in
+def cancelReservation(res_id):
+    reservation = Reservation.query.filter_by(id = res_id).first()
+    reservation.res_status   = 'Canceled'
+    db.session.commit()
+    flash("Reservation Canceled",'success')
+
+    return redirect(url_for('UserDashboard'))
+
+@app.route('/equipment/<int:equip_id>/delete',  methods=['POST'])
+@a_is_logged_in
 def delete_equipment(equip_id):
     equipments = Equipment.query.get_or_404(equip_id)
     db.session.delete(equipments)
