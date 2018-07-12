@@ -180,6 +180,41 @@ class StudentRegisterForm(FlaskForm):
                             validators=[Length(min=3, max=10)])
     submit = SubmitField('Sign Up')
 
+class StudentUpdateForm(FlaskForm):
+    studentNumber = StringField('Student Number',
+                                validators=[DataRequired()])
+    firstName = StringField('First Name',
+                            validators=[DataRequired(), Length(min=1, max=50)])
+    lastName = StringField('Last Name',
+                            validators=[DataRequired(), Length(min=1, max=50)])
+    email = StringField('E-mail',
+                        validators=[DataRequired(),Email(message='Invalid e-mail')])
+    crseSec = StringField('Course and Section',
+                            validators=[Length(min=3, max=10)])
+    submit = SubmitField('Update')
+
+    def validate_studentNumber(form,field):
+        if studentNumber.data != session.get['studentNumber']:
+            student = Student.query.filter_by(studentNumber=field.data).first()
+            if len(field.data) > 15 or len(field.data) < 15:
+                raise ValueError('Student Number must be 15 characters long.')
+            elif student:
+                raise ValueError('That Student Number has already signed up.')
+
+    def validate_email(form,field):
+        if email.data != session.email:
+            student = Student.query.filter_by(email=field.data).first()
+            if student:
+                raise ValueError('That email is taken.')
+
+    def validate_firstName(form,field):
+        if field.data.isdigit():
+            raise ValueError("Please input characters.")
+    def validate_lastName(form,field):
+        if field.data.isdigit():
+            raise ValueError("Please input characters.")
+
+
 
 class AddEquipmentForm(FlaskForm):
     def validate_email(form,field):
@@ -265,21 +300,32 @@ def FacilityDashboard():
         return render_template('facilityDashboard.html', facilities=facilities)
     return render_template('facilityDashboard.html')
 
-@app.route('/account/<string:stud_id>/edit',methods=['GET','POST'])
-def editAccount(stud_id):
-    student.Student.query.get_or_404(stud_id)
-    form = StudentRegisterForm()
-    if request.method == 'POST' and form.validate():
-        student.studentNumber = form.studentNumber.data
+@app.route('/account',methods=['GET','POST'])
+def editAccount():
+    sn = str(session.get('studentNumber'))
+    fn = str(session.get("firstName"))
+    ln = str(session.get("lastName"))
+    studentNumber = sn
+    student = Student.query.filter(studentNumber==sn).first()
+    form = StudentUpdateForm()
+    if form.validate_on_submit():
         student.firstName = form.firstName.data
         student.lastName = form.lastName.data
         student.email = form.email.data
         # student.password = sha256_crypt.encrypt(str(form.password.data))
         student.courseAndSec = form.crseSec.data
+        # student.studentNumber = sn
         db.session.commit()
         flash("Account updated.","success")
-        return redirect(url_for('index'))
-    return render_template('register.html', form=form)
+        return redirect(url_for('userDashboard'))
+    elif request.method == 'GET':
+        # Populate Fields
+        form.studentNumber.data = sn
+        form.firstName.data = fn
+        form.lastName.data = ln
+        # form.availability.data = facility.availability
+        # form.facilityPropertyNumber.data = facility.facilityPropertyNumber
+    return render_template('Uregister.html', form=form)
 
 @app.route('/facility/<int:fac_id>/edit', methods=['GET', 'POST'])
 @a_is_logged_in
