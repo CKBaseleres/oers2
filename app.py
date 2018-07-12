@@ -410,26 +410,26 @@ def addReservation():
 
             # send_letter(date,ftime,timeto,today,selectEquip,selectFac,purpose)
             # FOR PDF CREATION
-            path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-            config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
-            rendered = render_template('pdf_template.html',
-                resFrom=date,
-                reseFrom=ftime,
-                today=today,
-                purpose=purpose,
-                equipment=selectEquip,
-                facility=selectFac,
-                timeTo=timeto
-                )
-            pdf = pdfkit.from_string(rendered, False ,configuration=config)
-            response = make_response(pdf)
-            response.headers['Content-Type'] = 'application/pdf'
-            response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
-            return response
+            # path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+            # config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+            # rendered = render_template('pdf_template.html',
+            #     resFrom=date,
+            #     reseFrom=ftime,
+            #     today=today,
+            #     purpose=purpose,
+            #     equipment=selectEquip,
+            #     facility=selectFac,
+            #     timeTo=timeto
+            #     )
+            # pdf = pdfkit.from_string(rendered, False ,configuration=config)
+            # response = make_response(pdf)
+            # response.headers['Content-Type'] = 'application/pdf'
+            # response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
+            # return response
 
-            flash("Reservation Added", "success")
+            flash("Reservation Added.", "success")
 
-            return (redirect(url_for('UserDashboard')),response)
+            return (redirect(url_for('UserDashboard')))
 
 
     return render_template('createReservation.html',
@@ -487,7 +487,7 @@ def loginad():
         username = request.form['username']
         password = request.form['password']
         admin = Admin.query.filter_by(username=username).first()
-        if admin and password:
+        if admin and admin.password == password:
                 # IF PASSED
             session['a_logged_in'] = True
             session['username'] = username
