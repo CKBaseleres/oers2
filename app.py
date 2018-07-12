@@ -497,11 +497,8 @@ def loginad():
             return redirect(url_for('admin'))
         else:
             error = 'Invalid Username/Password.'
-            return render_template('adminsingin.html',error=error)
+            return render_template('index.html',error=error)
         cur.close()
-    else:
-        error = 'Invalid Username/Password.'
-        return render_template('adminsingin.html',error=error)
 
     return render_template('adminsingin.html')
 

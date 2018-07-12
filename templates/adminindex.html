@@ -1,5 +1,6 @@
 {%extends 'admin_layout.html'%}
 {%block body%}
+
   <header id="main-header" class="py-2 bg-danger text-white mb-5">
     <div class="container">
       <div class="row">
@@ -35,9 +36,10 @@
 
   <!-- POSTS -->
   <section id="posts">
-    <div class="container">
+    <div class="container">  
       <div class="row">
         <div class="col-md-9">
+            {% include 'includes/_messages.html' %}
           <div class="card">
             <div class="card-header">
               <h4>Latest Reservations</h4>
