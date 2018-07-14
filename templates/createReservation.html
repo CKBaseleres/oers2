@@ -1,6 +1,6 @@
 {% extends 'layout.html' %} {% block body %}
 <h1>Reservation</h1> {% from "includes/_formhelpers.html" import render_field %}
-<div class="content-section mb-5">
+<div class="content-section mb-5 shadow">
 <form method="POST">
     {{ form.hidden_tag()}}
   <div class="form-group">

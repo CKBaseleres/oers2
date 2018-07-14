@@ -247,6 +247,10 @@ body {
   background-color: #f9f9f9;
 } 
 
+.shadow {
+  box-shadow: 0 4px 6px 0 hsla(0,0%,0%,0.2)
+}
+
 
 </style>
 
@@ -256,23 +260,32 @@ body {
   {% include 'includes/_navbar.html' %}
   <div class="container">
   <div class="row mt-4 mb-2" id="body">
-  <div class="contents-section col-3" style="background-color:#f9f9f9;">
-    <h3>Menu</h3>
+  <div class="contents-section col-3 h-25 shadow" style="background-color: maroon;">
+    <h1 class="h2"style="color: white">Menu <div style="width: 220px; height: 2px; background-color: white; margin: 6px 0;"></div></h1>
     <div>
-          <a class="col-12 btn btn-outline-danger list-group-item" href="/">Home</a>
+      <h5>
+        <a href="/" style="color: white;"> Home</a>
+      </h5>
     </div>
     {% if session.logged_in %}
     <div class="">
-      <a class="col-12 btn btn-outline-danger list-group-item" href="/dashboard">Dashboard</a>
-
+    <h5>
+      <a href="/dashboard" style="color: white;">Dashboard</a>
+    </h5>
     </div>
     <!-- <div class="">
       <a class="col-12 btn btn-outline-danger list-group-item" href="/account">Account</a>
+      <h5>
+      <a href="/dashboard" style="color: white;">Dashboard</a>
+      </h5>
 
     </div> -->
 
     <div>
-          <a class="col-12 btn btn-outline-danger list-group-item" href="/logout">Logout</a>
+      <!-- <a class="col-12 btn btn-outline-danger list-group-item" href="/logout">Logout</a> -->
+      <h5>      
+        <a href="/logout" style="color: white;">Logout</a>
+      </h5>
     </div>
     {% endif %}
   </div>
