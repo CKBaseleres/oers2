@@ -601,9 +601,19 @@ def cancelReservation(res_id):
     reservation = Reservation.query.filter_by(id = res_id).first()
     reservation.res_status   = 'Canceled'
     db.session.commit()
-    flash("Reservation Canceled",'success')
+    flash("Reservation Canceled!",'success')
 
     return redirect(url_for('UserDashboard'))
+
+@app.route('/reservations/dashboard/<int:res_id>/cancel',  methods=['POST'])
+@a_is_logged_in
+def adminCancelReservation(res_id):
+    reservation = Reservation.query.filter_by(id = res_id).first()
+    reservation.res_status = 'Canceled'
+    db.session.commit()
+    flash("Reservation Canceled",'success')
+
+    return redirect(url_for('resDashboard'))
 
 @app.route('/equipment/<int:equip_id>/delete',  methods=['POST'])
 @a_is_logged_in
@@ -655,14 +665,14 @@ def reset_token(token):
 @app.route("/reservations/dashboard", methods=['GET','POST'])
 def resDashboard():
     page = request.args.get('page',1,type=int)
-    reservations = Reservation.query.paginate(page=page,per_page=6)
+    reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.facility_name, Reservation.purpose).paginate(page=page,per_page=6)
+    # reservations = Reservation.query.paginate(page=page,per_page=6)
+
     if reservations is None:
         msg = "No Equipments Found."
         return render_template('reservationDashboard.html', msg=msg)
     else:
         return render_template('reservationDashboard.html', reservations=reservations)
-
-
 
 
 if __name__ == '__main__':

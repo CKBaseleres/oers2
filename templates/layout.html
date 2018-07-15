@@ -8,6 +8,7 @@
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
   <link rel="icon" type="image/png" href="/static/Logo.png"/>
   <title>OFERS | Polytechnic University of the Philippines - San Juan Campus</title>
+
 </head>
 <style>
 body {
@@ -185,7 +186,13 @@ body {
    margin:0;
    padding:0;
    height:100%;
-   background-color: #f6f6f6
+   background-color: #6d695c;
+    background-image:
+    repeating-linear-gradient(120deg, rgba(255,255,255,.1), rgba(255,255,255,.1) 1px, transparent 1px, transparent 60px),
+    repeating-linear-gradient(60deg, rgba(255,255,255,.1), rgba(255,255,255,.1) 1px, transparent 1px, transparent 60px),
+    linear-gradient(60deg, rgba(0,0,0,.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.1) 75%, rgba(0,0,0,.1)),
+    linear-gradient(120deg, rgba(0,0,0,.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,.1) 75%, rgba(0,0,0,.1));
+    background-size: 70px 120px;
 
 }
 
@@ -250,8 +257,85 @@ body {
 .shadow {
   box-shadow: 0 4px 6px 0 hsla(0,0%,0%,0.2)
 }
+body
+    {
+      
+      
+      /* background-size: 1380px 700px; */
+    }
 
+    .headerContainer {
+        position: sticky;
+        height: 90px;
+        width: 100%;
+        background-color: maroon;
+        z-index: 1;
+        }
+        .Logo
+        {
+            border-radius: 1200px;
+            background-color: white;
+            border: 5px maroon solid;
 
+        }
+        .header
+        {
+          position: absolute;
+          bottom: 10px;
+          width: 100%
+        }
+        a:link {
+            text-decoration: none;
+        }
+
+        a:visited {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        a:active {
+            text-decoration: underline;
+        }
+        .fillerHeaderContainer {
+            position: relative;
+                height: 80px;
+                width: 100%;
+                background-color: maroon;
+                }
+
+        .links
+        {
+          color: white;
+          font-size: 20px;
+
+        }
+        .links:link {
+            text-decoration: none;
+        }
+
+        .links:visited {
+            text-decoration: none;
+        }
+
+        .links:hover {
+            text-decoration: underline;
+        }
+
+        .links:active {
+            text-decoration: underline;
+        }
+
+        footer {
+            background-color: maroon;
+            color: white;
+            text-align: left;
+            padding: 10px;
+            padding-top: 30px;
+
+        }
 </style>
 
 <body>
@@ -260,19 +344,19 @@ body {
   {% include 'includes/_navbar.html' %}
   <div class="container">
   <div class="row mt-4 mb-2" id="body">
-  <div class="contents-section col-3 h-25 shadow" style="background-color: maroon;">
-    <h1 class="h2"style="color: white">Menu <div style="width: 220px; height: 2px; background-color: white; margin: 6px 0;"></div></h1>
-    <div>
-      <h5>
-        <a href="/" style="color: white;"> Home</a>
-      </h5>
-    </div>
+  <div class="contents-section col-3 col-sm-12 col-lg-3 h-25 shadow" style="background-color: maroon;">
+    <h1 class="h2"style="color: white">Menu <hr class="bg-white"></h1>
+   
     {% if session.logged_in %}
+    <h5>
+        <a href="/" style="color: white;">Home</a>
+    </h5>
     <div class="">
     <h5>
       <a href="/dashboard" style="color: white;">Dashboard</a>
     </h5>
     </div>
+
     <!-- <div class="">
       <a class="col-12 btn btn-outline-danger list-group-item" href="/account">Account</a>
       <h5>
@@ -287,9 +371,18 @@ body {
         <a href="/logout" style="color: white;">Logout</a>
       </h5>
     </div>
+    {% else %}
+    <div>
+        <h5>
+          <a href="/login" style="color: white;">Students</a>
+        </h5>
+        <h5>
+            <a href="/admin/login" style="color: white;">Administrator</a>
+        </h5>
+      </div>
     {% endif %}
   </div>
-  <div class="mt-2 col-9" id="body">
+  <div class="col-lg-9 col-sm-12 col-md-12" id="body">
     {% include 'includes/_messages.html' %}
     {% block body %}{% endblock %}
   </div>

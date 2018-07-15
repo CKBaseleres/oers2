@@ -1,7 +1,7 @@
 {% extends 'layout.html' %} {% block body %}
 <div class="row">
   <!-- <div class="col-lg-3 col-md-2"></div> -->
-  <div class="col-9 mt-4 content-section ">
+  <div class="col-9 content-section ml-3 ">
     <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
@@ -16,7 +16,7 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.studentNumber(class="form-control form-control-md input-shadow") }}
+                        {{ form.studentNumber(class="form-control form-control-md input-shadow",placeholder="ex. 2014-00039-SJ-0") }}
                     {% endif %}
                 </div>
                 <div class="form-row">
