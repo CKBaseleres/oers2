@@ -3,7 +3,7 @@
 {% block body %}
 <div class="row">
     <div class="col-lg-3 col-md-2"></div>
-    <div class="col-lg-6 col-md-8 col-12 content-section">
+    <div class="col-lg-6 col-md-8 col-12 content-section mt-5 shadow">
         <h1>Edit Facility</h1>
         <form action="" method="POST">
             {{ form.hidden_tag() }}
@@ -19,7 +19,7 @@
                 <h5>{{ form.availability.label }}</h5>
                 {{ form.availability(class="form-control") }}
             </div>
-            <p><input type="submit" class="btn btn-primary mt-4" value="Update"></p>
+            <p><input type="submit" class="btn btn-primary m-2 float-right" value="Update"></p>
         </form>
     <div class="col-lg-3 col-md-2"></div>
 </div>

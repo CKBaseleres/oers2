@@ -276,7 +276,24 @@ class ResetPasswordForm(FlaskForm):
 
 
 
-@app.route('/equipment/dashboard')
+# @app.route('/equipment/dashboard', methods=['GET'])
+# @a_is_logged_in
+# def EquipmentDashboard(equip_id):
+#     equipment = Equipment.query.get_or_404(equip_id)
+#     form = AddEquipmentForm()
+#     if request.form == 'GET':
+#         form.equipmentName.data = equipment.equipmentName
+#         form.quantity.data = equipment.quantity
+#         form.equipmentPropertyNumber.data = equipment.equipmentPropertyNumber
+#     page = request.args.get('page',1,type=int)
+#     equipments = Equipment.query.paginate(page=page,per_page=5)
+#     if equipments is None:
+#         msg = "No Equipments Found."
+#         return render_template('equipmentDashboard.html', msg=msg)
+#     else:
+#         return render_template('equipmentDashboard.html', equipments=equipments,form=form,equip_id=equipment.id)
+
+@app.route('/equipment/dashboard', methods=['GET'])
 @a_is_logged_in
 def EquipmentDashboard():
     page = request.args.get('page',1,type=int)
@@ -443,6 +460,8 @@ def addReservation():
         purpose = form.purpose.data
         selectEquip= request.form['equips']
         selectFac = request.form['facs']
+        # countReservation = Reservation.query.filter(Reservation.equip == selectEquip).filter(Reservation.dateFrom == datee).count()
+        # if countReservation >
         if(selectEquip == '--' and selectFac == '--'):
             flash("No equipment or facility has been selected.","danger")
         elif(datee < datetime.date.today()):
@@ -548,11 +567,21 @@ def loginad():
 
     return render_template('adminsingin.html')
 
+def updateReservationStatus():
+    reservations = Reservation.query.all()
+    for reservation in reservations:
+        if(reservation.res_status == 'Active'):
+            if(reservation.dateFrom < datetime.date.today()):
+                reservation.res_status = 'Done'
+                db.session.commit()
+
+updateReservationStatus()
+
 @app.route('/admin/home')
 @a_is_logged_in
 def admin():
     page = request.args.get('page',1,type=int)
-    reservations = Reservation.query.order_by(Reservation.dateFrom.asc()).paginate(page=page,per_page=7)
+    reservations = Reservation.query.order_by(Reservation.dateFrom.asc()).filter(Reservation.res_status == 'Active').paginate(page=page,per_page=7)
     reservationss = Reservation.query.all()
     equipments = Equipment.query.all()
     facilities = Facility.query.all()
@@ -593,6 +622,19 @@ def UserDashboard():
         return render_template('userDashboard.html', msg=msg)
     else:
         return render_template('userDashboard.html', reservations=reservations)
+
+@app.route('/reservations')
+@is_logged_in
+def allReservations():
+    page = request.args.get('page',1,type=int)
+    reservations = Reservation.query.filter(Reservation.res_status == 'Active').paginate(page=page,per_page=5)
+    # reservations = Reservation.query.paginate(page=page,per_page=6)
+
+    if reservations is None:
+        msg = "No Equipments Found."
+        return render_template('studReservationDashboard.html', msg=msg)
+    else:
+        return render_template('studReservationDashboard.html', reservations=reservations)
 
 # Delete
 @app.route('/dashboard/<int:res_id>/cancel',  methods=['POST'])
@@ -665,7 +707,7 @@ def reset_token(token):
 @app.route("/reservations/dashboard", methods=['GET','POST'])
 def resDashboard():
     page = request.args.get('page',1,type=int)
-    reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.facility_name, Reservation.purpose).paginate(page=page,per_page=6)
+    reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.facility_name, Reservation.purpose).filter(Reservation.res_status == 'Active').paginate(page=page,per_page=6)
     # reservations = Reservation.query.paginate(page=page,per_page=6)
 
     if reservations is None:
@@ -673,6 +715,23 @@ def resDashboard():
         return render_template('reservationDashboard.html', msg=msg)
     else:
         return render_template('reservationDashboard.html', reservations=reservations)
+
+@app.route("/printReservation", methods=['GET'])
+def printToday():
+    today = datetime.date.today()
+    reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.facility_name, Reservation.purpose).filter(Reservation.res_status == 'Active').filter(Reservation.dateFrom==today).count()
+    reservationss = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.facility_name, Reservation.purpose).filter(Reservation.res_status == 'Active').filter(Reservation.dateFrom==today)
+
+    
+    path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+    config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+    rendered = render_template('reservationToday.html',reservations=reservations,reservationss=reservationss,today=today)
+    pdf = pdfkit.from_string(rendered, False ,configuration=config)
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
+    return response
+
 
 
 if __name__ == '__main__':
