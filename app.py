@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, make_response
+from flask import Flask, render_template, flash, redirect, jsonify, url_for, session, logging, request, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
@@ -14,9 +14,8 @@ from datetime import time, date, timedelta
 from passlib.hash import sha256_crypt
 from flask_paginate import Pagination, get_page_parameter
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-
 from functools import wraps
-import sys
+import sys, json
 
 from flask_migrate import Migrate
 
@@ -611,7 +610,23 @@ def index():
 
 @app.route('/calendar')
 def calendar():
-    return render_template('calendar.html')
+    reservations = Reservation.query.all()
+    return render_template('calendar.html', reservations=reservations)
+
+@app.route('/data')
+def return_data():
+    reservation = []
+    reservations = Reservation.query.all()
+
+    print(type(reservations))
+    for res in reservations:
+        reservatio = {
+            "start" : str(res.dateFrom)+"T"+str(res.timeFrom),
+            "end" : str(res.dateFrom)+"T"+str(res.timeTo),
+            "title" : res.equipment_name
+        }
+        reservation.append(reservatio)
+    return jsonify(reservation)
 
 @app.route('/dashboard')
 @is_logged_in

@@ -211,7 +211,7 @@ body {
 
 
   .blog-footer {
-
+    bottom: 0;
     padding: 1rem 0;
     color: #999;
     left: 0;
@@ -219,7 +219,7 @@ body {
     bottom: 0;
     height: 100px;
     width: 100%;
-    overflow: hidden;
+    /* overflow: hidden; */
     background-color: #f9f9f9;
     border-top: .02rem solid #e5e5e5;
     /* min-height: 400px; */
@@ -228,7 +228,7 @@ body {
     	background-color: rgb(31,29,24);
     	/* background-repeat: no-repeat; */
     	/* background-size: 450px; */
-    	background-position: 110%;
+    	/* background-position: 110%; */
     	font-family: times;
   }
 
@@ -236,9 +236,8 @@ body {
     box-shadow: inset 0 2px 4px 0 hsla(0,0%,0%, 0.08);
   }
 
-  /* #container {
+ #container {
    min-height:100%;
-   position:relative;
 }
 /* #body 
    padding:10px;
@@ -255,6 +254,7 @@ body {
 .shadow {
   box-shadow: 0 4px 6px 0 hsla(0,0%,0%,0.2)
 }
+
 body
     {
       
@@ -325,19 +325,11 @@ body
         .links:active {
             text-decoration: underline;
         }
-
-        footer {
-            background-color: maroon;
-            color: white;
-            text-align: left;
-            padding: 10px;
-            padding-top: 30px;
-
-        }
 </style>
 
 <body>
   <div id="container">
+    <div class="main">
     <!-- <img src="/static/banner.jpg" class="img-fluid" width="100%" /> -->
   {% include 'includes/_navbar.html' %}
   <div class="container">
@@ -393,31 +385,36 @@ body
     {% include 'includes/_footer.html' %}
     </div>
   </div>
+  </div>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdebtnvr.net/npm/feather-icons/dist/feather.min.js"></script>
-	<!-- <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.1/jquery.min.js"></script> -->
+	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.1/jquery.min.js"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.12.0/moment.min.js"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"></script>
   <script>
-
-    $(document).ready(function() {
-
-      // $('#calendar').fullCalendar({
-      //   header: {
-      //     left: 'prev,next,today',
-      //     center: 'title',
-      //     right: 'month,agendaWeek,agendaDay'
-      //     }
-      // });
-  
       $('#calendar').fullCalendar({
         header: {
           left: 'prev,next today',
           center: 'title',
           right: 'month,agendaWeek,agendaDay'
         },
+        eventLimit: true,
+        events: {
+          url: 'data'
+        }
+        // themeSystem: 'bootstrap4',
+        // themeButtonIcons:{
+        //   prev: 'circle-triangle-w',
+        //   next: 'circle-triangle-e',
+        //   prevYear: 'seek-prev',
+        //   nextYear: 'seek-next'
+        // }
+        // events:  {
+        //   url: 'data'
+        // }
+        
         // defaultDate: '2014-09-12',
         // editable: true,
         // eventLimit: true, // allow "more" link when too many events
@@ -431,8 +428,6 @@ body
         //   $('#loading').toggle(bool);
         // }
       });
-  
-    });
   
   </script>
   <script>
