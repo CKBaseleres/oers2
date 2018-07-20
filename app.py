@@ -1,11 +1,10 @@
-import os
+import os, sys,json
 from flask import Flask, render_template, flash, redirect, jsonify, url_for, session, logging, request, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
 from flask_mail import Mail, Message
-from wtforms import StringField, TextAreaField, PasswordField, validators,\
- BooleanField, IntegerField, widgets, SelectMultipleField, SelectField, SubmitField
+from wtforms import StringField, TextAreaField, PasswordField, validators,BooleanField, IntegerField, widgets, SelectMultipleField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, NumberRange
 from wtforms.fields.html5 import DateField
 from wtforms_components import TimeField, TimeRange
@@ -15,7 +14,6 @@ from passlib.hash import sha256_crypt
 from flask_paginate import Pagination, get_page_parameter
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from functools import wraps
-import sys, json
 
 from flask_migrate import Migrate
 
@@ -30,7 +28,6 @@ app.config['MYSQL_DB'] = 'ors'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # app.config['SECRET_KEY'] = os.urandom(32)
 app.config['SECRET_KEY'] = 'sercret123'
-
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -608,7 +605,7 @@ def about():
 def index():
     return render_template('index.html')
 
-@app.route('/calendar')
+@app.route('/reservations')
 def calendar():
     reservations = Reservation.query.all()
     return render_template('calendar.html', reservations=reservations)
