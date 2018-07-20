@@ -558,9 +558,7 @@ def loginad():
             return redirect(url_for('admin'))
         else:
             error = 'Invalid Username/Password.'
-            return render_template('index.html',error=error)
-        cur.close()
-
+            return redirect(url_for('index'))
     return render_template('adminsingin.html')
 
 def updateReservationStatus():
@@ -745,7 +743,7 @@ def printToday():
     pdf = pdfkit.from_string(rendered, False ,configuration=config)
     response = make_response(pdf)
     response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=Reservations for '+str(today)+'.pdf'
     return response
 
 
