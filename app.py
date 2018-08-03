@@ -558,7 +558,8 @@ def loginad():
             return redirect(url_for('admin'))
         else:
             error = 'Invalid Username/Password.'
-            return redirect(url_for('index'))
+            # return redirect(url_for('index'))
+            return render_template('adminsingin.html', error=error)
     return render_template('adminsingin.html')
 
 def updateReservationStatus():
@@ -721,7 +722,7 @@ def reset_token(token):
 @app.route("/reservations/dashboard", methods=['GET','POST'])
 def resDashboard():
     page = request.args.get('page',1,type=int)
-    reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.facility_name, Reservation.purpose).filter(Reservation.res_status == 'Active').paginate(page=page,per_page=6)
+    reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.res_status, Reservation.facility_name, Reservation.purpose).order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=6)
     # reservations = Reservation.query.paginate(page=page,per_page=6)
 
     if reservations is None:
@@ -733,8 +734,8 @@ def resDashboard():
 @app.route("/printReservation", methods=['GET'])
 def printToday():
     today = datetime.date.today()
-    reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.facility_name, Reservation.purpose).filter(Reservation.res_status == 'Active').filter(Reservation.dateFrom==today).count()
-    reservationss = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.facility_name, Reservation.purpose).filter(Reservation.res_status == 'Active').filter(Reservation.dateFrom==today)
+    reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.facility_name, Reservation.purpose).filter(Reservation.dateFrom==today).count()
+    reservationss = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.facility_name, Reservation.purpose).filter(Reservation.dateFrom==today)
 
     
     path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
