@@ -1,7 +1,7 @@
 {% extends 'layout.html' %} {% block body %}
 {% from "includes/_formhelpers.html" import render_field %}
 <div class="content-section mb-5 shadow">
-<form method="POST">
+<form method="POST" id="resForm">
   <h3>Reservation</h3><hr>
     {{ form.hidden_tag()}}
   <div class="form-group">
@@ -31,15 +31,24 @@
   <div class="form-row">
     <div class="form-group col-6">
       <h5>{{ form.reseFrom.label()}}</h5>
-      {{ form.reseFrom(class="form-control") }}
+      {{ form.reseFrom(class="form-control", id="basicExample") }}
     </div>
     <div class="form-group col-6">
-      <h5> {{form.resTo.label}}</h5> {{ form.resTo(class="form-control") }}
+      <h5> {{form.resTo.label}}</h5> {{ form.resTo(class="form-control", id="basicExample") }}
     </div>
   </div>
   <div class="form-group">
-    <h5> {{form.purpose.label}}</h5> {{ form.purpose(class="form-control") }}
+    <h5>{{form.purpose.label}}</h5> {{ form.purpose(class="form-control", id="purpose") }}
   </div>
+  <div class="form-group" id="changee">
+    <h5 id="prof">Professor</h5>
+    <input type="text" class="form-control" id="test">
+  </div>
+  <div class="form-group">
+    <h5>Description</h5>
+    <textarea name="" id="" cols="30" rows="5" class="form-control"></textarea>
+  </div>
+  
   <p><input type="submit" class="btn btn-primary" value="Submit"></p>
 </form>
 </div>

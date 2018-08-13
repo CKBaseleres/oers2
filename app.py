@@ -9,6 +9,8 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, NumberRange
 from wtforms.fields.html5 import DateField
 from wtforms_components import TimeField, TimeRange
 import datetime, pdfkit
+from dateutil.parser import parse
+import pandas as pd
 from datetime import time, date, timedelta
 from passlib.hash import sha256_crypt
 from flask_paginate import Pagination, get_page_parameter
@@ -77,6 +79,7 @@ class Student(db.Model):
     email = db.Column(db.String(70), unique=True, nullable=False)
     register_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
     courseAndSec = db.Column(db.String(10), nullable=False)
+    contactNumber = db.Column(db.String(11), nullable=False)
 
     def reset(self, expires_sec=1800):
         s = Serializer(app.config['SECRET_KEY'],expires_sec)
@@ -123,6 +126,9 @@ class Reservation(db.Model):
     timeTo = db.Column(db.Time, nullable=False)
     res_status = db.Column(db.String(15), nullable=False, default="Active")
     reservation_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
+    # 
+    # 
+    # 
 
 
     def __repr__(self):
@@ -169,6 +175,8 @@ class StudentRegisterForm(FlaskForm):
                         validators=[DataRequired(),Email(message='Invalid e-mail')])
     password = PasswordField('Password',
                             validators=[DataRequired(),Length(min=8), EqualTo('confirm', message='Passwords do not match.')])
+    contactNumber = StringField('Contact Number',
+                                validators=[DataRequired()])
     confirm = PasswordField('Confirm Password',
                             validators=[DataRequired(),
                             EqualTo('password', message="Passwords do not match.")])
@@ -246,6 +254,7 @@ class ReservationForm(FlaskForm):
             min=time(7,30),
             max=time(17,00)
         ), DataRequired()])
+    # reseFrom = StringField('Time')
     resTo = TimeField('To', format="%H:%M",validators=[TimeRange(
             min=time(7,30),
             max=time(19,00)
@@ -456,10 +465,15 @@ def addReservation():
         purpose = form.purpose.data
         selectEquip= request.form['equips']
         selectFac = request.form['facs']
-        # countReservation = Reservation.query.filter(Reservation.equip == selectEquip).filter(Reservation.dateFrom == datee).count()
-        # if countReservation >
+        
         if(selectEquip == '--' and selectFac == '--'):
             flash("No equipment or facility has been selected.","danger")
+        # elif selectEquip != '--':
+        #     countReservation = Reservation.query.filter(Reservation.equip == selectEquip).filter(Reservation.dateFrom == datee).count()
+        #     # countEquip = Equipment.query.
+        #     if countReservation >= countReservation:
+        #         flash("Sorry no more aailable slots for that day.","danger")
+
         elif(datee < datetime.date.today()):
             flash("Invalid Date.",'danger')
         elif datee < (datetime.date.today() + timedelta(days=3)):
@@ -488,9 +502,9 @@ def addReservation():
             # response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
             # return response
 
-            flash("Reservation Added.", "success")
+        flash("Reservation Added.", "success")
 
-            return (redirect(url_for('UserDashboard')))
+        return (redirect(url_for('UserDashboard')))
 
 
     return render_template('createReservation.html',
@@ -505,11 +519,12 @@ def register():
         studentNumber = form.studentNumber.data
         firstName = form.firstName.data
         lastName = form.lastName.data
+        contactNum = form.contactNumber.data
         email = form.email.data
         password = sha256_crypt.encrypt(str(form.password.data))
         crseSec = form.crseSec.data
         student = Student(studentNumber=studentNumber,firstName=firstName,lastName=lastName,
-        email=email,password=password,courseAndSec=crseSec)
+        email=email,password=password,courseAndSec=crseSec,contactNumber=contactNum)
         db.session.add(student)
         db.session.commit()
         flash("You are now registered, please login","success")
@@ -614,12 +629,22 @@ def return_data():
     reservation = []
     reservations = Reservation.query.all()
 
-    print(type(reservations))
+    print(reservations)
     for res in reservations:
+        if res.equipment_name == '--':
+            item = res.facility_name
+        else:
+            item = res.equipment_name
+        start = str(res.dateFrom)+"T"+str(res.timeFrom)
+        end = str(res.dateFrom)+"T"+str(res.timeTo)
         reservatio = {
-            "start" : str(res.dateFrom)+"T"+str(res.timeFrom),
-            "end" : str(res.dateFrom)+"T"+str(res.timeTo),
-            "title" : res.equipment_name
+            "start" : start,
+            "end" : end,
+            "title" : item,
+            "data" : {
+                "timefrom" : str(res.timeFrom.strftime('%I:%M%p')),
+                "timeto" : str(res.timeTo.strftime('%I:%M%p'))
+            }
         }
         reservation.append(reservatio)
     return jsonify(reservation)
@@ -630,7 +655,7 @@ def UserDashboard():
 
     sn = str(session.get("studentNumber"))
     page = request.args.get('page',1,type=int)
-    reservations = Reservation.query.filter(Reservation.studentNumber == sn).filter(Reservation.res_status == 'Active').paginate(page=page,per_page=5)
+    reservations = Reservation.query.filter(Reservation.studentNumber == sn).paginate(page=page,per_page=5)
     # cur = mysql.connection.cursor()
     if reservations is None:
         msg = "No Reservations Found."

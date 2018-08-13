@@ -10,6 +10,11 @@
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
     crossorigin="anonymous">
 
+  <!-- Time picker -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/timepicker@1.11.12/jquery.timepicker.min.css">
+
+
+
   <link rel="icon" type="image/png" href="/static/Logo.png" />
 
   <!-- <link rel="stylesheet" href="/static/style.css"> -->
@@ -397,58 +402,125 @@
       </div>
     </div>
   </div>
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+  <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
     crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
     crossorigin="anonymous"></script>
   <script src="https://cdn.jsdebtnvr.net/npm/feather-icons/dist/feather.min.js"></script>
-  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.1/jquery.min.js"></script>
-  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.12.0/moment.min.js"></script>
-  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"></script>
+  <script type="text/javascript" src="https://fullcalendar.io/releases/fullcalendar/3.9.0/lib/jquery.min.js"></script>
+  <script type="text/javascript" src="https://fullcalendar.io/releases/fullcalendar/3.9.0/lib/moment.min.js"></script>
+  <script type="text/javascript" src="https://fullcalendar.io/releases/fullcalendar/3.9.0/fullcalendar.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/timepicker@1.11.12/jquery.timepicker.min.js"></script>
   <script>
+//     $('#basicExample').timepicker({
+//     'minTime': '7:30am',
+//     'maxTime': '5:00pm',
+//     'disableTextInput' : true,
+//     'timeFormat' : 'G:i:s'
+
+// });
     $('#calendar').fullCalendar({
       header: {
         left: 'prev,next today',
         center: 'title',
         right: 'month,agendaWeek,agendaDay'
       },
+    
       eventLimit: true,
       eventColor: '#800000',
       eventTextColor: '#ffffff', 
       events: {
         url: 'data'
-      }
-      // themeSystem: 'bootstrap4',
-      // themeButtonIcons:{
-      //   prev: 'circle-triangle-w',
-      //   next: 'circle-triangle-e',
-      //   prevYear: 'seek-prev',
-      //   nextYear: 'seek-next'
-      // }
-      // events:  {
-      //   url: 'data'
-      // }
+      },
+      eventMouseover: function(calEvent, jsEvent) {
 
-      // defaultDate: '2014-09-12',
-      // editable: true,
-      // eventLimit: true, // allow "more" link when too many events
-      // events: {
-      //   url: 'data',
-      //   error: function() {
-      //     $('#script-warning').show();
-      //   }
-      // },
-      // loading: function(bool) {
-      //   $('#loading').toggle(bool);
-      // }
+    var tooltip = '<div class="tooltipevent p-2" style="border-radius: 10px;padding: 2px; width:auto;height:auto;background:maroon;color:#ffffff;position:absolute;z-index:10001;">Reservation: '+ calEvent.title + '<br>Time: '+calEvent.data.timefrom+'-'+calEvent.data.timeto + '</div>';
+    var $tooltip = $(tooltip).appendTo('body');
+
+    $(this).mouseover(function(e) {
+        $(this).css('z-index', 10000);
+        $tooltip.fadeIn('500');
+        $tooltip.fadeTo('10', 1.9);
+    }).mousemove(function(e) {
+        $tooltip.css('top', e.pageY + 10);
+        $tooltip.css('left', e.pageX + 20);
     });
+},
 
+eventMouseout: function(calEvent, jsEvent) {
+    $(this).css('z-index', 8);
+    $('.tooltipevent').remove();
+},
+ 
+    //   eventRender: function(eventObj, element) {
+    //   element.popover({
+    //     title: eventObj.title,
+    //     content: 'test',
+    //     trigger: 'hover',
+    //     placement: 'top',
+    //     container: 'body'
+    //   });
+    // },
+    });
+    // for create reservation
+  let purpose = document.getElementById('purpose');
+  let prof = document.getElementById('prof');
+  let input = document.getElementById('test');
+  const change = document.getElementById('changee')
+  const newSelect = document.createElement('select');
+  newSelect.id = 'input';
+  newSelect.classList = 'form-control';
+
+  options = ['--','Student Assembly','Governing League of IT Challengers(GLITCH)','Junior Philippine Institue of Accountants(JPIA)','JFINEX','CEO',"Young Educator's Society(YES)",'HM Society','Paraseist'];
+  options.sort();
+  options.forEach((option) => {
+    optionss = document.createElement('option');
+    optionss.innerHTML = option;
+    newSelect.appendChild(optionss);
+  });
+
+  purpose.onchange = function(){
+  val = purpose.value;
+  // alert(val);
+  
+  if(val === 'Academic'){
+    prof.innerHTML = "<h5> Professor </h5>"
+    change.replaceChild(input,newSelect);
+    
+  } else {
+    prof.innerHTML = "<h5> Organization </h5>";
+    change.replaceChild(newSelect,input); 
+  }
+  
+}
   </script>
+
   <script>
     feather.replace()
   </script>
+  <!-- <script>
+      document.addEventListener('DOMContentLoaded',function() {
+    document.querySelector('select[name="purpose"]').onchange=changeEventHandler;
+},false);
+
+function changeEventHandler(event) {
+    // You can use “this” to refer to the selected element.
+    if(!event.target.value) alert('Please Select One');
+    else alert('You like ' + event.target.value + ' ice cream.');
+
+    if(event.target.value == 'Academic') {
+      var theForm = document.getElementsByTagName("form");  
+      var divProf = document.createElement("div");
+      divProf.className = 'form-group';
+      var inputProf = document.createElement("input");
+      inputProf.className = 'form-control'
+      divProf.appendChild(inputProf);
+      theForm.appendChild(divProf);
+    }
+}
+  </script> -->
 </body>
 
 </html>

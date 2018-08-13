@@ -16,21 +16,21 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.studentNumber(class="form-control form-control-md input-shadow",placeholder="ex. 2014-00039-SJ-0") }}
+                        {{ form.studentNumber(class="form-control form-control-md input-shadow",placeholder="ex. 2000-00000-SJ-0") }}
                     {% endif %}
                 </div>
                 <div class="form-row">
                 <div class="form-group col-6">
                     {{ form.firstName.label(class="form-control-label") }}
                     {% if form.firstName.errors %}
-                        {{ form.firstName(class="form-control form-control-md is-invalid input-shadow") }}
+                        {{ form.firstName(class="form-control form-control-md is-invalid input-shadow",placeholder="ex. John") }}
                         <div class="invalid-feedback">
                             {% for error in form.firstName.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.firstName(class="form-control form-control-md input-shadow") }}
+                        {{ form.firstName(class="form-control form-control-md input-shadow",placeholder="ex. John") }}
                     {% endif %}
                 </div>
                 <div class="form-group col-6">
@@ -43,23 +43,23 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.lastName(class="form-control form-control-md input-shadow") }}
+                        {{ form.lastName(class="form-control form-control-md input-shadow",placeholder="ex. Doe") }}
                     {% endif %}
                 </div>
                 </div>
                 <div class="form-row">
                 <div class="form-group col-6">
-                    {{ form.crseSec.label(class="form-control-label") }}
-                    {% if form.crseSec.errors %}
-                        {{ form.crseSec(class="form-control form-control-md is-invalid input-shadow") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.crseSec.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.crseSec(class="form-control form-control-md input-shadow") }}
-                    {% endif %}
+                        {{ form.contactNumber.label(class="form-control-label") }}
+                        {% if form.contactNumber.errors %}
+                            {{ form.contactNumber(class="form-control form-control-md is-invalid input-shadow") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.contactNumber.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.contactNumber(class="form-control form-control-md input-shadow", placeholder="09xxxxxxxxx") }}
+                        {% endif %}
                 </div>
                 <div class="form-group col-6">
                     {{ form.email.label(class="form-control-label") }}
@@ -71,10 +71,23 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.email(class="form-control form-control-md input-shadow") }}
+                        {{ form.email(class="form-control form-control-md input-shadow", placeholder="ex. JD@gmail.com") }}
                     {% endif %}
                 </div>
                 </div>
+                <div class="form-group">
+                        {{ form.crseSec.label(class="form-control-label") }}
+                        {% if form.crseSec.errors %}
+                            {{ form.crseSec(class="form-control form-control-md is-invalid input-shadow") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.crseSec.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.crseSec(class="form-control form-control-md input-shadow") }}
+                        {% endif %}
+                    </div>
                 <div class="form-group">
                     {{ form.password.label(class="form-control-label") }}
                     {% if form.password.errors %}
@@ -88,6 +101,7 @@
                         {{ form.password(class="form-control form-control-md input-shadow") }}
                     {% endif %}
                 </div>
+                
                 <div class="form-group">
                     {{ form.confirm.label(class="form-control-label") }}
                     {% if form.confirm.errors %}

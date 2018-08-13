@@ -12,23 +12,31 @@
         Make Reservation
       </a></h4>
   </div>
-  <table class="table table-striped ">
+  {% if reservations != 0%}
+  <table class="table table-striped">
+    <thead class="thead-dark">
     <tr>
       <th>Equipment</th>
       <th>Facility</th>
       <th>Purpose</th>
-      <th>Date</th>
-      <th>Time</th>
-      <th></th>
+      <th>Date & Time</th>
+      <th> </th>
+      <th> </th>
     </tr>
+    </thead>
     {% for res in reservations.items %}
     <tr>
       <td>{{res.equipment_name}}</td>
       <td>{{res.facility_name}}</td>
       <td>{{res.purpose}}</td>
-      <td>{{res.dateFrom.strftime('%B %d %Y')}}</td>
-      <td>{{res.timeFrom.strftime('%I:%M%p')}}-{{res.timeTo.strftime('%I:%M%p')}}</td>
-      <td> <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-ng-href="/dashboard/{{res.id}}/cancel">Cancel</button>
+      <td>{{res.dateFrom.strftime('%b %d %Y')}} {{res.timeFrom.strftime('%I:%M%p')}}-{{res.timeTo.strftime('%I:%M%p')}}</td>
+      {% if res.res_status == 'Active' %}
+      <td> <button type="button" class="btn btn-outline-primary btn-sm" >Edit</button> </td>
+      {% else %}
+      <td> </td>
+      {% endif %}
+      {% if res.res_status == 'Active' %}
+      <td> <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-ng-href="reservations/dashboard/{{res.id}}/cancel">Cancel</button>
         <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -40,17 +48,23 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-                <form action="{{ url_for('cancelReservation', res_id=res.id) }}" method="POST">
+                <form action="{{ url_for('adminCancelReservation', res_id=res.id) }}" method="POST">
                   <input class="btn btn-danger" type="submit" value="Cancel">
                 </form>
               </div>
             </div>
           </div>
         </td> 
+        {% else %}
+        <td> </td>
+        {% endif %} 
     </tr>
     {% endfor%}
 
   </table>
+  {% else %}
+  <div class="jumbotron p-5 mt-3 display-4">Welcome, Make your first reservation.</div>
+  {% endif %}
 </div>
 {% for page_num in reservations.iter_pages() %}
 {% if page_num %}
