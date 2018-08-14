@@ -78,8 +78,10 @@ class Student(db.Model):
     password = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(70), unique=True, nullable=False)
     register_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
-    courseAndSec = db.Column(db.String(10), nullable=False)
+    courseAndSec = db.Column(db.String(10), nullable=False) 
     contactNumber = db.Column(db.String(11), nullable=False)
+    claimed_at = db.Column(db.String(50), nullable=True)
+    returned_at = db.Column(db.String(50), nullable=True)
 
     def reset(self, expires_sec=1800):
         s = Serializer(app.config['SECRET_KEY'],expires_sec)
@@ -102,9 +104,17 @@ class Equipment(db.Model):
     equipmentPropertyNumber = db.Column(db.String(50), unique=True, nullable=False)
     equipmentName = db.Column(db.String(50), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    categoryId = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
         return f"'{self.equipmentName}','{self.quantity}','{self.equipmentPropertyNumber}'"
+
+class Equipment_Category(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    categoryName = db.Column(db.String(50), nullable=False)
+
+    def __repr__(self):
+        return f"'{self.categoryName}'"
 
 class Facility(db.Model):
     id = db.Column(db.Integer, primary_key=True)
