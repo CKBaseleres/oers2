@@ -80,8 +80,7 @@ class Student(db.Model):
     register_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
     courseAndSec = db.Column(db.String(10), nullable=False) 
     contactNumber = db.Column(db.String(11), nullable=False)
-    claimed_at = db.Column(db.String(50), nullable=True)
-    returned_at = db.Column(db.String(50), nullable=True)
+    
 
     def reset(self, expires_sec=1800):
         s = Serializer(app.config['SECRET_KEY'],expires_sec)
@@ -136,7 +135,7 @@ class Reservation(db.Model):
     timeTo = db.Column(db.Time, nullable=False)
     res_status = db.Column(db.String(15), nullable=False, default="Active")
     reservation_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
-    # 
+    
     # 
     # 
 
