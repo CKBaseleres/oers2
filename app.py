@@ -311,482 +311,492 @@ class ResetPasswordForm(FlaskForm):
 #     else:
 #         return render_template('equipmentDashboard.html', equipments=equipments,form=form,equip_id=equipment.id)
 
-# @app.route('/equipment/dashboard', methods=['GET'])
-# @a_is_logged_in
-# def EquipmentDashboard():
-#     page = request.args.get('page',1,type=int)
-#     equipments = Equipment.query.paginate(page=page,per_page=5)
-#     if equipments is None:
-#         msg = "No Equipments Found."
-#         return render_template('equipmentDashboard.html', msg=msg)
-#     else:
-#         return render_template('equipmentDashboard.html', equipments=equipments)
+@app.route('/equipment/dashboard', methods=['GET'])
+@a_is_logged_in
+def EquipmentDashboard():
+    page = request.args.get('page',1,type=int)
+    equipments = Equipment.query.paginate(page=page,per_page=5)
+    if equipments is None:
+        msg = "No Equipments Found."
+        return render_template('equipmentDashboard.html', msg=msg)
+    else:
+        return render_template('equipmentDashboard.html', equipments=equipments)
 
 
-# @app.route('/facility/dashboard')
-# @a_is_logged_in
-# def FacilityDashboard():
-#     page = request.args.get('page',1,type=int)
-#     facilities = Facility.query.paginate(page=page,per_page=5)
-#     if facilities is None:
-#         msg = "No Facilities Found."
-#         return render_template('facilityDashboard.html', msg=msg)
-#     else:
-#         return render_template('facilityDashboard.html', facilities=facilities)
-#     return render_template('facilityDashboard.html')
+@app.route('/facility/dashboard')
+@a_is_logged_in
+def FacilityDashboard():
+    page = request.args.get('page',1,type=int)
+    facilities = Facility.query.paginate(page=page,per_page=5)
+    if facilities is None:
+        msg = "No Facilities Found."
+        return render_template('facilityDashboard.html', msg=msg)
+    else:
+        return render_template('facilityDashboard.html', facilities=facilities)
+    return render_template('facilityDashboard.html')
 
-# @app.route('/account',methods=['GET','POST'])
-# def editAccount():
-#     sn = str(session.get('studentNumber'))
-#     fn = str(session.get("firstName"))
-#     ln = str(session.get("lastName"))
-#     studentNumber = sn
-#     student = Student.query.filter(studentNumber==sn).first()
-#     form = StudentUpdateForm()
-#     if form.validate_on_submit():
-#         student.firstName = form.firstName.data
-#         student.lastName = form.lastName.data
-#         student.email = form.email.data
-#         # student.password = sha256_crypt.encrypt(str(form.password.data))
-#         student.courseAndSec = form.crseSec.data
-#         # student.studentNumber = sn
-#         db.session.commit()
-#         flash("Account updated.","success")
-#         return redirect(url_for('userDashboard'))
-#     elif request.method == 'GET':
-#         # Populate Fields
-#         form.studentNumber.data = sn
-#         form.firstName.data = fn
-#         form.lastName.data = ln
-#         # form.availability.data = facility.availability
-#         # form.facilityPropertyNumber.data = facility.facilityPropertyNumber
-#     return render_template('Uregister.html', form=form)
+@app.route('/account',methods=['GET','POST'])
+def editAccount():
+    sn = str(session.get('studentNumber'))
+    fn = str(session.get("firstName"))
+    ln = str(session.get("lastName"))
+    studentNumber = sn
+    student = Student.query.filter(studentNumber==sn).first()
+    form = StudentUpdateForm()
+    if form.validate_on_submit():
+        student.firstName = form.firstName.data
+        student.lastName = form.lastName.data
+        student.email = form.email.data
+        # student.password = sha256_crypt.encrypt(str(form.password.data))
+        student.courseAndSec = form.crseSec.data
+        # student.studentNumber = sn
+        db.session.commit()
+        flash("Account updated.","success")
+        return redirect(url_for('userDashboard'))
+    elif request.method == 'GET':
+        # Populate Fields
+        form.studentNumber.data = sn
+        form.firstName.data = fn
+        form.lastName.data = ln
+        # form.availability.data = facility.availability
+        # form.facilityPropertyNumber.data = facility.facilityPropertyNumber
+    return render_template('Uregister.html', form=form)
 
-# @app.route('/facility/<int:fac_id>/edit', methods=['GET', 'POST'])
-# @a_is_logged_in
-# def editFacility(fac_id):
-#     facility = Facility.query.get_or_404(fac_id)
-#     form = AddFacilityForm()
-#     if form.validate_on_submit():
-#         facility.facilityPropertyNumber = form.facilityPropertyNumber.data
-#         facility.facilityName = form.facilityName.data
-#         facility.availability = form.availability.data
-#         db.session.commit()
-#         flash("Facility Updated.","success")
-#         return redirect(url_for('FacilityDashboard', fac_id=facility.id))
-#     elif request.method == 'GET':
-#         # Populate Fields
-#         form.facilityName.data = facility.facilityName
-#         form.availability.data = facility.availability
-#         form.facilityPropertyNumber.data = facility.facilityPropertyNumber
-#     return render_template('editFacility.html', form=form)
+@app.route('/facility/<int:fac_id>/edit', methods=['GET', 'POST'])
+@a_is_logged_in
+def editFacility(fac_id):
+    facility = Facility.query.get_or_404(fac_id)
+    form = AddFacilityForm()
+    if form.validate_on_submit():
+        facility.facilityPropertyNumber = form.facilityPropertyNumber.data
+        facility.facilityName = form.facilityName.data
+        facility.availability = form.availability.data
+        db.session.commit()
+        flash("Facility Updated.","success")
+        return redirect(url_for('FacilityDashboard', fac_id=facility.id))
+    elif request.method == 'GET':
+        # Populate Fields
+        form.facilityName.data = facility.facilityName
+        form.availability.data = facility.availability
+        form.facilityPropertyNumber.data = facility.facilityPropertyNumber
+    return render_template('editFacility.html', form=form)
 
 
-# @app.route('/equipment/<int:equip_id>/edit', methods=['GET','POST'])
-# @a_is_logged_in
-# def editEquipment(equip_id):
-#     equipment = Equipment.query.get_or_404(equip_id)
-#     form = AddEquipmentForm()
-#     if form.validate_on_submit():
-#         equipment.equipmentPropertyNumber = form.equipmentPropertyNumber.data
-#         equipment.equipmentName = form.equipmentName.data
-#         equipment.quantity = form.quantity.data
-#         db.session.commit()
-#         flash('Equipment Updated','success')
-#         return redirect(url_for('EquipmentDashboard', equip_id=equipment.id))
-#     elif request.method == 'GET':
-#         form.equipmentName.data = equipment.equipmentName
-#         form.quantity.data = equipment.quantity
-#         form.equipmentPropertyNumber.data = equipment.equipmentPropertyNumber
-#     return render_template('editEquipment.html', form=form)
+@app.route('/equipment/<int:equip_id>/edit', methods=['GET','POST'])
+@a_is_logged_in
+def editEquipment(equip_id):
+    equipment = Equipment.query.get_or_404(equip_id)
+    form = AddEquipmentForm()
+    if form.validate_on_submit():
+        equipment.equipmentPropertyNumber = form.equipmentPropertyNumber.data
+        equipment.equipmentName = form.equipmentName.data
+        equipment.quantity = form.quantity.data
+        db.session.commit()
+        flash('Equipment Updated','success')
+        return redirect(url_for('EquipmentDashboard', equip_id=equipment.id))
+    elif request.method == 'GET':
+        form.equipmentName.data = equipment.equipmentName
+        form.quantity.data = equipment.quantity
+        form.equipmentPropertyNumber.data = equipment.equipmentPropertyNumber
+    return render_template('editEquipment.html', form=form)
 
-# @app.route('/equipment/add', methods=['POST','GET'])
-# @a_is_logged_in
-# def addEquipment():
-#     form = AddEquipmentForm()
-#     if form.validate_on_submit():
-#         epn = form.equipmentPropertyNumber.data
-#         en = form.equipmentName.data
-#         quantity = form.quantity.data
-#         equipment = Equipment(equipmentPropertyNumber=epn,equipmentName=en,quantity=quantity)
-#         db.session.add(equipment)
-#         db.session.commit()
+@app.route('/equipment/add', methods=['POST','GET'])
+@a_is_logged_in
+def addEquipment():
+    form = AddEquipmentForm()
+    if form.validate_on_submit():
+        epn = form.equipmentPropertyNumber.data
+        en = form.equipmentName.data
+        quantity = form.quantity.data
+        equipment = Equipment(equipmentPropertyNumber=epn,equipmentName=en,quantity=quantity)
+        db.session.add(equipment)
+        db.session.commit()
 
-#         flash("Equipment Added!","success")
+        flash("Equipment Added!","success")
 
-#         return redirect(url_for('UserDashboard'))
-#     return render_template('add_equipment.html', form=form)
+        return redirect(url_for('UserDashboard'))
+    return render_template('add_equipment.html', form=form)
 
-# @app.route('/facility/add', methods=['POST','GET'])
-# @a_is_logged_in
-# def addfacility():
-#     form = AddFacilityForm()
-#     if form.validate_on_submit():
-#         fpn = form.facilityPropertyNumber.data
-#         fn = form.facilityName.data
-#         availability = form.availability.data
-#         facility = Facility(facilityName=fn,availability=availability, facilityPropertyNumber=fpn)
-#         db.session.add(facility)
-#         db.session.commit()
-#         flash("Facility Added!","success")
+@app.route('/facility/add', methods=['POST','GET'])
+@a_is_logged_in
+def addfacility():
+    form = AddFacilityForm()
+    if form.validate_on_submit():
+        fpn = form.facilityPropertyNumber.data
+        fn = form.facilityName.data
+        availability = form.availability.data
+        facility = Facility(facilityName=fn,availability=availability, facilityPropertyNumber=fpn)
+        db.session.add(facility)
+        db.session.commit()
+        flash("Facility Added!","success")
 
-#         return redirect(url_for('FacilityDashboard'))
-#     return render_template('add_facility.html', form=form)
+        return redirect(url_for('FacilityDashboard'))
+    return render_template('add_facility.html', form=form)
 
-# def send_letter(resFrom,resTime,resTo,today,equip,facility,purpose):
-#     # FOR PDF CREATION
-#     path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-#     config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
-#     rendered = render_template('pdf_template.html',
-#         resFrom=resFrom,
-#         reseFrom=resTime,
-#         today=today,
-#         purpose=purpose,
-#         equipment=equip,
-#         facility=facility,
-#         resTo=resTo
-#         )
-#     pdf = pdfkit.from_string(rendered, False ,configuration=config)
-#     response = make_response(pdf)
-#     response.headers['Content-Type'] = 'application/pdf'
-#     response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
-#     return response
+def send_letter(resFrom,resTime,resTo,today,equip,facility,purpose):
+    # FOR PDF CREATION
+    path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+    config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+    rendered = render_template('pdf_template.html',
+        resFrom=resFrom,
+        reseFrom=resTime,
+        today=today,
+        purpose=purpose,
+        equipment=equip,
+        facility=facility,
+        resTo=resTo
+        )
+    pdf = pdfkit.from_string(rendered, False ,configuration=config)
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
+    return response
 
-# @app.route('/newres', methods=['POST','GET'])
-# @is_logged_in
-# def addReservation():
-#     form = ReservationForm()
-#     equip = {}
-#     fac = {}
-#     # GET DATA FROM DATABASE FOR EQUIPMENTS
-#     equipments = Equipment.query.all()
-#     for res in equipments:
-#         equip[res.equipmentName] = res.equipmentPropertyNumber
-#     # GET DATA FROM DATABASE FOR FACILITIES
-#     facilities = Facility.query.filter(Facility.availability == 'Yes')
-#     for r in facilities:
-#         fac[r.facilityName] = r.facilityPropertyNumber
+@app.route('/newres', methods=['POST','GET'])
+@is_logged_in
+def addReservation():
+    form = ReservationForm()
+    equip = {}
+    fac = {}
+    # GET DATA FROM DATABASE FOR EQUIPMENTS
+    equipments = Equipment.query.all()
+    for res in equipments:
+        equip[res.equipmentName] = res.equipmentPropertyNumber
+    # GET DATA FROM DATABASE FOR FACILITIES
+    facilities = Facility.query.filter(Facility.availability == 'Yes')
+    for r in facilities:
+        fac[r.facilityName] = r.facilityPropertyNumber
 
-#     now = datetime.datetime.now()
-#     # datetoday = datetime.date.now()
-#     today = now.strftime("%d %B %Y")
-#     print(today)
-#     if form.validate_on_submit():
-#         datee = form.resFrom.data
-#         ftime = form.reseFrom.data
-#         timeto = form.resTo.data
-#         purpose = form.purpose.data
-#         selectEquip= request.form['equips']
-#         selectFac = request.form['facs']
+    now = datetime.datetime.now()
+    # datetoday = datetime.date.now()
+    today = now.strftime("%d %B %Y")
+    print(today)
+    if form.validate_on_submit():
+        datee = form.resFrom.data
+        ftime = form.reseFrom.data
+        timeto = form.resTo.data
+        purpose = form.purpose.data
+        selectEquip= request.form['equips']
+        selectFac = request.form['facs']
+        orgOrProf = request.form['test']
+        desc = request.form['desc']
         
-#         if(selectEquip == '--' and selectFac == '--'):
-#             flash("No equipment or facility has been selected.","danger")
-#         # elif selectEquip != '--':
-#         #     countReservation = Reservation.query.filter(Reservation.equip == selectEquip).filter(Reservation.dateFrom == datee).count()
-#         #     # countEquip = Equipment.query.
-#         #     if countReservation >= countReservation:
-#         #         flash("Sorry no more aailable slots for that day.","danger")
+        if(selectEquip == '--' and selectFac == '--'):
+            flash("No equipment or facility has been selected.","danger")
+        elif(orgOrProf == '--' or orgOrProf == ''):
+            if(purpose == 'Academic'):
+                flash("Please enter the name of your Professor.","danger")
+            else:
+                flash("Please select an organization.","danger")
+        elif(desc == ''):
+            flash("Please enter a description.","danger")
+        # elif selectEquip != '--':
+        #     countReservation = Reservation.query.filter(Reservation.equip == selectEquip).filter(Reservation.dateFrom == datee).count()
+        #     # countEquip = Equipment.query.
+        #     if countReservation >= countReservation:
+        #         flash("Sorry no more aailable slots for that day.","danger")
 
-#         elif(datee < datetime.date.today()):
-#             flash("Invalid Date.",'danger')
-#         elif datee < (datetime.date.today() + timedelta(days=3)):
-#             flash("Reservations must be made for atleast 3 days before using",'danger')
-#         else:
-#             reservation = Reservation(equipment_name=selectEquip,facility_name=selectFac,purpose=purpose,dateFrom=datee,timeFrom=ftime,timeTo=timeto,studentNumber=session.get('studentNumber'))
-#             db.session.add(reservation)
-#             db.session.commit()
+        elif(datee < datetime.date.today()):
+            flash("Invalid Date.",'danger')
+        elif datee < (datetime.date.today() + timedelta(days=3)):
+            flash("Reservations must be made for atleast 3 days before using",'danger')
+        else:
+            reservation = Reservation(equipment_name=selectEquip,facility_name=selectFac,purpose=purpose,dateFrom=datee,timeFrom=ftime,timeTo=timeto,studentNumber=session.get('studentNumber'),profOrOrg=orgOrProf,description=desc)
+            db.session.add(reservation)
+            db.session.commit()
+            flash("Reservation Added.", "success")
 
-#             # send_letter(date,ftime,timeto,today,selectEquip,selectFac,purpose)
-#             # FOR PDF CREATION
-#             # path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-#             # config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
-#             # rendered = render_template('pdf_template.html',
-#             #     resFrom=date,
-#             #     reseFrom=ftime,
-#             #     today=today,
-#             #     purpose=purpose,
-#             #     equipment=selectEquip,
-#             #     facility=selectFac,
-#             #     timeTo=timeto
-#             #     )
-#             # pdf = pdfkit.from_string(rendered, False ,configuration=config)
-#             # response = make_response(pdf)
-#             # response.headers['Content-Type'] = 'application/pdf'
-#             # response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
-#             # return response
+            return (redirect(url_for('UserDashboard')))
 
-#         flash("Reservation Added.", "success")
+            # send_letter(date,ftime,timeto,today,selectEquip,selectFac,purpose)
+            # FOR PDF CREATION
+            # path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+            # config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+            # rendered = render_template('pdf_template.html',
+            #     resFrom=date,
+            #     reseFrom=ftime,
+            #     today=today,
+            #     purpose=purpose,
+            #     equipment=selectEquip,
+            #     facility=selectFac,
+            #     timeTo=timeto
+            #     )
+            # pdf = pdfkit.from_string(rendered, False ,configuration=config)
+            # response = make_response(pdf)
+            # response.headers['Content-Type'] = 'application/pdf'
+            # response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
+            # return response
 
-#         return (redirect(url_for('UserDashboard')))
-
-
-#     return render_template('createReservation.html',
-#         form=form,equip=equip,fac=fac)
-
-
-
-# @app.route('/register', methods=['GET','POST'])
-# def register():
-#     form = StudentRegisterForm()
-#     if request.method == 'POST' and form.validate():
-#         studentNumber = form.studentNumber.data
-#         firstName = form.firstName.data
-#         lastName = form.lastName.data
-#         contactNum = form.contactNumber.data
-#         email = form.email.data
-#         password = sha256_crypt.encrypt(str(form.password.data))
-#         crseSec = form.crseSec.data
-#         student = Student(studentNumber=studentNumber,firstName=firstName,lastName=lastName,
-#         email=email,password=password,courseAndSec=crseSec,contactNumber=contactNum)
-#         db.session.add(student)
-#         db.session.commit()
-#         flash("You are now registered, please login","success")
-#         return redirect(url_for('index'))
-#     return render_template('register.html', form=form)
-
-# @app.route('/login',methods=['GET','POST'])
-# def login():
-#     if request.method == 'POST':
-#         studentNumber = request.form['studentNumber']
-#         password_test = request.form['password']
-#         student = Student.query.filter_by(studentNumber=studentNumber).first()
-#             # COMPARE PASSWORDS
-#         if student and sha256_crypt.verify(password_test, student.password ):
-#                 # IF PASSED
-#             session['logged_in'] = True
-#             session['firstName'] = student.firstName
-#             session['lastName'] = student.lastName
-#             session['studentNumber'] = student.studentNumber
-#             # session['courseSection'] = student.cs
-
-#             flash("You are now Logged in","success")
-#                 ## Might Change the directory for the return statement below
-#             return redirect(url_for('UserDashboard'))
-#         else:
-#             error = 'Invalid Student Number/Password.'
-#             return render_template('login.html',error=error)
-
-#     return render_template('login.html')
+        
 
 
-# @app.route('/admin/login',methods=['GET','POST'])
-# def loginad():
-#     session.clear()
-#     if request.method == 'POST':
-#         username = request.form['username']
-#         password = request.form['password']
-#         admin = Admin.query.filter_by(username=username).first()
-#         if admin and admin.password == password:
-#                 # IF PASSED
-#             session['a_logged_in'] = True
-#             session['username'] = username
+    return render_template('createReservation.html',
+        form=form,equip=equip,fac=fac)
 
-#             flash("You are now Logged in", "success")
-#             ## Might Change the directory for the return statement below
-#             return redirect(url_for('admin'))
-#         else:
-#             error = 'Invalid Username/Password.'
-#             # return redirect(url_for('index'))
-#             return render_template('adminsingin.html', error=error)
-#     return render_template('adminsingin.html')
 
-# def updateReservationStatus():
-#     reservations = Reservation.query.all()
-#     for reservation in reservations:
-#         if(reservation.res_status == 'Active'):
-#             if(reservation.dateFrom < datetime.date.today()):
-#                 reservation.res_status = 'Done'
-#                 db.session.commit()
 
-# updateReservationStatus()
+@app.route('/register', methods=['GET','POST'])
+def register():
+    form = StudentRegisterForm()
+    if request.method == 'POST' and form.validate():
+        studentNumber = form.studentNumber.data
+        firstName = form.firstName.data
+        lastName = form.lastName.data
+        contactNum = form.contactNumber.data
+        email = form.email.data
+        password = sha256_crypt.encrypt(str(form.password.data))
+        crseSec = form.crseSec.data
+        student = Student(studentNumber=studentNumber,firstName=firstName,lastName=lastName,
+        email=email,password=password,courseAndSec=crseSec,contactNumber=contactNum)
+        db.session.add(student)
+        db.session.commit()
+        flash("You are now registered, please login","success")
+        return redirect(url_for('index'))
+    return render_template('register.html', form=form)
 
-# @app.route('/admin/home')
-# @a_is_logged_in
-# def admin():
-#     page = request.args.get('page',1,type=int)
-#     reservations = Reservation.query.order_by(Reservation.dateFrom.asc()).filter(Reservation.res_status == 'Active').paginate(page=page,per_page=7)
-#     reservationss = Reservation.query.all()
-#     equipments = Equipment.query.all()
-#     facilities = Facility.query.all()
-#     return render_template('adminindex.html',equip=equipments,fac=facilities, reservations=reservations, reservationss=reservationss)
+@app.route('/login',methods=['GET','POST'])
+def login():
+    if request.method == 'POST':
+        studentNumber = request.form['studentNumber']
+        password_test = request.form['password']
+        student = Student.query.filter_by(studentNumber=studentNumber).first()
+            # COMPARE PASSWORDS
+        if student and sha256_crypt.verify(password_test, student.password ):
+                # IF PASSED
+            session['logged_in'] = True
+            session['firstName'] = student.firstName
+            session['lastName'] = student.lastName
+            session['studentNumber'] = student.studentNumber
+            # session['courseSection'] = student.cs
 
-# @app.route('/logout')
-# @is_logged_in
-# def logout():
-#     session.clear()
-#     flash('You are now logged out.', 'success')
-#     return redirect(url_for('index'))
+            flash("You are now Logged in","success")
+                ## Might Change the directory for the return statement below
+            return redirect(url_for('UserDashboard'))
+        else:
+            error = 'Invalid Student Number/Password.'
+            return render_template('login.html',error=error)
 
-# @app.route('/admin/logout')
-# @a_is_logged_in
-# def logoutAdmin():
-#     session.clear()
-#     flash('You are now logged out.', 'success')
-#     return redirect(url_for('index'))
+    return render_template('login.html')
 
-# @app.route('/about')
-# def about():
-#     return render_template('about.html')
 
-# @app.route('/')
-# def index():
-#     return render_template('index.html')
+@app.route('/admin/login',methods=['GET','POST'])
+def loginad():
+    session.clear()
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        admin = Admin.query.filter_by(username=username).first()
+        if admin and admin.password == password:
+                # IF PASSED
+            session['a_logged_in'] = True
+            session['username'] = username
 
-# @app.route('/reservations')
-# def calendar():
-#     reservations = Reservation.query.all()
-#     return render_template('calendar.html', reservations=reservations)
+            flash("You are now Logged in", "success")
+            ## Might Change the directory for the return statement below
+            return redirect(url_for('admin'))
+        else:
+            error = 'Invalid Username/Password.'
+            # return redirect(url_for('index'))
+            return render_template('adminsingin.html', error=error)
+    return render_template('adminsingin.html')
 
-# @app.route('/data')
-# def return_data():
-#     reservation = []
-#     reservations = Reservation.query.all()
+def updateReservationStatus():
+    reservations = Reservation.query.all()
+    for reservation in reservations:
+        if(reservation.res_status == 'Active'):
+            if(reservation.dateFrom < datetime.date.today()):
+                reservation.res_status = 'Done'
+                db.session.commit()
 
-#     print(reservations)
-#     for res in reservations:
-#         if res.equipment_name == '--':
-#             item = res.facility_name
-#         else:
-#             item = res.equipment_name
-#         start = str(res.dateFrom)+"T"+str(res.timeFrom)
-#         end = str(res.dateFrom)+"T"+str(res.timeTo)
-#         reservatio = {
-#             "start" : start,
-#             "end" : end,
-#             "title" : item,
-#             "data" : {
-#                 "timefrom" : str(res.timeFrom.strftime('%I:%M%p')),
-#                 "timeto" : str(res.timeTo.strftime('%I:%M%p'))
-#             }
-#         }
-#         reservation.append(reservatio)
-#     return jsonify(reservation)
+updateReservationStatus()
 
-# @app.route('/dashboard')
-# @is_logged_in
-# def UserDashboard():
+@app.route('/admin/home')
+@a_is_logged_in
+def admin():
+    page = request.args.get('page',1,type=int)
+    reservations = Reservation.query.order_by(Reservation.dateFrom.asc()).filter(Reservation.res_status == 'Active').paginate(page=page,per_page=7)
+    reservationss = Reservation.query.all()
+    equipments = Equipment.query.all()
+    facilities = Facility.query.all()
+    return render_template('adminindex.html',equip=equipments,fac=facilities, reservations=reservations, reservationss=reservationss)
 
-#     sn = str(session.get("studentNumber"))
-#     page = request.args.get('page',1,type=int)
-#     reservations = Reservation.query.filter(Reservation.studentNumber == sn).order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=5)
-#     # cur = mysql.connection.cursor()
-#     if reservations is None:
-#         msg = "No Reservations Found."
-#         return render_template('userDashboard.html', msg=msg)
-#     else:
-#         return render_template('userDashboard.html', reservations=reservations)
+@app.route('/logout')
+@is_logged_in
+def logout():
+    session.clear()
+    flash('You are now logged out.', 'success')
+    return redirect(url_for('index'))
 
-# @app.route('/reservations')
-# @is_logged_in
-# def allReservations():
-#     page = request.args.get('page',1,type=int)
-#     reservations = Reservation.query.filter(Reservation.res_status == 'Active').paginate(page=page,per_page=5)
-#     # reservations = Reservation.query.paginate(page=page,per_page=6)
+@app.route('/admin/logout')
+@a_is_logged_in
+def logoutAdmin():
+    session.clear()
+    flash('You are now logged out.', 'success')
+    return redirect(url_for('index'))
 
-#     if reservations is None:
-#         msg = "No Equipments Found."
-#         return render_template('studReservationDashboard.html', msg=msg)
-#     else:
-#         return render_template('studReservationDashboard.html', reservations=reservations)
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
-# # Delete
-# @app.route('/dashboard/<int:res_id>/cancel',  methods=['POST'])
-# @is_logged_in
-# def cancelReservation(res_id):
-#     reservation = Reservation.query.filter_by(id = res_id).first()
-#     reservation.res_status   = 'Canceled'
-#     db.session.commit()
-#     flash("Reservation Canceled!",'success')
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-#     return redirect(url_for('UserDashboard'))
+@app.route('/reservations')
+def calendar():
+    reservations = Reservation.query.all()
+    return render_template('calendar.html', reservations=reservations)
 
-# @app.route('/reservations/dashboard/<int:res_id>/cancel',  methods=['POST'])
-# @a_is_logged_in
-# def adminCancelReservation(res_id):
-#     reservation = Reservation.query.filter_by(id = res_id).first()
-#     reservation.res_status = 'Canceled'
-#     db.session.commit()
-#     flash("Reservation Canceled",'success')
+@app.route('/data')
+def return_data():
+    reservation = []
+    reservations = Reservation.query.all()
 
-#     return redirect(url_for('resDashboard'))
+    print(reservations)
+    for res in reservations:
+        if res.equipment_name == '--':
+            item = res.facility_name
+        else:
+            item = res.equipment_name
+        start = str(res.dateFrom)+"T"+str(res.timeFrom)
+        end = str(res.dateFrom)+"T"+str(res.timeTo)
+        reservatio = {
+            "start" : start,
+            "end" : end,
+            "title" : item,
+            "data" : {
+                "timefrom" : str(res.timeFrom.strftime('%I:%M%p')),
+                "timeto" : str(res.timeTo.strftime('%I:%M%p'))
+            }
+        }
+        reservation.append(reservatio)
+    return jsonify(reservation)
 
-# @app.route('/equipment/<int:equip_id>/delete',  methods=['POST'])
-# @a_is_logged_in
-# def delete_equipment(equip_id):
-#     equipments = Equipment.query.get_or_404(equip_id)
-#     db.session.delete(equipments)
-#     db.session.commit()
-#     flash("Equipment Deleted",'success')
+@app.route('/dashboard')
+@is_logged_in
+def UserDashboard():
 
-#     return redirect(url_for('EquipmentDashboard'))
+    sn = str(session.get("studentNumber"))
+    page = request.args.get('page',1,type=int)
+    reservations = Reservation.query.filter(Reservation.studentNumber == sn).order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=5)
+    # cur = mysql.connection.cursor()
+    if reservations is None:
+        msg = "No Reservations Found."
+        return render_template('userDashboard.html', msg=msg)
+    else:
+        return render_template('userDashboard.html', reservations=reservations)
 
-# def send_reset_email(student):
-#     token = student.reset()
-#     msg = Message('PUPSJ:ORS Password Reset Request',
-#                     sender='pupsj.ors@gmail.com',
-#                     recipients=[student.email])
-#     msg.body = f'''To reset your password, visit the following link:
-# {url_for('reset_token', token=token, _external = True)}
+@app.route('/reservations')
+@is_logged_in
+def allReservations():
+    page = request.args.get('page',1,type=int)
+    reservations = Reservation.query.filter(Reservation.res_status == 'Active').paginate(page=page,per_page=5)
+    # reservations = Reservation.query.paginate(page=page,per_page=6)
 
-# If this is not you. Just ignore this.
-# '''
-#     mail.send(msg)
+    if reservations is None:
+        msg = "No Equipments Found."
+        return render_template('studReservationDashboard.html', msg=msg)
+    else:
+        return render_template('studReservationDashboard.html', reservations=reservations)
 
-# @app.route("/reset_password", methods=['GET','POST'])
-# def reset_request():
-#     form = RequestResetForm()
-#     if form.validate_on_submit():
-#         student = Student.query.filter_by(email=form.email.data).first()
-#         send_reset_email(student)
-#         flash('An email has been sent to reset your password','success')
-#         return redirect(url_for('login'))
-#     return render_template('reset_request.html',form=form)
+# Delete
+@app.route('/dashboard/<int:res_id>/cancel',  methods=['POST'])
+@is_logged_in
+def cancelReservation(res_id):
+    reservation = Reservation.query.filter_by(id = res_id).first()
+    reservation.res_status = 'Canceled'
+    db.session.commit()
+    flash("Reservation Canceled!",'success')
 
-# @app.route("/reset_password/<token>", methods=['GET','POST'])
-# def reset_token(token):
-#     student = Student.verify(token)
-#     if student is None:
-#         flash('That is an invalid or expired token.','warning')
-#         return redirect(url_for('reset_request'))
-#     form = ResetPasswordForm()
-#     if form.validate_on_submit():
-#         password = sha256_crypt.encrypt(form.password.data)
-#         student.password = password
-#         db.session.commit()
-#         flash("Your password has been updated","success")
-#         return redirect(url_for('login'))
-#     return render_template('reset_token.html',form=form)
+    return redirect(url_for('UserDashboard'))
 
-# @app.route("/reservations/dashboard", methods=['GET','POST'])
-# def resDashboard():
-#     page = request.args.get('page',1,type=int)
-#     reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.res_status, Reservation.facility_name, Reservation.purpose, Reservation.claimed_at, Reservation.returned_at).order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=6)
-#     # reservations = Reservation.query.paginate(page=page,per_page=6)
+@app.route('/reservations/dashboard/<int:res_id>/cancel',  methods=['POST'])
+@a_is_logged_in
+def adminCancelReservation(res_id):
+    reservation = Reservation.query.filter_by(id = res_id).first()
+    reservation.res_status = 'Canceled'
+    db.session.commit()
+    flash("Reservation Canceled",'success')
 
-#     if reservations is None:
-#         msg = "No Equipments Found."
-#         return render_template('reservationDashboard.html', msg=msg)
-#     else:
-#         return render_template('reservationDashboard.html', reservations=reservations)
+    return redirect(url_for('resDashboard'))
 
-# @app.route("/printReservation", methods=['GET'])
-# def printToday():
-#     today = datetime.date.today()
-#     reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.facility_name, Reservation.purpose,Reservation.claimed_at, Reservation.returned_at).filter(Reservation.dateFrom==today).count()
-#     reservationss = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.facility_name, Reservation.purpose,Reservation.claimed_at, Reservation.returned_at).filter(Reservation.dateFrom==today)
+@app.route('/equipment/<int:equip_id>/delete',  methods=['POST'])
+@a_is_logged_in
+def delete_equipment(equip_id):
+    equipments = Equipment.query.get_or_404(equip_id)
+    db.session.delete(equipments)
+    db.session.commit()
+    flash("Equipment Deleted",'success')
+
+    return redirect(url_for('EquipmentDashboard'))
+
+def send_reset_email(student):
+    token = student.reset()
+    msg = Message('PUPSJ:ORS Password Reset Request',
+                    sender='pupsj.ors@gmail.com',
+                    recipients=[student.email])
+    msg.body = f'''To reset your password, visit the following link:
+{url_for('reset_token', token=token, _external = True)}
+
+If this is not you. Just ignore this.
+'''
+    mail.send(msg)
+
+@app.route("/reset_password", methods=['GET','POST'])
+def reset_request():
+    form = RequestResetForm()
+    if form.validate_on_submit():
+        student = Student.query.filter_by(email=form.email.data).first()
+        send_reset_email(student)
+        flash('An email has been sent to reset your password','success')
+        return redirect(url_for('login'))
+    return render_template('reset_request.html',form=form)
+
+@app.route("/reset_password/<token>", methods=['GET','POST'])
+def reset_token(token):
+    student = Student.verify(token)
+    if student is None:
+        flash('That is an invalid or expired token.','warning')
+        return redirect(url_for('reset_request'))
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        password = sha256_crypt.encrypt(form.password.data)
+        student.password = password
+        db.session.commit()
+        flash("Your password has been updated","success")
+        return redirect(url_for('login'))
+    return render_template('reset_token.html',form=form)
+
+@app.route("/reservations/dashboard", methods=['GET','POST'])
+def resDashboard():
+    page = request.args.get('page',1,type=int)
+    reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.res_status, Reservation.facility_name, Reservation.purpose, Reservation.claimed_at, Reservation.returned_at).order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=6)
+    # reservations = Reservation.query.paginate(page=page,per_page=6)
+
+    if reservations is None:
+        msg = "No Equipments Found."
+        return render_template('reservationDashboard.html', msg=msg)
+    else:
+        return render_template('reservationDashboard.html', reservations=reservations)
+
+@app.route("/printReservation", methods=['GET'])
+def printToday():
+    today = datetime.date.today()
+    reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.facility_name, Reservation.purpose,Reservation.claimed_at, Reservation.returned_at).filter(Reservation.dateFrom==today).count()
+    reservationss = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.facility_name, Reservation.purpose,Reservation.claimed_at, Reservation.returned_at).filter(Reservation.dateFrom==today)
 
     
-#     path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
-#     config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
-#     rendered = render_template('reservationToday.html',reservations=reservations,reservationss=reservationss,today=today)
-#     pdf = pdfkit.from_string(rendered, False ,configuration=config)
-#     response = make_response(pdf)
-#     response.headers['Content-Type'] = 'application/pdf'
-#     response.headers['Content-Disposition'] = 'attachment; filename=Reservations for '+str(today)+'.pdf'
-#     return response
+    path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+    config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+    rendered = render_template('reservationToday.html',reservations=reservations,reservationss=reservationss,today=today)
+    pdf = pdfkit.from_string(rendered, False ,configuration=config)
+    response = make_response(pdf)
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=Reservations for '+str(today)+'.pdf'
+    return response
 
 
 
-# if __name__ == '__main__':
-#     app.run(debug=True)
-#     # manager.run()
+if __name__ == '__main__':
+    app.run(debug=True)
+    # manager.run()

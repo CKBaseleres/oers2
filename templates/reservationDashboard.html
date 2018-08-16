@@ -37,16 +37,19 @@
       <td>{{res.dateFrom.strftime('%B %d %Y')}}</td>
       <td>{{res.timeFrom.strftime('%I:%M%p')}}-{{res.timeTo.strftime('%I:%M%p')}}</td>
       {% if res.res_status == 'Active' %}
-      <td> <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-ng-href="reservations/dashboard/{{res.id}}/cancel">Cancel</button>
+      <td> <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-ng-href="reservations/dashboard/{{res.id}}/cancel">Cancel</button>
         <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Cancel Reservation?</h5>
+                <h5 class="modal-title" id="deleteModalLabel">Cancel Reservation</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
+              <div class="modal-body">
+                  <p>Cancel this Reservation?</p>
+                </div>  
               <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
                 <form action="{{ url_for('adminCancelReservation', res_id=res.id) }}" method="POST">
@@ -55,7 +58,7 @@
               </div>
             </div>
           </div>
-        </td> 
+        </td>
         {% else %}
         <td></td>
         {% endif %}
