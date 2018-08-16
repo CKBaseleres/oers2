@@ -31,12 +31,12 @@
       <td>{{res.purpose}}</td>
       <td>{{res.dateFrom.strftime('%b %d %Y')}} {{res.timeFrom.strftime('%I:%M%p')}}-{{res.timeTo.strftime('%I:%M%p')}}</td>
       {% if res.res_status == 'Active' %}
-      <td> <button type="button" class="btn btn-outline-primary btn-sm" >Edit</button> </td>
+      <td> <button type="button" class="btn btn-primary btn-sm" >Edit</button> </td>
       {% else %}
       <td> </td>
       {% endif %}
       {% if res.res_status == 'Active' %}
-      <td> <button type="button" class="btn btn-outline-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-ng-href="reservations/dashboard/{{res.id}}/cancel">Cancel</button>
+      <td> <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-ng-href="reservations/dashboard/{{res.id}}/cancel">Cancel</button>
         <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
