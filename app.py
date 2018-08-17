@@ -732,13 +732,13 @@ def delete_equipment(equip_id):
 
 def send_reset_email(student):
     token = student.reset()
-    msg = Message('PUPSJ:ORS Password Reset Request',
+    msg = Message('PUPSJ:OFERS Password Reset Request',
                     sender='pupsj.ors@gmail.com',
                     recipients=[student.email])
     msg.body = f'''To reset your password, visit the following link:
 {url_for('reset_token', token=token, _external = True)}
 
-If this is not you. Just ignore this.
+If this is not you. Just ignore this e-mail.
 '''
     mail.send(msg)
 
