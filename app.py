@@ -470,7 +470,7 @@ def addReservation():
     now = datetime.datetime.now()
     # datetoday = datetime.date.now()
     today = now.strftime("%d %B %Y")
-    print(today)
+    # print(today)
     if form.validate_on_submit():
         datee = form.resFrom.data
         ftime = form.reseFrom.data
@@ -648,9 +648,10 @@ def calendar():
     return render_template('calendar.html', reservations=reservations)
 
 @app.route('/data')
+@a_is_logged_in
 def return_data():
     reservation = []
-    reservations = Reservation.query.all()
+    reservations = Reservation.query.filter(Reservation.res_status != 'Canceled')
 
     print(reservations)
     for res in reservations:
@@ -675,6 +676,17 @@ def return_data():
 @app.route('/dashboard')
 @is_logged_in
 def UserDashboard():
+    form = ReservationForm()
+    equip = {}
+    fac = {}
+    # GET DATA FROM DATABASE FOR EQUIPMENTS
+    equipments = Equipment.query.all()
+    for res in equipments:
+        equip[res.equipmentName] = res.equipmentPropertyNumber
+    # GET DATA FROM DATABASE FOR FACILITIES
+    facilities = Facility.query.filter(Facility.availability == 'Yes')
+    for r in facilities:
+        fac[r.facilityName] = r.facilityPropertyNumber
 
     sn = str(session.get("studentNumber"))
     page = request.args.get('page',1,type=int)
@@ -684,7 +696,7 @@ def UserDashboard():
         msg = "No Reservations Found."
         return render_template('userDashboard.html', msg=msg)
     else:
-        return render_template('userDashboard.html', reservations=reservations)
+        return render_template('userDashboard.html', reservations=reservations, form=form, equip=equip, fac=fac)
 
 @app.route('/reservations')
 @is_logged_in
