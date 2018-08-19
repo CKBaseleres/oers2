@@ -135,8 +135,8 @@ class Reservation(db.Model):
     timeTo = db.Column(db.Time, nullable=False)
     res_status = db.Column(db.String(15), nullable=False, default="Active")
     reservation_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
-    claimed_at = db.Column(db.String(50), nullable=True)
-    returned_at = db.Column(db.String(50), nullable=True)
+    claimed_at = db.Column(db.String(50), nullable=True, default=" ")
+    returned_at = db.Column(db.String(50), nullable=True, default=" ")
     description = db.Column(db.String(300), nullable= False)
     profOrOrg = db.Column(db.String(50),nullable = False)
 
@@ -524,7 +524,6 @@ def addReservation():
         fac[r.facilityName] = r.facilityPropertyNumber
 
     now = datetime.datetime.now()
-    # datetoday = datetime.date.now()
     today = now.strftime("%d %B %Y")
     # print(today)
     if form.validate_on_submit():
@@ -787,6 +786,20 @@ def adminCancelReservation(res_id):
 
     return redirect(url_for('resDashboard'))
 
+# CLAIMING  
+@app.route('/reservations/dashboard/<int:res_id>/claim',  methods=['POST'])
+@a_is_logged_in
+def addTime(res_id):
+    reservation = Reservation.query.filter_by(id = res_id).first()
+    today = datetime.datetime.now()
+    if reservation.claimed_at == " ":
+        reservation.claimed_at = today
+    else:
+        reservation.returned_at = today
+    db.session.commit()
+
+    return redirect(url_for('resDashboard'))
+
 @app.route('/equipment/<int:equip_id>/delete',  methods=['POST'])
 @a_is_logged_in
 def delete_equipment(equip_id):
@@ -840,13 +853,14 @@ def resDashboard():
     # reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.res_status, Reservation.facility_name, Reservation.purpose, Reservation.claimed_at, Reservation.returned_at).order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=6)
     # reservations = Reservation.query.paginate(page=page,per_page=6)
 
-    reservations = Reservation.query.order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=6)    
-
+    reservations = Reservation.query.order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=6) 
+    now = datetime.datetime.now()
+    todayy = now.strftime("%Y-%m-%d")
     if reservations is None:
         msg = "No Equipments Found."
         return render_template('reservationDashboard.html', msg=msg)
     else:
-        return render_template('reservationDashboard.html', reservations=reservations)
+        return render_template('reservationDashboard.html', reservations=reservations, todayy=todayy)
 
 @app.route("/printReservation", methods=['GET'])
 def printToday():
@@ -863,7 +877,6 @@ def printToday():
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'attachment; filename=Reservations for '+str(today)+'.pdf'
     return response
-
 
 
 if __name__ == '__main__':

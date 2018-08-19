@@ -68,10 +68,27 @@
         {% else %}
         <td></td>
         {% endif %}
-        {% if res.claimed_at == " " %}
-        <td> <a href="" class="btn btn-primary btn-sm">Claimed</a></td>
+
+        {% if res.dateFrom|string == todayy  %}
+         {% if res.returned_at != " "%}
+         <td> </td>
+          {% else %}
+          {% if res.claimed_at == " " %}
+        <td> 
+          <form action="{{ url_for('addTime', res_id=res.id) }}" method="POST">
+            <input class="btn btn-primary btn-sm" type="submit" value="Claimed">
+          </form>
+        </td>
+          {% else %}
+        <td> 
+          <form action="{{ url_for('addTime', res_id=res.id) }}" method="POST">
+            <input class="btn btn-success btn-sm" type="submit" value="Returned">
+          </form>
+        </td>
+          {% endif %}
+          {% endif %}
         {% else %}
-        <td> <a href="" class="btn btn-success btn-sm">Returned</a></td>
+        <td> </td>
         {% endif %}
     </tr>
     {% endfor%}
