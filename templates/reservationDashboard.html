@@ -21,18 +21,24 @@
   <table class="table table-striped">
     <tr>
       <th>Name</th>
-      <th>Equipment</th>
-      <th>Facility</th>
+      <th>Reservation</th>
       <th>Purpose</th>
       <th>Date</th>
       <th>Time</th>
       <th></th>
+      <th></th>
     </tr>
     {% for res in reservations.items %}
     <tr>
-      <td>{{res.firstName}} {{res.lastName}}</td>
+      <!-- <td>{{res.firstName}} {{res.lastName}}</td> -->
+      <td>{{res.studentNumber}}</td>
+      {% if res.facility_name == '--' %}
       <td>{{res.equipment_name}}</td>
+      {% elif res.equipment_name == '--' %}
       <td>{{res.facility_name}}</td>
+      {% else %}
+      <td>{{res.equipment_name}} & {{res.facility_name}}</td>
+      {% endif %}
       <td>{{res.purpose}}</td>
       <td>{{res.dateFrom.strftime('%B %d %Y')}}</td>
       <td>{{res.timeFrom.strftime('%I:%M%p')}}-{{res.timeTo.strftime('%I:%M%p')}}</td>
@@ -61,6 +67,11 @@
         </td>
         {% else %}
         <td></td>
+        {% endif %}
+        {% if res.claimed_at == " " %}
+        <td> <a href="" class="btn btn-primary btn-sm">Claimed</a></td>
+        {% else %}
+        <td> <a href="" class="btn btn-success btn-sm">Returned</a></td>
         {% endif %}
     </tr>
     {% endfor%}

@@ -128,7 +128,7 @@ class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     equipment_name = db.Column(db.String(50), nullable=True)
     facility_name = db.Column(db.String(50), nullable=True)
-    studentNumber = db.Column(db.String(15), db.ForeignKey('student.studentNumber'), nullable=False)
+    studentNumber = db.Column(db.String(15), nullable=True)
     purpose = db.Column(db.String(100), nullable=False)
     dateFrom = db.Column(db.Date, nullable=False)
     timeFrom = db.Column(db.Time, nullable=False)
@@ -139,10 +139,6 @@ class Reservation(db.Model):
     returned_at = db.Column(db.String(50), nullable=True)
     description = db.Column(db.String(300), nullable= False)
     profOrOrg = db.Column(db.String(50),nullable = False)
-    # 
-    # 
-    # 
-
 
     def __repr__(self):
         return f"'{self.equipment_name}','{self.facility_name}','{self.studentNumber}','{self.purpose}'\
@@ -451,6 +447,66 @@ def send_letter(resFrom,resTime,resTo,today,equip,facility,purpose):
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'attachment; filename=letter.pdf'
     return response
+
+# Admin Reservation
+@app.route('/adminReservation', methods=['POST', 'GET'])
+@a_is_logged_in
+def adminReservation():
+    form = ReservationForm()
+    equip = {}
+    fac = {}
+
+    equipments = Equipment.query.all()
+    for res in equipments:
+        equip[res.equipmentName] = res.equipmentPropertyNumber
+    facilities = Facility.query.filter(Facility.availability == 'Yes')
+    for r in facilities:
+        fac[r.facilityName] = r.facilityPropertyNumber
+    now = datetime.datetime.now()
+    # datetoday = datetime.date.now()
+    today = now.strftime("%d %B %Y")
+    # print(today)
+    if form.validate_on_submit():
+        datee = form.resFrom.data
+        ftime = form.reseFrom.data
+        timeto = form.resTo.data
+        purpose = form.purpose.data
+        selectEquip= request.form['equips']
+        selectFac = request.form['facs']
+        orgOrProf = request.form['test']
+        desc = request.form['desc']
+        
+        if(selectEquip == '--' and selectFac == '--'):
+            flash("No equipment or facility has been selected.","danger")
+        elif(orgOrProf == '--' or orgOrProf == ''):
+            if(purpose == 'Academic'):
+                flash("Please enter the name of your Professor.","danger")
+            else:
+                flash("Please select an organization.","danger")
+        elif(desc == ''):
+            flash("Please enter a description.","danger")
+        # elif selectEquip != '--':
+        #     countReservation = Reservation.query.filter(Reservation.equip == selectEquip).filter(Reservation.dateFrom == datee).count()
+        #     # countEquip = Equipment.query.
+        #     if countReservation >= countReservation:
+        #         flash("Sorry no more aailable slots for that day.","danger")
+
+        elif(datee < datetime.date.today()):
+            flash("Invalid Date.",'danger')
+        elif datee < (datetime.date.today() + timedelta(days=3)):
+            flash("Reservations must be made for atleast 3 days before using",'danger')
+        else:
+            reservation = Reservation(equipment_name=selectEquip,facility_name=selectFac,purpose=purpose,dateFrom=datee,timeFrom=ftime,timeTo=timeto,studentNumber=session.get('username'),profOrOrg=orgOrProf,description=desc)
+            db.session.add(reservation)
+            db.session.commit()
+            flash("Reservation Added.", "success")
+
+            return (redirect(url_for('UserDashboard')))
+
+    return render_template('adminReservation.html',
+        form=form,equip=equip,fac=fac)
+
+    
 
 @app.route('/newres', methods=['POST','GET'])
 @is_logged_in
@@ -781,8 +837,10 @@ def reset_token(token):
 @app.route("/reservations/dashboard", methods=['GET','POST'])
 def resDashboard():
     page = request.args.get('page',1,type=int)
-    reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.res_status, Reservation.facility_name, Reservation.purpose, Reservation.claimed_at, Reservation.returned_at).order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=6)
+    # reservations = Reservation.query.join(Student, Student.studentNumber==Reservation.studentNumber).add_columns(Student.firstName, Student.lastName, Reservation.dateFrom, Reservation.timeFrom, Reservation.timeTo, Reservation.id, Reservation.equipment_name, Reservation.res_status, Reservation.facility_name, Reservation.purpose, Reservation.claimed_at, Reservation.returned_at).order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=6)
     # reservations = Reservation.query.paginate(page=page,per_page=6)
+
+    reservations = Reservation.query.order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=6)    
 
     if reservations is None:
         msg = "No Equipments Found."
