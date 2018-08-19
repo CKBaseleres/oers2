@@ -648,7 +648,6 @@ def calendar():
     return render_template('calendar.html', reservations=reservations)
 
 @app.route('/data')
-@a_is_logged_in
 def return_data():
     reservation = []
     reservations = Reservation.query.filter(Reservation.res_status != 'Canceled')
