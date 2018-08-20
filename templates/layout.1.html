@@ -349,48 +349,13 @@
       {% include 'includes/_navbar.html' %}
       <div class="container">
         <div class="row mt-4 mb-2" id="body">
-          <div class="contents-section col-sm-12 col-lg-3 mb-2 h-25 shadow" style="background-color: maroon;">
-            <h1 class="h2" style="color: white">Menu
-              <hr class="bg-white">
-            </h1>
-
-            {% if session.logged_in %}
-            <div class="">
-              <h5>
-                <a href="/dashboard" style="color: white;">Dashboard</a>
-              </h5>
-            </div>
-            <h5>
-              <a href="/reservations" style="color: white;">Reservations</a>
-            </h5>
-
-            <!-- <div class="">
-      <a class="col-12 btn btn-outline-danger list-group-item" href="/account">Account</a>
-      <h5>
-      <a href="/dashboard" style="color: white;">Dashboard</a>
-      </h5>
-
-    </div> -->
-
-            <div>
-              <!-- <a class="col-12 btn btn-outline-danger list-group-item" href="/logout">Logout</a> -->
-              <h5>
-                <a href="/logout" style="color: white;">Logout</a>
-              </h5>
-            </div>
-            {% else %}
-            <div>
-              <h5>
-                <a href="/login" style="color: white;">Students</a>
-              </h5>
-              <h5>
-                <a href="/admin/login" style="color: white;">Administrator</a>
-              </h5>
-            </div>
-            {% endif %}
-          </div>
-          <div class="col-lg-9 col-sm-12 col-md-12" id="body">
+          <div class="col-lg-4 col-sm-12 col-md-12" id="body">
             {% include 'includes/_messages.html' %} {% block body %}{% endblock %}
+          </div>
+          <div class="col-lg-8">
+              <div class="embed-responsive embed-responsive-16by9 mb-2 shadow">
+                  <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/37Clm7Z-fc8" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                </div>
           </div>
         </div>
       </div>

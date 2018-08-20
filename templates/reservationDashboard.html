@@ -25,7 +25,7 @@
       <th>Purpose</th>
       <th>Date</th>
       <th>Time</th>
-      <th></th>
+      <th>Claim/Return</th>
       <th></th>
       <th></th>
     </tr>
@@ -45,11 +45,13 @@
       <td>{{res.timeFrom.strftime('%I:%M%p')}}-{{res.timeTo.strftime('%I:%M%p')}}</td>
       {% if res.claimed_at == ' ' %}
       <td> </td>
+      {% elif res.returned_at != ' ' and res.claimed_at != ' ' %}
+      <td>{{res.claimed_at}}/{{res.returned_at}}</td>
       {% elif res.claimed_at != ' ' %}
       <td>{{res.claimed_at}}</td>
-      {% elif res.returned_at != '' %}
-      <td>{{res.claimed_at}} / {{res.returned_at}}</td>
+      
       {% endif %}
+      {% if res.claimed_at == ' ' and res.returned_at == ' '%}
       {% if res.res_status == 'Active' %}
       <td> <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-ng-href="reservations/dashboard/{{res.id}}/cancel">Cancel</button>
         <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -75,6 +77,9 @@
         </td>
         {% else %}
         <td></td>
+        {% endif %}
+        {% else %}
+        <td> </td>
         {% endif %}
 
         {% if res.res_status == "Canceled" %}

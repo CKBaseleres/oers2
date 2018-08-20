@@ -12,7 +12,9 @@
         Make Reservation
       </a></h4>
   </div>
-  {% if reservations != 0%}
+  {% if reservationss == 0 %}
+  <div class="jumbotron p-5 mt-3 display-4">Welcome, Make your first reservation.</div>
+  {% else %}
   <table class="table table-striped">
     <thead class="thead-dark">
     <tr>
@@ -140,8 +142,8 @@
     {% endfor%}
 
   </table>
-  {% else %}
-  <div class="jumbotron p-5 mt-3 display-4">Welcome, Make your first reservation.</div>
+
+  
   {% endif %}
 </div>
 {% for page_num in reservations.iter_pages() %}

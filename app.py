@@ -665,32 +665,32 @@ def register():
         db.session.add(student)
         db.session.commit()
         flash("You are now registered, please login","success")
-        return redirect(url_for('index'))
+        return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
-@app.route('/login',methods=['GET','POST'])
-def login():
-    if request.method == 'POST':
-        studentNumber = request.form['studentNumber']
-        password_test = request.form['password']
-        student = Student.query.filter_by(studentNumber=studentNumber).first()
-            # COMPARE PASSWORDS
-        if student and sha256_crypt.verify(password_test, student.password ):
-                # IF PASSED
-            session['logged_in'] = True
-            session['firstName'] = student.firstName
-            session['lastName'] = student.lastName
-            session['studentNumber'] = student.studentNumber
-            # session['courseSection'] = student.cs
+# @app.route('/login',methods=['GET','POST'])
+# def login():
+#     if request.method == 'POST':
+#         studentNumber = request.form['studentNumber']
+#         password_test = request.form['password']
+#         student = Student.query.filter_by(studentNumber=studentNumber).first()
+#             # COMPARE PASSWORDS
+#         if student and sha256_crypt.verify(password_test, student.password ):
+#                 # IF PASSED
+#             session['logged_in'] = True
+#             session['firstName'] = student.firstName
+#             session['lastName'] = student.lastName
+#             session['studentNumber'] = student.studentNumber
+#             # session['courseSection'] = student.cs
 
-            flash("You are now Logged in","success")
-                ## Might Change the directory for the return statement below
-            return redirect(url_for('UserDashboard'))
-        else:
-            error = 'Invalid Student Number/Password.'
-            return render_template('login.html',error=error)
+#             flash("You are now Logged in","success")
+#                 ## Might Change the directory for the return statement below
+#             return redirect(url_for('UserDashboard'))
+#         else:
+#             error = 'Invalid Student Number/Password.'
+#             return render_template('login.html',error=error)
 
-    return render_template('login.html')
+#     return render_template('login.html')
 
 
 @app.route('/admin/login',methods=['GET','POST'])
@@ -739,7 +739,7 @@ def admin():
 def logout():
     session.clear()
     flash('You are now logged out.', 'success')
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 @app.route('/admin/logout')
 @a_is_logged_in
@@ -752,9 +752,29 @@ def logoutAdmin():
 def about():
     return render_template('about.html')
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+@app.route('/' ,methods=['GET','POST'])
+def login():
+    if request.method == 'POST':
+        studentNumber = request.form['studentNumber']
+        password_test = request.form['password']
+        student = Student.query.filter_by(studentNumber=studentNumber).first()
+            # COMPARE PASSWORDS
+        if student and sha256_crypt.verify(password_test, student.password ):
+                # IF PASSED
+            session['logged_in'] = True
+            session['firstName'] = student.firstName
+            session['lastName'] = student.lastName
+            session['studentNumber'] = student.studentNumber
+            # session['courseSection'] = student.cs
+
+            flash("You are now Logged in","success")
+                ## Might Change the directory for the return statement below
+            return redirect(url_for('UserDashboard'))
+        else:
+            error = 'Invalid Student Number/Password.'
+            return render_template('login.html',error=error)
+
+    return render_template('login.html')
 
 @app.route('/reservations')
 def calendar():
@@ -804,12 +824,15 @@ def UserDashboard():
     sn = str(session.get("studentNumber"))
     page = request.args.get('page',1,type=int)
     reservations = Reservation.query.filter(Reservation.studentNumber == sn).order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=5)
+    print(type(reservations))
+    reservationss = Reservation.query.filter(Reservation.studentNumber == sn).order_by(Reservation.dateFrom.desc()).count()
+    print(reservationss)
     # cur = mysql.connection.cursor()
     if reservations is None:
         msg = "No Reservations Found."
         return render_template('userDashboard.html', msg=msg)
     else:
-        return render_template('userDashboard.html', reservations=reservations, form=form, equip=equip, fac=fac)
+        return render_template('userDashboard.html', reservations=reservations, reservationss=reservations, form=form, equip=equip, fac=fac)
 
 @app.route('/reservations')
 @is_logged_in
@@ -850,11 +873,12 @@ def adminCancelReservation(res_id):
 @a_is_logged_in
 def addTime(res_id):
     reservation = Reservation.query.filter_by(id = res_id).first()
-    today = datetime.datetime.now()
+    today = datetime.datetime.time(datetime.datetime.now())
+    tod = today.strftime('%I:%M%p')
     if reservation.claimed_at == " ":
-        reservation.claimed_at = today
+        reservation.claimed_at = tod
     else:
-        reservation.returned_at = today
+        reservation.returned_at = tod
     db.session.commit()
 
     return redirect(url_for('resDashboard'))
