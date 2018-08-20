@@ -27,6 +27,7 @@
       <th>Time</th>
       <th></th>
       <th></th>
+      <th></th>
     </tr>
     {% for res in reservations.items %}
     <tr>
@@ -42,6 +43,13 @@
       <td>{{res.purpose}}</td>
       <td>{{res.dateFrom.strftime('%B %d %Y')}}</td>
       <td>{{res.timeFrom.strftime('%I:%M%p')}}-{{res.timeTo.strftime('%I:%M%p')}}</td>
+      {% if res.claimed_at == ' ' %}
+      <td> </td>
+      {% elif res.claimed_at != ' ' %}
+      <td>{{res.claimed_at}}</td>
+      {% elif res.returned_at != '' %}
+      <td>{{res.claimed_at}} / {{res.returned_at}}</td>
+      {% endif %}
       {% if res.res_status == 'Active' %}
       <td> <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-ng-href="reservations/dashboard/{{res.id}}/cancel">Cancel</button>
         <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
@@ -69,10 +77,15 @@
         <td></td>
         {% endif %}
 
+        {% if res.res_status == "Canceled" %}
+        <td> </td>
+        {% else %}
         {% if res.dateFrom|string == todayy  %}
-         {% if res.returned_at != " "%}
+        
+        
+         {% if res.returned_at != " " %}
          <td> </td>
-          {% else %}
+         {% else %}
           {% if res.claimed_at == " " %}
         <td> 
           <form action="{{ url_for('addTime', res_id=res.id) }}" method="POST">
@@ -87,8 +100,10 @@
         </td>
           {% endif %}
           {% endif %}
+
         {% else %}
         <td> </td>
+        {% endif %}
         {% endif %}
     </tr>
     {% endfor%}

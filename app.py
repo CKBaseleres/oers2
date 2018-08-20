@@ -102,11 +102,10 @@ class Equipment(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     equipmentPropertyNumber = db.Column(db.String(50), unique=True, nullable=False)
     equipmentName = db.Column(db.String(50), nullable=False)
-    quantity = db.Column(db.Integer, nullable=False)
-    categoryId = db.Column(db.Integer, nullable=False)
+    categoryId = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
-        return f"'{self.equipmentName}','{self.quantity}','{self.equipmentPropertyNumber}'"
+        return f"'{self.equipmentName}','{self.equipmentPropertyNumber}','{self.categoryId}'"
 
 class Equipment_Category(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -396,6 +395,52 @@ def editEquipment(equip_id):
         form.equipmentPropertyNumber.data = equipment.equipmentPropertyNumber
     return render_template('editEquipment.html', form=form)
 
+@app.route('/reservation/<int:res_id>/edit', methods=['GET','POST'])
+@is_logged_in
+def editRes(res_id):
+    res = Reservation.query.get_or_404(res_id)
+    form = ReservationForm()
+
+    equip = {}
+    fac = {}
+    # GET DATA FROM DATABASE FOR EQUIPMENTS
+    equipments = Equipment.query.all()
+    for resu in equipments:
+        equip[resu.categoryId] = resu.equipmentPropertyNumber
+    # GET DATA FROM DATABASE FOR FACILITIES
+    facilities = Facility.query.filter(Facility.availability == 'Yes')
+    for r in facilities:
+        fac[r.facilityName] = r.facilityPropertyNumber
+    
+    print(res.dateFrom)
+    print(res.purpose)
+    print(res.description)
+
+    if form.validate_on_submit():
+        datee = form.resFrom.data
+        ftime = form.reseFrom.data
+        timeto = form.resTo.data
+        purpose = form.purpose.data
+        selectEquip= request.form['equips']
+        selectFac = request.form['facs']
+        orgOrProf = request.form['test']
+        desc = request.form['desc']
+        db.session.commit()
+        flash('Reservation Updated','success')
+        return redirect(url_for('UserDashboard', res_id=res.id))
+    elif request.method == 'GET':
+        form.resFrom.data = res.dateFrom
+        form.reseFrom.data = res.timeFrom
+        form.resTo.data = res.timeTo
+        form.purpose.data = res.purpose
+        # request.form['test'] = res.profOrOrg
+        # request.args.get('test',' ') = res.profOrOrg
+        # request.args.get('desc','') = res.description
+        # request.args.get('equips','') = res.equipment_name
+        # request.args.get('facs',' ') = res.facility_name
+        
+    return render_template('createReservation.html', form=form, equip=equip,fac=fac)
+
 @app.route('/equipment/add', methods=['POST','GET'])
 @a_is_logged_in
 def addEquipment():
@@ -476,6 +521,7 @@ def adminReservation():
         orgOrProf = request.form['test']
         desc = request.form['desc']
         
+        
         if(selectEquip == '--' and selectFac == '--'):
             flash("No equipment or facility has been selected.","danger")
         elif(orgOrProf == '--' or orgOrProf == ''):
@@ -517,7 +563,7 @@ def addReservation():
     # GET DATA FROM DATABASE FOR EQUIPMENTS
     equipments = Equipment.query.all()
     for res in equipments:
-        equip[res.equipmentName] = res.equipmentPropertyNumber
+        equip[res.categoryId] = res.equipmentPropertyNumber
     # GET DATA FROM DATABASE FOR FACILITIES
     facilities = Facility.query.filter(Facility.availability == 'Yes')
     for r in facilities:
@@ -535,7 +581,13 @@ def addReservation():
         selectFac = request.form['facs']
         orgOrProf = request.form['test']
         desc = request.form['desc']
-        
+
+        countReservationEquip = Reservation.query.filter(Reservation.equipment_name == selectEquip).filter(Reservation.dateFrom == datee).count()
+        countEquip = Equipment.query.filter(Equipment.categoryId == selectEquip).count()
+        countReservationFac = Reservation.query.filter(Reservation.facility_name == selectFac).filter(Reservation.dateFrom == datee).count()
+        countFac = Facility.query.filter(Facility.facilityName == selectFac).count()
+       
+
         if(selectEquip == '--' and selectFac == '--'):
             flash("No equipment or facility has been selected.","danger")
         elif(orgOrProf == '--' or orgOrProf == ''):
@@ -545,16 +597,23 @@ def addReservation():
                 flash("Please select an organization.","danger")
         elif(desc == ''):
             flash("Please enter a description.","danger")
-        # elif selectEquip != '--':
-        #     countReservation = Reservation.query.filter(Reservation.equip == selectEquip).filter(Reservation.dateFrom == datee).count()
-        #     # countEquip = Equipment.query.
-        #     if countReservation >= countReservation:
-        #         flash("Sorry no more aailable slots for that day.","danger")
-
+        elif(selectFac == '--' and countReservationEquip == countEquip):
+            flash("Sorry, no more available slots for "+ selectEquip+" on that day.","danger")
+        elif(selectEquip == '--' and countReservationFac == countFac):
+            flash("Sorry, no more avalable slots for "+selectFac+" on that day.","danger")
+            print(countReservationFac)
+            print(countFac)
+        elif(selectEquip != '--' and selectFac != '--'):
+            if(countReservationEquip == countEquip):
+                flash("Sorry, no more available slots for "+ selectEquip+" on that day.","danger")
+            elif(countReservationFac == countFac):
+                flash("Sorry, no more available slots for "+selectFac+" on that day.","danger")
         elif(datee < datetime.date.today()):
             flash("Invalid Date.",'danger')
         elif datee < (datetime.date.today() + timedelta(days=3)):
             flash("Reservations must be made for atleast 3 days before using",'danger')
+        elif timeto < ftime:
+            flash("Incorrect time. Please check your time.", "dange")
         else:
             reservation = Reservation(equipment_name=selectEquip,facility_name=selectFac,purpose=purpose,dateFrom=datee,timeFrom=ftime,timeTo=timeto,studentNumber=session.get('studentNumber'),profOrOrg=orgOrProf,description=desc)
             db.session.add(reservation)
