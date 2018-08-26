@@ -257,7 +257,7 @@ class AddFacilityForm(FlaskForm):
 
 class ReservationForm(FlaskForm):
     checkbox = BooleanField('Agree?',)
-    resFrom = DateField('Date', validators=[DataRequired()], format= "%Y-%m-%d")
+    resFrom = StringField('Date', validators=[DataRequired()]) #%Y-%m-%d
     reseFrom = TimeField('From', format= "%H:%M",validators=[TimeRange(
             min=time(7,30),
             max=time(17,00)
@@ -573,7 +573,8 @@ def addReservation():
     today = now.strftime("%d %B %Y")
     # print(today)
     if form.validate_on_submit():
-        datee = form.resFrom.data
+        # datee = form.resFrom.data.datetime.datetime.strftime("%Y-%m-%d")
+        datee = datetime.datetime.strptime(form.resFrom.data, '%Y-%m-%d').date()
         ftime = form.reseFrom.data
         timeto = form.resTo.data
         purpose = form.purpose.data
