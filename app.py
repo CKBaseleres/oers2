@@ -746,7 +746,7 @@ def logout():
 def logoutAdmin():
     session.clear()
     flash('You are now logged out.', 'success')
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 @app.route('/about')
 def about():
