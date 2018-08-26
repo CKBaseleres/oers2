@@ -10,7 +10,7 @@ from wtforms.fields.html5 import DateField
 from wtforms_components import TimeField, TimeRange, DateRange
 import datetime, pdfkit
 from dateutil.parser import parse
-import pandas as pd
+# import pandas as pd
 from datetime import time, date, timedelta
 from passlib.hash import sha256_crypt
 from flask_paginate import Pagination, get_page_parameter
