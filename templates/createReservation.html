@@ -4,29 +4,88 @@
 <form method="POST" id="resForm">
   <h3>Reservation</h3><hr>
     {{ form.hidden_tag()}}
-  <div class="form-group">
-    <h5>{{ form.equipment.label()}}</h5>
-    {{ form.equipment(class="form-control") }}
-  </div>
-  <div class="form-group">
-    <h5>{{ form.facility.label()}}</h5>
-    {{ form.facility(class="form-control") }}
-  </div>
-    <div class="form-group">
-      <h5>{{ form.resFrom.label()}}</h5>
-      {{ form.resFrom(class="form-control") }}
-    </div>
   <div class="form-row">
-    <div class="form-group col-6">
-      <h5>{{ form.reseFrom.label()}}</h5>
-      {{ form.reseFrom(class="form-control", id="basicExample") }}
+  <div class="form-group col-6">
+      {{ form.equipment.label(class="form-control-label") }}
+      {% if form.equipment.errors %}
+          {{ form.equipment(class="form-control input-shadow form-control-md is-invalid ") }}
+          <div class="invalid-feedback">
+              {% for error in form.equipment.errors %}
+                  <span>{{ error }}</span>
+              {% endfor %}
+          </div>
+      {% else %}
+          {{ form.equipment(class="form-control form-control-md input-shadow") }}
+      {% endif %}
+  </div>
+  <div class="form-group col-6">
+      {{ form.facility.label(class="form-control-label") }}
+      {% if form.facility.errors %}
+          {{ form.facility(class="form-control input-shadow form-control-md is-invalid ") }}
+          <div class="invalid-feedback">
+              {% for error in form.facility.errors %}
+                  <span>{{ error }}</span>
+              {% endfor %}
+          </div>
+      {% else %}
+          {{ form.facility(class="form-control form-control-md input-shadow") }}
+      {% endif %}
+  </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-4">
+        {{ form.resFrom.label(class="form-control-label ") }}
+        {% if form.resFrom.errors %}
+            {{ form.resFrom(class="form-control input-shadow form-control-md is-invalid ") }}
+            <div class="invalid-feedback">
+                {% for error in form.resFrom.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form.resFrom(class="form-control form-control-md input-shadow") }}
+        {% endif %}
     </div>
-    <div class="form-group col-6">
-      <h5> {{form.resTo.label}}</h5> {{ form.resTo(class="form-control", id="basicExample") }}
+  
+    <div class="form-group col-4">
+        {{ form.reseFrom.label(class="form-control-label") }}
+        {% if form.reseFrom.errors %}
+            {{ form.reseFrom(class="form-control input-shadow form-control-md is-invalid ") }}
+            <div class="invalid-feedback">
+                {% for error in form.reseFrom.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form.reseFrom(class="form-control form-control-md input-shadow") }}
+        {% endif %}
+    </div>
+    <div class="form-group col-4">
+        {{ form.resTo.label(class="form-control-label") }}
+        {% if form.resTo.errors %}
+            {{ form.resTo(class="form-control input-shadow form-control-md is-invalid ") }}
+            <div class="invalid-feedback">
+                {% for error in form.resTo.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form.resTo(class="form-control form-control-md input-shadow") }}
+        {% endif %}
     </div>
   </div>
   <div class="form-group">
-    <h5>{{form.purpose.label}}</h5> {{ form.purpose(class="form-control", id="purpose") }}
+      {{ form.purpose.label(class="form-control-label") }}
+      {% if form.purpose.errors %}
+          {{ form.purpose(class="form-control input-shadow form-control-md is-invalid ") }}
+          <div class="invalid-feedback">
+              {% for error in form.purpose.errors %}
+                  <span>{{ error }}</span>
+              {% endfor %}
+          </div>
+      {% else %}
+          {{ form.purpose(class="form-control form-control-md input-shadow") }}
+      {% endif %}
   </div>
   <div class="form-group" id="changee">
     <h5 id="prof">Professor</h5>

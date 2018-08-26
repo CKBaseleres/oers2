@@ -1,10 +1,5 @@
 {% extends 'layout.html'%}
 {% block body %}
-<h3 class="p-2">Welcome
-  <small>
-      {{session.firstName}} {{session.lastName}} 
-  </small>
-</h3>
 <div class="card shadow">
   <div class="card-header">
     <h4>Your Reservations
@@ -12,8 +7,8 @@
         Make Reservation
       </a></h4>
   </div>
-  {% if reservationss == 0 %}
-  <div class="jumbotron p-5 mt-3 display-4">Welcome, Make your first reservation.</div>
+  {% if reservationss == 0  %}
+    <div class="jumbotron p-5 mt-3 display-4">Welcome, Make your first reservation.</div>
   {% else %}
   <table class="table table-striped">
     <thead class="thead-dark">
@@ -41,74 +36,6 @@
           <a href="/reservation/{{res.id}}/edit" class="btn btn-primary btn-sm float-right">
             <span class="small" data-feather="edit-2"></span>
             Edit</a>
-      <!-- <div class="modal fade" id="editReservation" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="editModalabel">Edit Reservation</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-              </div>
-              <div class="modal-body">
-                <form action="POST">
-                    {{ form.hidden_tag()}}
-                  <div class="form-group">
-                  <label for="equips"><h5>Equipments</h5></label>
-                  <select class="form-control" id="equips" name="equips" value="{{request.form.equips}}">
-                    <option>--</option>
-                      {% for equi,id in equip.items() %}
-                      <option>{{equi}}</option>
-                      {% endfor %}
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="facs"><h5>Facilities</h5></label>
-                  <select class="form-control" id="facs" name="facs" value="{{request.form.facs}}">
-                    <option>--</option>
-                    {% for fa,id in fac.items() %}
-                    <option>{{fa}}</option>
-                    {% endfor %}
-                  </select>
-                  </div>
-                    <div class="form-group">
-                      <h5>{{ form.resFrom.label()}}</h5>
-                      {{ form.resFrom(class="form-control") }}
-                    </div>
-                  <div class="form-row">
-                    <div class="form-group col-6">
-                      <h5>{{ form.reseFrom.label()}}</h5>
-                      {{ form.reseFrom(class="form-control", id="basicExample") }}
-                    </div>
-                    <div class="form-group col-6">
-                      <h5> {{form.resTo.label}}</h5> {{ form.resTo(class="form-control", id="basicExample") }}
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <h5>{{form.purpose.label}}</h5> {{ form.purpose(class="form-control", id="purpose") }}
-                  </div>
-                  <div class="form-group" id="changee">
-                    <h5 id="prof">Professor</h5>
-                    <input type="text" class="form-control" id="test" name="test">
-                  </div>
-                  <div class="form-group">
-                    <h5>Description</h5>
-                    <textarea name="desc" id="desc" cols="30" rows="5" class="form-control"></textarea>
-                  </div>
-                  
-                  <p><input type="submit" class="btn btn-primary" value="Submit"></p>
-                </form>
-              </div>
-              <div class="modal-footer">
-              <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-              <form action="{{ url_for('cancelReservation', res_id=res.id) }}" method="POST">
-                  <input class="btn btn-primary" type="submit" value="Submit">
-              </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> </td> -->
       {% else %}
       <td> </td>
       {% endif %}

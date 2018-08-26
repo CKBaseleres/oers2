@@ -412,6 +412,10 @@ def editRes(res_id):
     for r in facilities:
         fac[r.facilityName] = r.facilityPropertyNumber
     
+    form.equipment.choices = [(equipment.equipmentName,equipment.equipmentName) for equipment in Equipment.query.all()]
+
+    form.facility.choices = [(facility.facilityName, facility.facilityName) for facility in Facility.query.filter(Facility.availability == 'Yes')]
+    
     print(res.dateFrom)
     print(res.purpose)
     print(res.description)
@@ -433,6 +437,8 @@ def editRes(res_id):
         form.reseFrom.data = res.timeFrom
         form.resTo.data = res.timeTo
         form.purpose.data = res.purpose
+        form.equipment.data = res.equipment_name
+        form.facility.data = res.facility_name
         # request.form['test'] = res.profOrOrg
         # request.args.get('test',' ') = res.profOrOrg
         # request.args.get('desc','') = res.description
@@ -558,9 +564,9 @@ def adminReservation():
 @is_logged_in
 def addReservation():
     form = ReservationForm()
-    form.equipment.choices = [(equipment.id,equipment.equipmentName) for equipment in Equipment.query.all()]
+    form.equipment.choices = [(equipment.equipmentName,equipment.equipmentName) for equipment in Equipment.query.all()]
 
-    form.facility.choices = [(facility.id, facility.facilityName) for facility in Facility.query.filter(Facility.availability == 'Yes')]
+    form.facility.choices = [(facility.facilityName, facility.facilityName) for facility in Facility.query.filter(Facility.availability == 'Yes')]
     now = datetime.datetime.now()
     today = now.strftime("%d %B %Y")
     # print(today)
@@ -568,10 +574,11 @@ def addReservation():
         # datee = form.resFrom.data.datetime.datetime.strftime("%Y-%m-%d")
         datee = datetime.datetime.strptime(form.resFrom.data, '%Y-%m-%d').date()
         ftime = form.reseFrom.data
+
         timeto = form.resTo.data
         purpose = form.purpose.data
-        selectEquip= request.form['equips']
-        selectFac = request.form['facs']
+        selectEquip= form.equipment.data
+        selectFac = form.facility.data
         orgOrProf = request.form['test']
         desc = request.form['desc']
 
@@ -608,7 +615,7 @@ def addReservation():
         elif timeto < ftime:
             flash("Incorrect time. Please check your time.", "dange")
         else:
-            reservation = Reservation(purpose=purpose,dateFrom=datee,timeFrom=ftime,timeTo=timeto,studentNumber=session.get('studentNumber'),profOrOrg=orgOrProf,description=desc)
+            reservation = Reservation(equipment_name=selectEquip,facility_name=selectFac,purpose=purpose,dateFrom=datee,timeFrom=ftime,timeTo=timeto,studentNumber=session.get('studentNumber'),profOrOrg=orgOrProf,description=desc)
             db.session.add(reservation)
             db.session.commit()
             flash("Reservation Added.", "success")
@@ -819,13 +826,13 @@ def UserDashboard():
     reservations = Reservation.query.filter(Reservation.studentNumber == sn).order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=5)
     print(type(reservations))
     reservationss = Reservation.query.filter(Reservation.studentNumber == sn).order_by(Reservation.dateFrom.desc()).count()
-    print(reservationss)
+    print(type(reservationss))
     # cur = mysql.connection.cursor()
     if reservations is None:
         msg = "No Reservations Found."
         return render_template('userDashboard.html', msg=msg)
     else:
-        return render_template('userDashboard.html', reservations=reservations, reservationss=reservations, form=form, equip=equip, fac=fac)
+        return render_template('userDashboard.html', reservations=reservations, reservationss=reservationss, form=form, equip=equip, fac=fac)
 
 @app.route('/reservations')
 @is_logged_in
