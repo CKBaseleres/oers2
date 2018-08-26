@@ -315,7 +315,39 @@ class ResetPasswordForm(FlaskForm):
                         validators=[DataRequired()])
     submit = SubmitField('Reset Password')
 
+class CourseForm(FlaskForm):
+    name = StringField('Course',
+                        validators=[DataRequired()])
 
+# class ProfessorForm(FlaskForm):
+#     name = StringField('Professor',
+#                         validators=[DataRequired()])
+#     fieldOfStudy = StringField('Field Of Study',
+#                                 validators=[DataRequired()])
+
+# class OrganizationForm(FlaskForm):
+#     name = StringField('Organization Name',
+#                         validators=[DataRequired()])
+
+# class PurposeForm(FlaskForm):
+#     name = StringField('Purpose',
+#                         validators=[DataRequired()])
+
+
+@app.route('/courses/new', methods=['GET','POST'])
+@a_is_logged_in
+def NewCourse():
+    form = CourseForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        course = Course(name=name)
+        db.session.add(Course)
+        db.session.commit()
+
+        flash("Course Added!","success")
+
+        return redirect(url_for('UserDashboard'))
+    return render_template('add_course.html', form=form)
 
 # @app.route('/equipment/dashboard', methods=['GET'])
 # @a_is_logged_in

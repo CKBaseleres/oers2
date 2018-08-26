@@ -1,0 +1,54 @@
+{% extends 'admin_layout.html' %}
+
+{% block body %}
+<div class="row mt-5">
+    <div class="col-lg-3 col-md-2"></div>
+    <div class="col-lg-6 col-md-8 col-12 content-section">
+        <h1>Add Course</h1>
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.equipmentPropertyNumber.label(class="form-control-label") }}
+                {% if form.equipmentPropertyNumber.errors %}
+                    {{ form.equipmentPropertyNumber(class="form-control form-control-md is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.equipmentPropertyNumber.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.equipmentPropertyNumber(class="form-control form-control-md") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.equipmentName.label(class="form-control-label") }}
+                {% if form.equipmentName.errors %}
+                    {{ form.equipmentName(class="form-control form-control-md is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.equipmentName.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.equipmentName(class="form-control form-control-md") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.quantity.label(class="form-control-label") }}
+                {% if form.quantity.errors %}
+                    {{ form.quantity(class="form-control form-control-md is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.quantity.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.quantity(class="form-control form-control-md") }}
+                {% endif %}
+            </div>
+            <p><input type="submit" class="btn btn-primary float-right" value="Submit"></p>
+        </form>
+    <div class="col-lg-3 col-md-2"></div>
+</div>
+
+{% endblock %}
