@@ -7,7 +7,7 @@ from flask_mail import Mail, Message
 from wtforms import StringField, TextAreaField, PasswordField, validators,BooleanField, IntegerField, widgets, SelectMultipleField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, NumberRange
 from wtforms.fields.html5 import DateField
-from wtforms_components import TimeField, TimeRange
+from wtforms_components import TimeField, TimeRange, DateRange
 import datetime, pdfkit
 from dateutil.parser import parse
 import pandas as pd
@@ -16,7 +16,6 @@ from passlib.hash import sha256_crypt
 from flask_paginate import Pagination, get_page_parameter
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from functools import wraps
-
 from flask_migrate import Migrate
 
 app = Flask(__name__, static_url_path="/static", static_folder="static")
@@ -42,7 +41,6 @@ app.config['MAIL_PASSWORD'] = 'pupadmin'
 mail = Mail(app)
 
 # Initialize MySql
-mysql = MySQL(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 # manager = Manager(app)
@@ -237,8 +235,8 @@ class AddEquipmentForm(FlaskForm):
                                         validators=[DataRequired(),Length(min=5, max=50)])
     equipmentName = StringField('Equipment Name',
                                 validators=[DataRequired(),Length(min=1, max=50)])
-    quantity = IntegerField('Quantity',
-                            validators=[DataRequired(), NumberRange(message='Not a number value.')])
+    categoryId = StringField('Category',
+                            validators=[DataRequired(),])
 
 class AddFacilityForm(FlaskForm):
     def validate_email(form,field):
@@ -257,7 +255,9 @@ class AddFacilityForm(FlaskForm):
 
 class ReservationForm(FlaskForm):
     checkbox = BooleanField('Agree?',)
-    resFrom = DateField('Date', validators=[DataRequired()], format= "%Y-%m-%d")
+    equipment = SelectField('Equipments', choices=[('--','--')])
+    facility = SelectField('Facilities', choices=[('--','--')])
+    resFrom = DateField('Date', validators=[DataRequired(), DateRange(min=datetime.date.today() + timedelta(days=3))], format= "%Y-%m-%d")
     reseFrom = TimeField('From', format= "%H:%M",validators=[TimeRange(
             min=time(7,30),
             max=time(17,00)
@@ -385,7 +385,7 @@ def editEquipment(equip_id):
     if form.validate_on_submit():
         equipment.equipmentPropertyNumber = form.equipmentPropertyNumber.data
         equipment.equipmentName = form.equipmentName.data
-        equipment.quantity = form.quantity.data
+        equipment.categoryId = form.categoryId.data
         db.session.commit()
         flash('Equipment Updated','success')
         return redirect(url_for('EquipmentDashboard', equip_id=equipment.id))
@@ -558,17 +558,9 @@ def adminReservation():
 @is_logged_in
 def addReservation():
     form = ReservationForm()
-    equip = {}
-    fac = {}
-    # GET DATA FROM DATABASE FOR EQUIPMENTS
-    equipments = Equipment.query.all()
-    for res in equipments:
-        equip[res.categoryId] = res.equipmentPropertyNumber
-    # GET DATA FROM DATABASE FOR FACILITIES
-    facilities = Facility.query.filter(Facility.availability == 'Yes')
-    for r in facilities:
-        fac[r.facilityName] = r.facilityPropertyNumber
+    form.equipment.choices = [(equipment.id,equipment.equipmentName) for equipment in Equipment.query.all()]
 
+    form.facility.choices = [(facility.id, facility.facilityName) for facility in Facility.query.filter(Facility.availability == 'Yes')]
     now = datetime.datetime.now()
     today = now.strftime("%d %B %Y")
     # print(today)
@@ -615,7 +607,7 @@ def addReservation():
         elif timeto < ftime:
             flash("Incorrect time. Please check your time.", "dange")
         else:
-            reservation = Reservation(equipment_name=selectEquip,facility_name=selectFac,purpose=purpose,dateFrom=datee,timeFrom=ftime,timeTo=timeto,studentNumber=session.get('studentNumber'),profOrOrg=orgOrProf,description=desc)
+            reservation = Reservation(purpose=purpose,dateFrom=datee,timeFrom=ftime,timeTo=timeto,studentNumber=session.get('studentNumber'),profOrOrg=orgOrProf,description=desc)
             db.session.add(reservation)
             db.session.commit()
             flash("Reservation Added.", "success")
@@ -645,7 +637,7 @@ def addReservation():
 
 
     return render_template('createReservation.html',
-        form=form,equip=equip,fac=fac)
+        form=form)
 
 
 
