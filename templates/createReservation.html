@@ -2,11 +2,11 @@
 {% from "includes/_formhelpers.html" import render_field %}
 <div class="content-section mb-5 shadow">
 <form method="POST" id="resForm">
-  <h3>Reservation</h3><hr>
+  <h3 class="mt-2">Reservation</h3><hr>
     {{ form.hidden_tag()}}
   <div class="form-row">
   <div class="form-group col-6">
-      {{ form.equipment.label(class="form-control-label") }}
+      {{ form.equipment.label(class="form-control-label h5") }}
       {% if form.equipment.errors %}
           {{ form.equipment(class="form-control input-shadow form-control-md is-invalid ") }}
           <div class="invalid-feedback">
@@ -19,7 +19,7 @@
       {% endif %}
   </div>
   <div class="form-group col-6">
-      {{ form.facility.label(class="form-control-label") }}
+      {{ form.facility.label(class="form-control-label h5") }}
       {% if form.facility.errors %}
           {{ form.facility(class="form-control input-shadow form-control-md is-invalid ") }}
           <div class="invalid-feedback">
@@ -34,7 +34,7 @@
   </div>
   <div class="form-row">
     <div class="form-group col-4">
-        {{ form.resFrom.label(class="form-control-label ") }}
+        {{ form.resFrom.label(class="form-control-label h5") }}
         {% if form.resFrom.errors %}
             {{ form.resFrom(class="form-control input-shadow form-control-md is-invalid ") }}
             <div class="invalid-feedback">
@@ -48,7 +48,7 @@
     </div>
   
     <div class="form-group col-4">
-        {{ form.reseFrom.label(class="form-control-label") }}
+        {{ form.reseFrom.label(class="form-control-label h5") }}
         {% if form.reseFrom.errors %}
             {{ form.reseFrom(class="form-control input-shadow form-control-md is-invalid ") }}
             <div class="invalid-feedback">
@@ -61,7 +61,7 @@
         {% endif %}
     </div>
     <div class="form-group col-4">
-        {{ form.resTo.label(class="form-control-label") }}
+        {{ form.resTo.label(class="form-control-label h5") }}
         {% if form.resTo.errors %}
             {{ form.resTo(class="form-control input-shadow form-control-md is-invalid ") }}
             <div class="invalid-feedback">
@@ -75,7 +75,7 @@
     </div>
   </div>
   <div class="form-group">
-      {{ form.purpose.label(class="form-control-label") }}
+      {{ form.purpose.label(class="form-control-label h5") }}
       {% if form.purpose.errors %}
           {{ form.purpose(class="form-control input-shadow form-control-md is-invalid ") }}
           <div class="invalid-feedback">

@@ -247,7 +247,8 @@
     /* background-repeat: no-repeat; */
     /* background-size: 450px; */
     /* background-position: 110%; */
-    font-family: times;
+    font-family: 'Nunito', sans-serif;
+
   }
 
   .input-shadow {
@@ -270,6 +271,8 @@
     height: 50px;
     /* Height of the footer */
     background-color: #f9f9f9;
+    font-family: 'Nunito', sans-serif;
+
   }
 
   .shadow {
@@ -354,12 +357,12 @@
       {% include 'includes/_navbar.html' %}
       <div class="container">
           {% if session.logged_in %}
-          <h2 class="p-3">Welcome
+          <h2 class="m-3">Welcome
             <small class="text-muted">
-                {{session.firstName}} {{session.lastName}} 
+              {{session.firstName}} {{session.lastName}}
             </small>
           </h2>
-        {% endif %}
+          {% endif %}
         <div class="row mb-2" id="body">
           <div class="contents-section col-sm-12 col-lg-3 mb-2 h-25 shadow" style="background-color: maroon;">
             <h1 class="h2" style="color: white">Menu
