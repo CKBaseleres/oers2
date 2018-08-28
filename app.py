@@ -283,8 +283,8 @@ class AddFacilityForm(FlaskForm):
 
 class ReservationForm(FlaskForm):
     checkbox = BooleanField('Agree?',)
-    equipment = SelectField('Equipments', choices=[('--','--')])
-    facility = SelectField('Facilities', choices=[('--','--')])
+    equipment = SelectField('Equipments', choices=[])
+    facility = SelectField('Facilities', choices=[])
     resFrom = StringField('Date', validators=[DataRequired()]) #%Y-%m-%d
     reseFrom = TimeField('From', format= "%H:%M",validators=[TimeRange(
             min=time(7,30),
@@ -569,7 +569,7 @@ def delete_professor(prof_id):
 @a_is_logged_in
 def EquipmentDashboard():
     page = request.args.get('page',1,type=int)
-    equipments = Equipment.query.paginate(page=page,per_page=5)
+    equipments = Equipment.query.filter(Equipment.equipmentName != '--').paginate(page=page,per_page=5)
     if equipments is None:
         msg = "No Equipments Found."
         return render_template('equipmentDashboard.html', msg=msg)
@@ -650,9 +650,9 @@ def editEquipment(equip_id):
         return redirect(url_for('EquipmentDashboard', equip_id=equipment.id))
     elif request.method == 'GET':
         form.equipmentName.data = equipment.equipmentName
-        form.quantity.data = equipment.quantity
+        form.categoryId.data =  equipment.categoryId
         form.equipmentPropertyNumber.data = equipment.equipmentPropertyNumber
-    return render_template('editEquipment.html', form=form)
+    return render_template('add_equipment.html', form=form)
 
 @app.route('/reservation/<int:res_id>/edit', methods=['GET','POST'])
 @is_logged_in
