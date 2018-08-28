@@ -315,6 +315,237 @@ class ResetPasswordForm(FlaskForm):
                         validators=[DataRequired()])
     submit = SubmitField('Reset Password')
 
+class CourseForm(FlaskForm):
+    name = StringField('Course',
+                        validators=[DataRequired()])
+
+class ProfessorForm(FlaskForm):
+    name = StringField('Professor',
+                        validators=[DataRequired()])
+    fieldOfStudy = StringField('Field Of Study',
+                                validators=[DataRequired()])
+
+class OrganizationForm(FlaskForm):
+    name = StringField('Organization Name',
+                        validators=[DataRequired()])
+
+class PurposeForm(FlaskForm):
+    name = StringField('Purpose',
+                        validators=[DataRequired()])
+
+
+###################### COURSES ######################
+@app.route('/courses', methods=['GET','POST'])
+@a_is_logged_in
+def AllCourses():
+    page = request.args.get('page',1,type=int)
+    courses = Course.query.paginate(page=page,per_page=5)
+    if courses is None:
+        msg = "No Courses Found."
+        return render_template('coursesDashboard.html', msg=msg)
+    else:
+        return render_template('coursesDashboard.html', courses=courses)
+
+@app.route('/courses/new', methods=['GET','POST'])
+@a_is_logged_in
+def NewCourse():
+    form = CourseForm()
+    title = "Add Course"
+    if form.validate_on_submit():
+        name = form.name.data
+        course = Course(name=name)
+        db.session.add(course)
+        db.session.commit()
+
+        flash("Course Added!","success")
+
+        return redirect(url_for('UserDashboard'))
+    return render_template('add_purpose.html', form=form, title=title)
+
+@app.route('/courses/<int:course_id>/edit', methods=['GET', 'POST'])
+@a_is_logged_in
+def editCourse(course_id):
+    course = Course.query.get_or_404(course_id)
+    title = "Edit Course"
+    form = CourseForm()
+    if form.validate_on_submit():
+        course.name = form.name.data
+        db.session.commit()
+        flash("Course Updated.","success")
+        return redirect(url_for('AllCourses', course_id=course.id))
+    elif request.method == 'GET':
+        # Populate Fields
+        form.name.data = course.name
+    return render_template('add_course.html', form=form, title=title)
+
+# @app.route('/facility/<int:course_id>/edit', methods=['GET', 'POST'])
+# @a_is_logged_in
+# def editCourse(course_id):
+#     course = Course.query.get_or_404(course_id)
+#     form = CourseForm()
+#     if form.validate_on_submit():
+#         course.name = form.facilityPropertyNumber.data
+#         db.session.commit()
+#         flash("Course Updated.","success")
+#         return redirect(url_for('FacilityDashboard', course_id=facility.id))
+#     elif request.method == 'GET':
+#         # Populate Fields
+#         form.facilityName.data = facility.facilityName
+#         form.availability.data = facility.availability
+#         form.facilityPropertyNumber.data = facility.facilityPropertyNumber
+#     return render_template('editFacility.html', form=form)
+
+########################## PURPOSES #############################
+
+@app.route('/purposes', methods=['GET','POST'])
+@a_is_logged_in
+
+def AllPurposes():
+    page = request.args.get('page',1,type=int)
+    purposes = Purpose.query.paginate(page=page,per_page=5)
+    if purposes is None:
+        msg = "No Courses Found."
+        return render_template('purposesDashboard.html', msg=msg)
+    else:
+        return render_template('purposesDashboard.html', purposes=purposes)
+
+@app.route('/purposes/new', methods=['GET','POST'])
+@a_is_logged_in
+def NewPurpose():
+    form = PurposeForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        course = Purpose(name=name)
+        db.session.add(course)
+        db.session.commit()
+
+        flash("Purpose Added!","success")
+
+        return redirect(url_for('AllPurposes'))
+    return render_template('add_purpose.html', form=form)
+
+@app.route('/purposes/<int:purpose_id>/edit', methods=['GET', 'POST'])
+@a_is_logged_in
+def editPurpose(purpose_id):
+    purpose = Purpose.query.get_or_404(purpose_id)
+    title = "Edit Purpose"
+    form = PurposeForm()
+    if form.validate_on_submit():
+        purpose.name = form.name.data
+        db.session.commit()
+        flash("Purpose Updated.","success")
+        return redirect(url_for('AllPurposes', purpose_id=purpose.id))
+    elif request.method == 'GET':
+        # Populate Fields
+        form.name.data = purpose.name
+    return render_template('add_purpose.html', form=form, title=title)
+
+
+
+################################### ORGANIZATIONS ############################33
+
+@app.route('/organizations', methods=['GET','POST'])
+@a_is_logged_in
+def AllOrgranizations():
+    page = request.args.get('page',1,type=int)
+    organizations = Organization.query.paginate(page=page,per_page=5)
+    if organizations is None:
+        msg = "No Organizations Found."
+        return render_template('organizationsDashboard.html', msg=msg)
+    else:
+        return render_template('organizationsDashboard.html', organizations=organizations)
+
+@app.route('/organizations/new', methods=['GET','POST'])
+@a_is_logged_in
+def NewOrganization():
+    form = OrganizationForm()
+    title = "Add Organization"
+
+    if form.validate_on_submit():
+        name = form.name.data
+        organization = Organization(name=name)
+        db.session.add(organization)
+        db.session.commit()
+
+        flash("Organization Added!","success")
+
+        return redirect(url_for('UserDashboard'))
+    return render_template('add_organization.html', form=form)
+
+@app.route('/organizations/<int:organization_id>/edit', methods=['GET', 'POST'])
+@a_is_logged_in
+def editOrganization(organization_id):
+    org = Organization.query.get_or_404(organization_id)
+    title = "Edit Organization"
+    form = PurposeForm()
+    if form.validate_on_submit():
+        org.name = form.name.data
+        db.session.commit()
+        flash("Organization Updated.","success")
+        return redirect(url_for('AllOrgranizations', organization_id=org.id))
+    elif request.method == 'GET':
+        form.name.data = org.name
+    return render_template('add_organization.html', form=form, title=title)
+
+
+################################## PROFESSORS #############################
+@app.route('/professors', methods=['GET','POST'])
+@a_is_logged_in
+def AllProfessors():
+    page = request.args.get('page',1,type=int)
+    professors = Professor.query.paginate(page=page,per_page=5)
+    if professors is None:
+        msg = "No Professors Found."
+        return render_template('professorsDashboard.html', msg=msg)
+    else:
+        return render_template('professorsDashboard.html', professors=professors)
+
+@app.route('/professors/new', methods=['GET','POST'])
+@a_is_logged_in
+def NewProfessor():
+    form = ProfessorForm()
+    title = "Add Professor"
+    if form.validate_on_submit():
+        name = form.name.data
+        fieldOfStudy = form.fieldOfStudy.data
+        professor = Professor(name=name,fieldOfStudy=fieldOfStudy)
+        db.session.add(professor)
+        db.session.commit()
+
+        flash("Organization Added!","success")
+
+        return redirect(url_for('AllProfessors'))
+    return render_template('add_professor.html', form=form, title=title)
+
+@app.route('/professors/<int:prof_id>/edit', methods=['GET', 'POST'])
+@a_is_logged_in
+def editProfessor(prof_id):
+    prof = Professor.query.get_or_404(prof_id)
+    title = "Edit Professor"
+    form = ProfessorForm()
+    if form.validate_on_submit():
+        prof.name = form.name.data
+        prof.fieldOfStudy = form.fieldOfStudy.data
+        db.session.commit()
+        flash("Professor Updated.","success")
+        return redirect(url_for('AllProfessors', prof_id=prof.id))
+    elif request.method == 'GET':
+        form.name.data = prof.name
+        form.fieldOfStudy.data = prof.fieldOfStudy
+    return render_template('add_professor.html', form=form, title=title)
+
+@app.route('/professors/<int:prof_id>/delete',  methods=['POST'])
+@a_is_logged_in
+def delete_professor(prof_id):
+    prof = Professor.query.get_or_404(prof_id)
+    db.session.delete(prof)
+    db.session.commit()
+    flash("Professor Deleted",'success')
+
+    return redirect(url_for('professorsDashboard'))
+
+
+
 
 
 # @app.route('/equipment/dashboard', methods=['GET'])
