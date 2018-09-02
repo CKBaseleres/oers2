@@ -42,14 +42,14 @@
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Delete Course?</h5>
+                <h5 class="modal-title" id="deleteModalLabel">Delete Purpose?</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form action="{k{ url_for('delete_equipment', equip_id=equipment.id) }}" method="POST">
+                <form action="{{ url_for('delete_purpose', purpose_id=purposes.id) }}" method="POST">
                   <input class="btn btn-danger" type="submit" value="Delete">
                 </form>
               </div>

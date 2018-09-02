@@ -49,7 +49,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form action="{d{ url_foddr('delete_equipment', course_id=courses.id) }}" method="POST">
+                <form action="{{ url_for('delete_course', course_id=courses.id) }}" method="POST">
                   <input class="btn btn-danger" type="submit" value="Delete">
                 </form>
               </div>

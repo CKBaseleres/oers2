@@ -26,7 +26,7 @@
       <th>Name</th>
       <th>Category</th>
       <th></th>
-      <th></th>
+      <th style="column-span: 2;"></th>
     </tr>
     {% for equipment in equipments.items %}
     <tr>
@@ -39,7 +39,8 @@
           Edit</a>
       </td>
       <td>
-        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-ng-href="/equipment/{{equipment.id}}/delete_equipment">Delete</button>
+        <!--  -->
+        <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
         <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">

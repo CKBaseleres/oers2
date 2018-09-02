@@ -21,14 +21,14 @@
   </div>
   <table class="table table-striped">
     <tr>
-      <th>Property Number</th>
+      <th>ID</th>
       <th>Name</th>
       <th>Availability</th>
       <th></th>
     </tr>
     {% for facility in facilities.items %}
     <tr>
-      <td>{{facility.facilityPropertyNumber}}</td>
+      <td>{{facility.id}}</td>
       <td>{{facility.facilityName}}</td>
       <td>{{facility.availability}}</td>
       <td>

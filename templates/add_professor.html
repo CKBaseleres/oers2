@@ -8,18 +8,31 @@
         <form action="" method="post">
             {{ form.hidden_tag() }}
             <div class="form-group">
-                {{ form.name.label(class="form-control-label") }}
-                {% if form.name.errors %}
-                    {{ form.name(class="form-control form-control-md is-invalid") }}
+                {{ form.firstName.label(class="form-control-label") }}
+                {% if form.firstName.errors %}
+                    {{ form.firstName(class="form-control form-control-md is-invalid") }}
                     <div class="invalid-feedback">
-                        {% for error in form.name.errors %}
+                        {% for error in form.firstName.errors %}
                             <span>{{ error }}</span>
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.name(class="form-control form-control-md") }}
+                    {{ form.firstName(class="form-control form-control-md") }}
                 {% endif %}
             </div>
+            <div class="form-group">
+                    {{ form.lastName.label(class="form-control-label") }}
+                    {% if form.lastName.errors %}
+                        {{ form.lastName(class="form-control form-control-md is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.lastName.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.lastName(class="form-control form-control-md") }}
+                    {% endif %}
+                </div>
             <div class="form-group">
               {{ form.fieldOfStudy.label(class="form-control-label") }}
               {% if form.fieldOfStudy.errors %}

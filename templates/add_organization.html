@@ -20,7 +20,19 @@
                     {{ form.name(class="form-control form-control-md") }}
                 {% endif %}
             </div>
-        
+            <div class="form-group">
+                    {{ form.course.label(class="form-control-label") }}
+                    {% if form.course.errors %}
+                        {{ form.course(class="form-control form-control-md is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.course.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.course(class="form-control form-control-md") }}
+                    {% endif %}
+                </div>
             <p><input type="submit" class="btn btn-primary float-right" value="Submit"></p>
         </form>
     <div class="col-lg-3 col-md-2"></div>

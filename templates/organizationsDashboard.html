@@ -24,20 +24,22 @@
     <tr>
       <th>ID</th>
       <th>Name</th>
+      <th>Course</th>
       <th></th>
       <th></th>
     </tr>
-    {% for organizations in organizations.items %}
+    {% for org in organizations.items %}
     <tr>
-      <td>{{organizations.id}}</td>
-      <td>{{organizations.name}}</td>
+      <td>{{org.id}}</td>
+      <td>{{org.name}}</td>
+      <td>{{org.course}}</td>
       <td>
-        <a href="/organizations/{{organizations.id}}/edit" class="btn btn-primary btn-sm float-right">
+        <a href="/organizations/{{org.id}}/edit" class="btn btn-primary btn-sm float-right">
           <span class="small" data-feather="edit-2"></span>
           Edit</a>
       </td>
       <td>
-        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-ng-href="/organizations/{{organizations.id}}/delete_equipment">Delete</button>
+        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-ng-href="/organizations/{{org.id}}/delete">Delete</button>
         <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -49,7 +51,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form action="{k{ url_for('delete_equipment', equip_id=equipment.id) }}" method="POST">
+                <form action="{{ url_for('delete_org', org_id=org.id) }}" method="POST">
                   <input class="btn btn-danger" type="submit" value="Delete">
                 </form>
               </div>

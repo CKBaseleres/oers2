@@ -13,6 +13,7 @@
     crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/timepicker@1.11.12/jquery.timepicker.min.css">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css" />
 
   <!-- Custom styles for this template -->
   <style>
@@ -193,8 +194,9 @@
               </button>
             </div> -->
   <!-- </div> -->
-  {% include 'includes/_adminnav.html'%} {% block body %}{% endblock%}
-  </div>
+  {% include 'includes/_adminnav.html'%} 
+  {% block body %}{% endblock%}
+   
 
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
     crossorigin="anonymous"></script>
@@ -211,6 +213,74 @@
 
   <!-- Graphs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js"></script>
+
+  <script>
+      function formatDate(date) {
+      var d = new Date(date),
+          month = '' + (d.getMonth() + 1),
+          day = '' + d.getDate(),
+          year = d.getFullYear();
+  
+      if (month.length < 2) month = '0' + month;
+      if (day.length < 2) day = '0' + day;
+  
+      return [year, month, day].join('-');
+  }
+      var d = new Date();
+      d.setDate(d.getDate() + 3);
+      // console.log(dd);
+      $('#firstDate').datepicker({
+        todayHighlight: true,
+        format: {
+          toDisplay: function (date, format, language) {
+              var dx = new Date(date);
+              dx.setDate(dx.getDate());
+              return formatDate(dx);
+          },
+          toValue: function (date, format, language) {
+              var dx = new Date(date);
+              dx.setDate(dx.getDate());
+              return formatDate(dx);
+          }
+        }
+        
+      });
+      $('#secondDate').datepicker({
+        todayHighlight: true,
+        format: {
+          toDisplay: function (date, format, language) {
+              var dx = new Date(date);
+              dx.setDate(dx.getDate());
+              return formatDate(dx);
+          },
+          toValue: function (date, format, language) {
+              var dx = new Date(date);
+              dx.setDate(dx.getDate());
+              return formatDate(dx);
+          }
+        }
+        
+      });
+      $('#resFrom').datepicker({
+        startDate: d,
+        todayHighlight: true,
+        format: {
+          toDisplay: function (date, format, language) {
+              var dx = new Date(date);
+              dx.setDate(dx.getDate());
+              return formatDate(dx);
+          },
+          toValue: function (date, format, language) {
+              var dx = new Date(date);
+              dx.setDate(dx.getDate());
+              return formatDate(dx);
+          }
+        }
+        
+      });
+
+    </script>
 </body>
 
 </html>

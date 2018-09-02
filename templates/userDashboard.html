@@ -31,17 +31,14 @@
       {% endif %}
       <td>{{res.purpose}}</td>
       <td>{{res.dateFrom.strftime('%b %d %Y')}} {{res.timeFrom.strftime('%I:%M%p')}}-{{res.timeTo.strftime('%I:%M%p')}}</td>
-      {% if res.res_status == 'Active' %}
       <td>
-          <a href="/reservation/{{res.id}}/edit" class="btn btn-primary btn-sm float-right">
+          <a href="/reservation/{{res.id}}/show" class="btn btn-primary btn-sm float-right">
             <span class="small" data-feather="edit-2"></span>
-            Edit</a>
-      {% else %}
-      <td> </td>
-      {% endif %}
+            View</a>
+      </td>
       {% if res.res_status == 'Active' %}
-      <td> <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModals" data-ng-href="dashboard/{{res.id}}/cancel">Cancel</button>
-        <div class="modal fade" id="deleteModals" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <td> <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModalss" data-ng-href="dashboard/{{res.id}}/cancel">Cancel</button>
+        <div class="modal fade" id="deleteModalss" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">

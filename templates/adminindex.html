@@ -55,8 +55,7 @@
             <table class="table table-striped">
                 <tr>
                   <th>#</th>
-                  <th>Equipment</th>
-                  <th>Facility</th>
+                  <th>Reservation</th>
                   <th>Purpose</th>
                   <th>Date</th>
                   <th>Time</th>
@@ -64,8 +63,13 @@
                 {% for res in reservations.items %}
                 <tr>
                   <td>{{res.id}}</td>
+                  {% if res.equipment_name != '--' %}
                   <td>{{res.equipment_name}}</td>
+                  {% elif res.facility_name != '--' %}
                   <td>{{res.facility_name}}</td>
+                  {% else %}
+                  <td>{{res.equipment_name}} & {{res.facility_name}}</td>
+                  {% endif %}
                   <td>{{res.purpose}}</td>
                   <td>{{res.dateFrom.strftime('%B %d %Y')}}</td>
                   <td>{{res.timeFrom.strftime('%I:%M%p')}}-{{res.timeTo.strftime('%I:%M%p')}}</td>

@@ -87,10 +87,19 @@
           {{ form.purpose(class="form-control form-control-md input-shadow") }}
       {% endif %}
   </div>
-  <div class="form-group" id="changee">
-    <h5 id="prof">Professor</h5>
-    <input type="text" class="form-control" id="test" name="test">
-  </div>
+  <div class="form-group">
+        {{ form.test.label(class="form-control-label h5", id="help") }}
+        {% if form.test.errors %}
+            {{ form.test(class="form-control input-shadow form-control-md is-invalid ") }}
+            <div class="invalid-feedback">
+                {% for error in form.test.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form.test(class="form-control form-control-md input-shadow") }}
+        {% endif %}
+    </div>
   <div class="form-group">
     <h5>Description</h5>
     <textarea name="desc" id="desc" cols="30" rows="5" class="form-control"></textarea>
