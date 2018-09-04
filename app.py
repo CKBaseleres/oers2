@@ -1,4 +1,4 @@
-import os, sys,json,string, random
+import os, sys,json,string, random, re
 from flask import Flask, render_template, flash, redirect, jsonify, url_for, session, logging, request, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_mysqldb import MySQL
@@ -115,12 +115,11 @@ class Equipment_Category(db.Model):
 
 class Facility(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    facilityPropertyNumber = db.Column(db.String(50), unique=True, nullable=False)
     facilityName = db.Column(db.String(50), nullable=False)
     availability = db.Column(db.String(10), nullable=False)
 
     def __repr__(self):
-        return f"'{self.facilityName}','{self.availability}','{self.facilityPropertyNumber}'"
+        return f"'{self.facilityName}','{self.availability}'"
 
 class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -204,10 +203,26 @@ class Section(db.Model):
 class StudentRegisterForm(FlaskForm):
     def validate_studentNumber(form,field):
         student = Student.query.filter_by(studentNumber=field.data).first()
-        if len(field.data) > 15 or len(field.data) < 15:
-            raise ValueError('Student Number must be 15 characters long.')
+        re1='((?:(?:[1]{1}\\d{1}\\d{1}\\d{1})|(?:[2]{1}\\d{3})))(?![\\d])'	# Year 1
+        re2='(-)'	# Any Single Character 1
+        re3='(\\d)'	# Any Single Digit 1
+        re4='(\\d)'	# Any Single Digit 2
+        re5='(\\d)'	# Any Single Digit 3
+        re6='(\\d)'	# Any Single Digit 4
+        re7='(\\d)'	# Any Single Digit 5
+        re8='(-)'	# Any Single Character 2
+        re9='((?:[a-z][a-z]+))'	# Word 1
+        re10='(-)'	# Any Single Character 3
+        re11='(\\d)'	# Any Single Digit 6
+
+        rg = re.compile(re1+re2+re3+re4+re5+re6+re7+re8+re9+re10+re11,re.IGNORECASE|re.DOTALL)
+        m = rg.search(field.data)
+        if not m:
+            raise ValueError('Invalid Student Number.')
         elif student:
             raise ValueError('That Student Number has already signed up.')
+    
+
 
     def validate_email(form,field):
         student = Student.query.filter_by(email=field.data).first()
@@ -219,6 +234,13 @@ class StudentRegisterForm(FlaskForm):
     def validate_lastName(form,field):
         if field.data.isdigit():
             raise ValueError("Please input characters.")
+    
+    def validate_contactNumber(form,field):
+        if field.data.isalpha():
+            raise ValueError("Please input numbers.")
+        elif len(field.data) > 11:
+            raise ValueError("Invalid Number")
+        
     studentNumber = StringField('Student Number',
                                 validators=[DataRequired()])
     firstName = StringField('First Name',
@@ -234,8 +256,12 @@ class StudentRegisterForm(FlaskForm):
     confirm = PasswordField('Confirm Password',
                             validators=[DataRequired(),
                             EqualTo('password', message="Passwords do not match.")])
-    crseSec = StringField('Course and Section',
-                            validators=[Length(min=3, max=10)])
+    course = SelectField('Course',
+                            validators=[DataRequired()],
+                            choices=[])
+    section = SelectField('Section',
+                            validators=[DataRequired()],
+                            choices=[])
     submit = SubmitField('Sign Up')
 
 class StudentUpdateForm(FlaskForm):
@@ -319,8 +345,8 @@ class ReservationForm(FlaskForm):
             max=time(21,00)
         ), DataRequired()])
     purpose = SelectField('Purpose',validators=[DataRequired()],
-        choices = [('Academic','Academic'),('Organizational Event','Organizational Event')])
-    test = SelectField('Professor',validators=[DataRequired()],choices=[])
+        choices = [])
+    
 
 class RequestResetForm(FlaskForm):
     email = StringField('E-mail',
@@ -801,10 +827,9 @@ def addEquipment():
 def addfacility():
     form = AddFacilityForm()
     if form.validate_on_submit():
-        fpn = form.facilityPropertyNumber.data
-        fn = form.facilityName.data
+        fn = form.facilityName.data.capitalize()
         availability = form.availability.data
-        facility = Facility(facilityName=fn,availability=availability, facilityPropertyNumber=fpn)
+        facility = Facility(facilityName=fn,availability=availability)
         db.session.add(facility)
         db.session.commit()
         flash("Facility Added!","success")
@@ -905,11 +930,10 @@ def send_confirmation(student):
 @is_logged_in
 def addReservation():
     form = ReservationForm()
-    form.test.choices = [(('Prof. '+prof.firstName+ ' '+ prof.lastName,'Prof. '+prof.firstName+ ' '+ prof.lastName)) for prof in Professor.query.all()]
     # 12 digit generator
     def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
         return ''.join(random.choice(chars) for _ in range(size))
-
+    form.purpose.choices = [(purp.name,purp.name) for purp in Purpose.query.order_by(Purpose.name.asc()).all()]
     form.equipment.choices = [(equipment.categoryName,equipment.categoryName) for equipment in Equipment_Category.query.order_by(Equipment_Category.categoryName.asc()).all()]
 
     form.facility.choices = [(facility.facilityName, facility.facilityName) for facility in Facility.query.order_by(Facility.facilityName.asc()).filter(Facility.availability == 'Yes')]
@@ -925,7 +949,7 @@ def addReservation():
         purpose = form.purpose.data
         selectEquip= form.equipment.data
         selectFac = form.facility.data
-        orgOrProf = form.test.data
+        orgOrProf = request.form['test']
         desc = request.form['desc']
 
         countReservationEquip = Reservation.query.filter(Reservation.equipment_name == selectEquip).filter(Reservation.dateFrom == datee).count()
@@ -936,24 +960,18 @@ def addReservation():
 
         if(selectEquip == '--' and selectFac == '--'):
             flash("No equipment or facility has been selected.","danger")
-        elif(orgOrProf == '--' or orgOrProf == ''):
-            if(purpose == 'Academic'):
-                flash("Please enter the name of your Professor.","danger")
-            else:
-                flash("Please select an organization.","danger")
-        elif(desc == ''):
-            flash("Please enter a description.","danger")
+        elif(selectEquip != '--' and selectFac != '--'):
+            if(countReservationEquip == countEquip):
+                flash("Sorry, no more available slots for "+ selectEquip+" on that day.","danger")
+            if(countReservationFac == countFac):
+                print(countReservationFac)
+                flash("Sorry, no more available slots for "+selectFac+" on that day.","danger")
         elif(selectFac == '--' and countReservationEquip == countEquip):
             flash("Sorry, no more available slots for "+ selectEquip+" on that day.","danger")
         elif(selectEquip == '--' and countReservationFac == countFac):
             flash("Sorry, no more avalable slots for "+selectFac+" on that day.","danger")
             print(countReservationFac)
             print(countFac)
-        elif(selectEquip != '--' and selectFac != '--'):
-            if(countReservationEquip == countEquip):
-                flash("Sorry, no more available slots for "+ selectEquip+" on that day.","danger")
-            elif(countReservationFac == countFac):
-                flash("Sorry, no more available slots for "+selectFac+" on that day.","danger")
         elif(datee < datetime.date.today()):
             flash("Invalid Date.",'danger')
         elif datee < (datetime.date.today() + timedelta(days=3)):
@@ -1019,14 +1037,18 @@ def showReservation(res_id):
 @app.route('/register', methods=['GET','POST'])
 def register():
     form = StudentRegisterForm()
+    form.course.choices = [(crse.name,crse.name) for crse in Course.query.order_by(Course.name.asc()).all()]
+    form.section.choices = [(sec.name,sec.name) for sec in Section.query.order_by(Section.name.asc()).all()]
     if request.method == 'POST' and form.validate():
         studentNumber = form.studentNumber.data
         firstName = form.firstName.data
         lastName = form.lastName.data
         contactNum = form.contactNumber.data
+        course = form.course.data
+        sec = form.section.data
         email = form.email.data
         password = sha256_crypt.encrypt(str(form.password.data))
-        crseSec = form.crseSec.data
+        crseSec = course+' '+sec
         student = Student(studentNumber=studentNumber,firstName=firstName,lastName=lastName,
         email=email,password=password,courseAndSec=crseSec,contactNumber=contactNum)
         db.session.add(student)
