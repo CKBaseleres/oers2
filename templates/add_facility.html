@@ -8,19 +8,6 @@
         <form action="" method="post">
             {{ form.hidden_tag() }}
             <div class="form-group">
-                {{ form.facilityPropertyNumber.label(class="form-control-label") }}
-                {% if form.facilityPropertyNumber.errors %}
-                    {{ form.facilityPropertyNumber(class="form-control form-control-md is-invalid") }}
-                    <div class="invalid-feedback">
-                        {% for error in form.facilityPropertyNumber.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    {{ form.facilityPropertyNumber(class="form-control form-control-md") }}
-                {% endif %}
-            </div>
-            <div class="form-group">
                 {{ form.facilityName.label(class="form-control-label") }}
                 {% if form.facilityName.errors %}
                     {{ form.facilityName(class="form-control form-control-md is-invalid") }}

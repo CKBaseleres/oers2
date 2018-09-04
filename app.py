@@ -318,8 +318,6 @@ class AddFacilityForm(FlaskForm):
         if fac:
             raise ValueError('That Property number is already used.')
 
-    facilityPropertyNumber = StringField('Property Number',
-                                        validators=[DataRequired(), Length(min=5, max=50)])
     facilityName = StringField('Facility Name',
                                 validators=[DataRequired(), Length(min=3, max=50)])
     availability = SelectField('Availability',validators=[DataRequired()],
