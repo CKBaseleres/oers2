@@ -1,4 +1,4 @@
-import os, sys,json
+import os, sys,json,string, random, re
 from flask import Flask, render_template, flash, redirect, jsonify, url_for, session, logging, request, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_mysqldb import MySQL
@@ -30,8 +30,9 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # app.config['SECRET_KEY'] = os.urandom(32)
 app.config['SECRET_KEY'] = 'sercret123'
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USERNAME'] = 'pupsj.ors@gmail.com'
 app.config['MAIL_PASSWORD'] = 'pupadmin'
 
@@ -114,12 +115,11 @@ class Equipment_Category(db.Model):
 
 class Facility(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    facilityPropertyNumber = db.Column(db.String(50), unique=True, nullable=False)
     facilityName = db.Column(db.String(50), nullable=False)
     availability = db.Column(db.String(10), nullable=False)
 
     def __repr__(self):
-        return f"'{self.facilityName}','{self.availability}','{self.facilityPropertyNumber}'"
+        return f"'{self.facilityName}','{self.availability}'"
 
 class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -134,35 +134,47 @@ class Reservation(db.Model):
     reservation_date = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
     claimed_at = db.Column(db.String(50), nullable=True, default=" ")
     returned_at = db.Column(db.String(50), nullable=True, default=" ")
+    reference = db.Column(db.String(13), nullable=False)
     description = db.Column(db.String(300), nullable= False)
     profOrOrg = db.Column(db.String(50),nullable = False)
 
     def __repr__(self):
         return f"'{self.equipment_name}','{self.facility_name}','{self.studentNumber}','{self.purpose}'\
-        , '{self.dateFrom}','{self.timeFrom}','{self.timeTo}'"
+        , '{self.dateFrom}','{self.timeFrom}','{self.timeTo}','{self.reference}'"
 
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(50), nullable=False)
+    firstName = db.Column(db.String(50),nullable=False)
+    lastName = db.Column(db.String(50),nullable=False)
 
     def __repr__(self):
         return f"'{self.username}','{self.password}'"
 
 class Professor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
+    firstName = db.Column(db.String(50),nullable=False)
+    lastName = db.Column(db.String(50),nullable=False)
     fieldOfStudy = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
         return f"'{self.name}','{self.fieldOfStudy}'"
 
-class Organization(db.Model):
+class FieldOfStudy(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
         return f"'{self.name}'"
+
+class Organization(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    course = db.Column(db.String(50), nullable=False)
+
+    def __repr__(self):
+        return f"'{self.name}','{self.course}'"
 
 class Purpose(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -178,16 +190,39 @@ class Course(db.Model):
     def __repr__(self):
         return f"'{self.name}'"
 
+class Section(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+
+    def __repr__(self):
+        return f"'{self.name}'"
+
 
 ######################## FORMS ############################
 # Student Registration Form
 class StudentRegisterForm(FlaskForm):
     def validate_studentNumber(form,field):
         student = Student.query.filter_by(studentNumber=field.data).first()
-        if len(field.data) > 15 or len(field.data) < 15:
-            raise ValueError('Student Number must be 15 characters long.')
+        re1='((?:(?:[1]{1}\\d{1}\\d{1}\\d{1})|(?:[2]{1}\\d{3})))(?![\\d])'	# Year 1
+        re2='(-)'	# Any Single Character 1
+        re3='(\\d)'	# Any Single Digit 1
+        re4='(\\d)'	# Any Single Digit 2
+        re5='(\\d)'	# Any Single Digit 3
+        re6='(\\d)'	# Any Single Digit 4
+        re7='(\\d)'	# Any Single Digit 5
+        re8='(-)'	# Any Single Character 2
+        re9='((?:[a-z][a-z]+))'	# Word 1
+        re10='(-)'	# Any Single Character 3
+        re11='(\\d)'	# Any Single Digit 6
+
+        rg = re.compile(re1+re2+re3+re4+re5+re6+re7+re8+re9+re10+re11,re.IGNORECASE|re.DOTALL)
+        m = rg.search(field.data)
+        if not m:
+            raise ValueError('Invalid Student Number.')
         elif student:
             raise ValueError('That Student Number has already signed up.')
+    
+
 
     def validate_email(form,field):
         student = Student.query.filter_by(email=field.data).first()
@@ -199,6 +234,13 @@ class StudentRegisterForm(FlaskForm):
     def validate_lastName(form,field):
         if field.data.isdigit():
             raise ValueError("Please input characters.")
+    
+    def validate_contactNumber(form,field):
+        if field.data.isalpha():
+            raise ValueError("Please input numbers.")
+        elif len(field.data) > 11:
+            raise ValueError("Invalid Number")
+        
     studentNumber = StringField('Student Number',
                                 validators=[DataRequired()])
     firstName = StringField('First Name',
@@ -214,8 +256,12 @@ class StudentRegisterForm(FlaskForm):
     confirm = PasswordField('Confirm Password',
                             validators=[DataRequired(),
                             EqualTo('password', message="Passwords do not match.")])
-    crseSec = StringField('Course and Section',
-                            validators=[Length(min=3, max=10)])
+    course = SelectField('Course',
+                            validators=[DataRequired()],
+                            choices=[])
+    section = SelectField('Section',
+                            validators=[DataRequired()],
+                            choices=[])
     submit = SubmitField('Sign Up')
 
 class StudentUpdateForm(FlaskForm):
@@ -272,19 +318,20 @@ class AddFacilityForm(FlaskForm):
         if fac:
             raise ValueError('That Property number is already used.')
 
-    facilityPropertyNumber = StringField('Property Number',
-                                        validators=[DataRequired(), Length(min=5, max=50)])
     facilityName = StringField('Facility Name',
                                 validators=[DataRequired(), Length(min=3, max=50)])
     availability = SelectField('Availability',validators=[DataRequired()],
                                 choices = [('Yes','Yes'),('No','No')])
     submit = SubmitField('Sign Up')
 
+class DateForm(FlaskForm):
+    firstDate = StringField('From', validators=[DataRequired()])
+    secondDate = StringField('To', validators=[DataRequired()])
 
 class ReservationForm(FlaskForm):
     checkbox = BooleanField('Agree?',)
-    equipment = SelectField('Equipments', choices=[('--','--')])
-    facility = SelectField('Facilities', choices=[('--','--')])
+    equipment = SelectField('Equipment', choices=[])
+    facility = SelectField('Facilities', choices=[])
     resFrom = StringField('Date', validators=[DataRequired()]) #%Y-%m-%d
     reseFrom = TimeField('From', format= "%H:%M",validators=[TimeRange(
             min=time(7,30),
@@ -293,10 +340,11 @@ class ReservationForm(FlaskForm):
     # reseFrom = StringField('Time')
     resTo = TimeField('To', format="%H:%M",validators=[TimeRange(
             min=time(7,30),
-            max=time(19,00)
+            max=time(21,00)
         ), DataRequired()])
     purpose = SelectField('Purpose',validators=[DataRequired()],
-        choices = [('Academic','Academic'),('Organizational Event','Organizational Event')])
+        choices = [])
+    
 
 class RequestResetForm(FlaskForm):
     email = StringField('E-mail',
@@ -314,6 +362,276 @@ class ResetPasswordForm(FlaskForm):
     confirm = PasswordField('Confirm Password',
                         validators=[DataRequired()])
     submit = SubmitField('Reset Password')
+
+class CourseForm(FlaskForm):
+    name = StringField('Course',
+                        validators=[DataRequired()])
+
+class ProfessorForm(FlaskForm):
+    firstName = StringField('First Name',
+                        validators=[DataRequired()])
+    lastName = StringField('Last Name',
+                        validators=[DataRequired()])
+    fieldOfStudy = StringField('Field Of Study',
+                                validators=[DataRequired()])
+
+class OrganizationForm(FlaskForm):
+    name = StringField('Organization Name',
+                        validators=[DataRequired()])
+    course = SelectField('Course Associated',
+                        choices=[])
+
+class PurposeForm(FlaskForm):
+    name = StringField('Purpose',
+                        validators=[DataRequired()])
+
+
+###################### COURSES ######################
+@app.route('/courses', methods=['GET','POST'])
+@a_is_logged_in
+def AllCourses():
+    page = request.args.get('page',1,type=int)
+    courses = Course.query.paginate(page=page,per_page=5)
+    if courses is None:
+        msg = "No Courses Found."
+        return render_template('coursesDashboard.html', msg=msg)
+    else:
+        return render_template('coursesDashboard.html', courses=courses)
+
+@app.route('/courses/new', methods=['GET','POST'])
+@a_is_logged_in
+def NewCourse():
+    form = CourseForm()
+    title = "Add Course"
+    if form.validate_on_submit():
+        name = form.name.data
+        course = Course(name=name)
+        db.session.add(course)
+        db.session.commit()
+
+        flash("Course Added!","success")
+
+        return redirect(url_for('AllCourses'))
+    return render_template('add_course.html', form=form, title=title)
+
+@app.route('/courses/<int:course_id>/edit', methods=['GET', 'POST'])
+@a_is_logged_in
+def editCourse(course_id):
+    course = Course.query.get_or_404(course_id)
+    title = "Edit Course"
+    form = CourseForm()
+    if form.validate_on_submit():
+        course.name = form.name.data
+        db.session.commit()
+        flash("Course Updated.","success")
+        return redirect(url_for('AllCourses', course_id=course.id))
+    elif request.method == 'GET':
+        # Populate Fields
+        form.name.data = course.name
+    return render_template('add_course.html', form=form, title=title)
+
+@app.route('/courses/<int:course_id>/delete',  methods=['POST'])
+@a_is_logged_in
+def delete_course(course_id):
+    course = Course.query.get_or_404(course_id)
+    db.session.delete(course)
+    db.session.commit()
+    flash("Course Deleted",'success')
+
+    return redirect(url_for('AllCourses'))
+
+# @app.route('/facility/<int:course_id>/edit', methods=['GET', 'POST'])
+# @a_is_logged_in
+# def editCourse(course_id):
+#     course = Course.query.get_or_404(course_id)
+#     form = CourseForm()
+#     if form.validate_on_submit():
+#         course.name = form.facilityPropertyNumber.data
+#         db.session.commit()
+#         flash("Course Updated.","success")
+#         return redirect(url_for('FacilityDashboard', course_id=facility.id))
+#     elif request.method == 'GET':
+#         # Populate Fields
+#         form.facilityName.data = facility.facilityName
+#         form.availability.data = facility.availability
+#         form.facilityPropertyNumber.data = facility.facilityPropertyNumber
+#     return render_template('editFacility.html', form=form)
+
+########################## PURPOSES #############################
+
+@app.route('/purposes', methods=['GET','POST'])
+@a_is_logged_in
+
+def AllPurposes():
+    page = request.args.get('page',1,type=int)
+    purposes = Purpose.query.paginate(page=page,per_page=5)
+    if purposes is None:
+        msg = "No Courses Found."
+        return render_template('purposesDashboard.html', msg=msg)
+    else:
+        return render_template('purposesDashboard.html', purposes=purposes)
+
+@app.route('/purposes/new', methods=['GET','POST'])
+@a_is_logged_in
+def NewPurpose():
+    form = PurposeForm()
+    title = 'Add Purpose'
+    if form.validate_on_submit():
+        name = form.name.data
+        course = Purpose(name=name)
+        db.session.add(course)
+        db.session.commit()
+
+        flash("Purpose Added!","success")
+
+        return redirect(url_for('AllPurposes'))
+    return render_template('add_purpose.html', form=form, title=title)
+
+@app.route('/purposes/<int:purpose_id>/edit', methods=['GET', 'POST'])
+@a_is_logged_in
+def editPurpose(purpose_id):
+    purpose = Purpose.query.get_or_404(purpose_id)
+    title = "Edit Purpose"
+    form = PurposeForm()
+    if form.validate_on_submit():
+        purpose.name = form.name.data
+        db.session.commit()
+        flash("Purpose Updated.","success")
+        return redirect(url_for('AllPurposes', purpose_id=purpose.id))
+    elif request.method == 'GET':
+        # Populate Fields
+        form.name.data = purpose.name
+    return render_template('add_purpose.html', form=form, title=title)
+
+@app.route('/purposes/<int:purpose_id>/delete',  methods=['POST'])
+@a_is_logged_in
+def delete_purpose(purpose_id):
+    purpose = Purpose.query.get_or_404(purpose_id)
+    db.session.delete(purpose)
+    db.session.commit()
+    flash("Purpose Deleted",'success')
+    return redirect(url_for('AllPurposes'))
+
+
+
+################################### ORGANIZATIONS ############################33
+
+@app.route('/organizations', methods=['GET','POST'])
+@a_is_logged_in
+def AllOrgranizations():
+    page = request.args.get('page',1,type=int)
+    organizations = Organization.query.paginate(page=page,per_page=5)
+    if organizations is None:
+        msg = "No Organizations Found."
+        return render_template('organizationsDashboard.html', msg=msg)
+    else:
+        return render_template('organizationsDashboard.html', organizations=organizations)
+
+@app.route('/organizations/new', methods=['GET','POST'])
+@a_is_logged_in
+def NewOrganization():
+    form = OrganizationForm()
+    title = "Add Organization"
+    form.course.choices = [(crse.name,crse.name) for crse in Course.query.order_by(Course.name.asc()).all()]
+    if form.validate_on_submit():
+        name = form.name.data
+        crse = form.course.data
+        organization = Organization(name=name,course=crse)
+        db.session.add(organization)
+        db.session.commit()
+
+        flash("Organization Added!","success")
+
+        return redirect(url_for('AllOrgranizations'))
+    return render_template('add_organization.html', form=form, title=title)
+
+@app.route('/organizations/<int:organization_id>/edit', methods=['GET', 'POST'])
+@a_is_logged_in
+def editOrganization(organization_id):
+    org = Organization.query.get_or_404(organization_id)
+    title = "Edit Organization"
+    form = OrganizationForm()
+    form.course.choices = [(crse.name,crse.name) for crse in Course.query.order_by(Course.name.asc()).all()]
+    if form.validate_on_submit():
+        org.name = form.name.data
+        org.course = form.course.data
+        db.session.commit()
+        flash("Organization Updated.","success")
+        return redirect(url_for('AllOrgranizations', organization_id=org.id))
+    elif request.method == 'GET':
+        form.name.data = org.name
+        form.course.data = org.course
+    return render_template('add_organization.html', form=form, title=title)
+
+@app.route('/organizations/<int:org_id>/delete',  methods=['POST'])
+@a_is_logged_in
+def delete_org(org_id):
+    org = Organization.query.get_or_404(org_id)
+    db.session.delete(org)
+    db.session.commit()
+    flash("Organization Deleted",'success')
+
+    return redirect(url_for('AllOrgranizations'))
+
+
+################################## PROFESSORS #############################
+@app.route('/professors', methods=['GET','POST'])
+@a_is_logged_in
+def AllProfessors():
+    page = request.args.get('page',1,type=int)
+    professors = Professor.query.paginate(page=page,per_page=5)
+    if professors is None:
+        msg = "No Professors Found."
+        return render_template('professorsDashboard.html', msg=msg)
+    else:
+        return render_template('professorsDashboard.html', professors=professors)
+
+@app.route('/professors/new', methods=['GET','POST'])
+@a_is_logged_in
+def NewProfessor():
+    form = ProfessorForm()
+    title = "Add Professor"
+    if form.validate_on_submit():
+        fname = form.firstName.data
+        lname = form.lastName.data
+        fieldOfStudy = form.fieldOfStudy.data
+        professor = Professor(firstName=fname,lastName=lname,fieldOfStudy=fieldOfStudy)
+        db.session.add(professor)
+        db.session.commit()
+
+        flash("Professor Added!","success")
+
+        return redirect(url_for('AllProfessors'))
+    return render_template('add_professor.html', form=form, title=title)
+
+@app.route('/professors/<int:prof_id>/edit', methods=['GET', 'POST'])
+@a_is_logged_in
+def editProfessor(prof_id):
+    prof = Professor.query.get_or_404(prof_id)
+    title = "Edit Professor"
+    form = ProfessorForm()
+    if form.validate_on_submit():
+        prof.name = form.name.data
+        prof.fieldOfStudy = form.fieldOfStudy.data
+        db.session.commit()
+        flash("Professor Updated.","success")
+        return redirect(url_for('AllProfessors', prof_id=prof.id))
+    elif request.method == 'GET':
+        form.name.data = prof.name
+        form.fieldOfStudy.data = prof.fieldOfStudy
+    return render_template('add_professor.html', form=form, title=title)
+
+@app.route('/professors/<int:prof_id>/delete',  methods=['POST'])
+@a_is_logged_in
+def delete_professor(prof_id):
+    prof = Professor.query.get_or_404(prof_id)
+    db.session.delete(prof)
+    db.session.commit()
+    flash("Professor Deleted",'success')
+
+    return redirect(url_for('AllProfessors'))
+
+
 
 
 
@@ -337,20 +655,21 @@ class ResetPasswordForm(FlaskForm):
 @app.route('/equipment/dashboard', methods=['GET'])
 @a_is_logged_in
 def EquipmentDashboard():
+    form = AddEquipmentForm()
     page = request.args.get('page',1,type=int)
-    equipments = Equipment.query.paginate(page=page,per_page=5)
+    equipments = Equipment.query.filter(Equipment.equipmentName != '--').paginate(page=page,per_page=5)
     if equipments is None:
         msg = "No Equipments Found."
         return render_template('equipmentDashboard.html', msg=msg)
     else:
-        return render_template('equipmentDashboard.html', equipments=equipments)
+        return render_template('equipmentDashboard.html', equipments=equipments, form=form)
 
 
 @app.route('/facility/dashboard')
 @a_is_logged_in
 def FacilityDashboard():
     page = request.args.get('page',1,type=int)
-    facilities = Facility.query.paginate(page=page,per_page=5)
+    facilities = Facility.query.filter(Facility.facilityName != '--').paginate(page=page,per_page=5)
     if facilities is None:
         msg = "No Facilities Found."
         return render_template('facilityDashboard.html', msg=msg)
@@ -410,6 +729,7 @@ def editFacility(fac_id):
 def editEquipment(equip_id):
     equipment = Equipment.query.get_or_404(equip_id)
     form = AddEquipmentForm()
+    title = 'Edit Equipment'
     if form.validate_on_submit():
         equipment.equipmentPropertyNumber = form.equipmentPropertyNumber.data
         equipment.equipmentName = form.equipmentName.data
@@ -419,9 +739,16 @@ def editEquipment(equip_id):
         return redirect(url_for('EquipmentDashboard', equip_id=equipment.id))
     elif request.method == 'GET':
         form.equipmentName.data = equipment.equipmentName
-        form.quantity.data = equipment.quantity
+        form.categoryId.data =  equipment.categoryId
         form.equipmentPropertyNumber.data = equipment.equipmentPropertyNumber
-    return render_template('editEquipment.html', form=form)
+    return render_template('add_equipment.html', form=form, title=title)
+
+# @app.route('/reservation/<int:res_id>/show' methods=['GET'])
+# @is_logged_in
+# def showReservation(res_id)
+#     res = Reservation.query.get_or_404(res_id)
+    
+    
 
 @app.route('/reservation/<int:res_id>/edit', methods=['GET','POST'])
 @is_logged_in
@@ -479,28 +806,28 @@ def editRes(res_id):
 @a_is_logged_in
 def addEquipment():
     form = AddEquipmentForm()
+    title = 'Add Equipment'
     if form.validate_on_submit():
         epn = form.equipmentPropertyNumber.data
         en = form.equipmentName.data
-        quantity = form.quantity.data
-        equipment = Equipment(equipmentPropertyNumber=epn,equipmentName=en,quantity=quantity)
+        quantity = form.categoryId.data
+        equipment = Equipment(equipmentPropertyNumber=epn,equipmentName=en,categoryId=quantity)
         db.session.add(equipment)
         db.session.commit()
 
         flash("Equipment Added!","success")
 
-        return redirect(url_for('UserDashboard'))
-    return render_template('add_equipment.html', form=form)
+        return redirect(url_for('EquipmentDashboard'))
+    return render_template('add_equipment.html', form=form, title=title)
 
 @app.route('/facility/add', methods=['POST','GET'])
 @a_is_logged_in
 def addfacility():
     form = AddFacilityForm()
     if form.validate_on_submit():
-        fpn = form.facilityPropertyNumber.data
-        fn = form.facilityName.data
+        fn = form.facilityName.data.capitalize()
         availability = form.availability.data
-        facility = Facility(facilityName=fn,availability=availability, facilityPropertyNumber=fpn)
+        facility = Facility(facilityName=fn,availability=availability)
         db.session.add(facility)
         db.session.commit()
         flash("Facility Added!","success")
@@ -535,6 +862,9 @@ def adminReservation():
     equip = {}
     fac = {}
 
+    def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
+        return ''.join(random.choice(chars) for _ in range(size))
+    
     equipments = Equipment.query.all()
     for res in equipments:
         equip[res.equipmentName] = res.equipmentPropertyNumber
@@ -550,6 +880,7 @@ def adminReservation():
         ftime = form.reseFrom.data
         timeto = form.resTo.data
         purpose = form.purpose.data
+        reference = id_generator()
         selectEquip= request.form['equips']
         selectFac = request.form['facs']
         orgOrProf = request.form['test']
@@ -576,7 +907,7 @@ def adminReservation():
         elif datee < (datetime.date.today() + timedelta(days=3)):
             flash("Reservations must be made for atleast 3 days before using",'danger')
         else:
-            reservation = Reservation(equipment_name=selectEquip,facility_name=selectFac,purpose=purpose,dateFrom=datee,timeFrom=ftime,timeTo=timeto,studentNumber=session.get('username'),profOrOrg=orgOrProf,description=desc)
+            reservation = Reservation(equipment_name=selectEquip,facility_name=selectFac,purpose=purpose,dateFrom=datee,timeFrom=ftime,timeTo=timeto,studentNumber=session.get('username'),profOrOrg=orgOrProf,description=desc,reference=reference)
             db.session.add(reservation)
             db.session.commit()
             flash("Reservation Added.", "success")
@@ -586,15 +917,24 @@ def adminReservation():
     return render_template('adminReservation.html',
         form=form,equip=equip,fac=fac)
 
-    
+def send_confirmation(student):
+    msg = Message('PUPSJ:OFERS Confirmed Reservation',
+                    sender='pupsj.ors@gmail.com',
+                    recipients=[str(session.get('email'))])
+    msg.body = f'''Thank you for using our Reservation System. Your reservation for {student} has been added. '''
+    mail.send(msg)
 
 @app.route('/newres', methods=['POST','GET'])
 @is_logged_in
 def addReservation():
     form = ReservationForm()
-    form.equipment.choices = [(equipment.equipmentName,equipment.equipmentName) for equipment in Equipment.query.all()]
+    # 12 digit generator
+    def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
+        return ''.join(random.choice(chars) for _ in range(size))
+    form.purpose.choices = [(purp.name,purp.name) for purp in Purpose.query.order_by(Purpose.name.asc()).all()]
+    form.equipment.choices = [(equipment.categoryName,equipment.categoryName) for equipment in Equipment_Category.query.order_by(Equipment_Category.categoryName.asc()).all()]
 
-    form.facility.choices = [(facility.facilityName, facility.facilityName) for facility in Facility.query.filter(Facility.availability == 'Yes')]
+    form.facility.choices = [(facility.facilityName, facility.facilityName) for facility in Facility.query.order_by(Facility.facilityName.asc()).filter(Facility.availability == 'Yes')]
     now = datetime.datetime.now()
     today = now.strftime("%d %B %Y")
     # print(today)
@@ -602,7 +942,7 @@ def addReservation():
         # datee = form.resFrom.data.datetime.datetime.strftime("%Y-%m-%d")
         datee = datetime.datetime.strptime(form.resFrom.data, '%Y-%m-%d').date()
         ftime = form.reseFrom.data
-
+        reference = id_generator()
         timeto = form.resTo.data
         purpose = form.purpose.data
         selectEquip= form.equipment.data
@@ -618,24 +958,18 @@ def addReservation():
 
         if(selectEquip == '--' and selectFac == '--'):
             flash("No equipment or facility has been selected.","danger")
-        elif(orgOrProf == '--' or orgOrProf == ''):
-            if(purpose == 'Academic'):
-                flash("Please enter the name of your Professor.","danger")
-            else:
-                flash("Please select an organization.","danger")
-        elif(desc == ''):
-            flash("Please enter a description.","danger")
+        elif(selectEquip != '--' and selectFac != '--'):
+            if(countReservationEquip == countEquip):
+                flash("Sorry, no more available slots for "+ selectEquip+" on that day.","danger")
+            if(countReservationFac == countFac):
+                print(countReservationFac)
+                flash("Sorry, no more available slots for "+selectFac+" on that day.","danger")
         elif(selectFac == '--' and countReservationEquip == countEquip):
             flash("Sorry, no more available slots for "+ selectEquip+" on that day.","danger")
         elif(selectEquip == '--' and countReservationFac == countFac):
             flash("Sorry, no more avalable slots for "+selectFac+" on that day.","danger")
             print(countReservationFac)
             print(countFac)
-        elif(selectEquip != '--' and selectFac != '--'):
-            if(countReservationEquip == countEquip):
-                flash("Sorry, no more available slots for "+ selectEquip+" on that day.","danger")
-            elif(countReservationFac == countFac):
-                flash("Sorry, no more available slots for "+selectFac+" on that day.","danger")
         elif(datee < datetime.date.today()):
             flash("Invalid Date.",'danger')
         elif datee < (datetime.date.today() + timedelta(days=3)):
@@ -643,7 +977,8 @@ def addReservation():
         elif timeto < ftime:
             flash("Incorrect time. Please check your time.", "dange")
         else:
-            reservation = Reservation(equipment_name=selectEquip,facility_name=selectFac,purpose=purpose,dateFrom=datee,timeFrom=ftime,timeTo=timeto,studentNumber=session.get('studentNumber'),profOrOrg=orgOrProf,description=desc)
+            send_confirmation(datee)
+            reservation = Reservation(equipment_name=selectEquip,facility_name=selectFac,purpose=purpose,dateFrom=datee,timeFrom=ftime,timeTo=timeto,studentNumber=session.get('studentNumber'),profOrOrg=orgOrProf,description=desc, reference=reference)
             db.session.add(reservation)
             db.session.commit()
             flash("Reservation Added.", "success")
@@ -675,19 +1010,43 @@ def addReservation():
     return render_template('createReservation.html',
         form=form)
 
+@app.route('/reservation/<int:res_id>/show', methods=['GET'])
+@is_logged_in
+def showReservation(res_id):
+    form = ReservationForm()
+    res = Reservation.query.get_or_404(res_id)
+    equip = res.equipment_name
+    fac = res.facility_name
+    purpose = res.purpose
+    dateFrom = res.dateFrom
+    timeFrom = res.timeFrom
+    timeTo = res.timeTo
+    status = res.res_status
+    resdate  = res.reservation_date
+    ref = res.reference
+    porg = res.profOrOrg
+    claim = res.claimed_at
+    returnn = res.returned_at
+
+    return render_template('view_reservation.html', form=form,equip=equip, fac=fac,purpose=purpose,dateFrom=dateFrom,timeFrom=timeFrom,timeTo=timeTo,status=status,resdate=resdate, ref=ref,porg=porg,claim=claim,returnn=returnn)
+
 
 
 @app.route('/register', methods=['GET','POST'])
 def register():
     form = StudentRegisterForm()
+    form.course.choices = [(crse.name,crse.name) for crse in Course.query.order_by(Course.name.asc()).all()]
+    form.section.choices = [(sec.name,sec.name) for sec in Section.query.order_by(Section.name.asc()).all()]
     if request.method == 'POST' and form.validate():
         studentNumber = form.studentNumber.data
         firstName = form.firstName.data
         lastName = form.lastName.data
         contactNum = form.contactNumber.data
+        course = form.course.data
+        sec = form.section.data
         email = form.email.data
         password = sha256_crypt.encrypt(str(form.password.data))
-        crseSec = form.crseSec.data
+        crseSec = course+' '+sec
         student = Student(studentNumber=studentNumber,firstName=firstName,lastName=lastName,
         email=email,password=password,courseAndSec=crseSec,contactNumber=contactNum)
         db.session.add(student)
@@ -793,6 +1152,7 @@ def login():
             session['firstName'] = student.firstName
             session['lastName'] = student.lastName
             session['studentNumber'] = student.studentNumber
+            session['email'] = student.email
             # session['courseSection'] = student.cs
 
             flash("You are now Logged in","success")
@@ -851,7 +1211,7 @@ def UserDashboard():
 
     sn = str(session.get("studentNumber"))
     page = request.args.get('page',1,type=int)
-    reservations = Reservation.query.filter(Reservation.studentNumber == sn).order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=5)
+    reservations = Reservation.query.filter(Reservation.studentNumber == sn).order_by(Reservation.dateFrom.desc()).paginate(page=page,per_page=7)
     print(type(reservations))
     reservationss = Reservation.query.filter(Reservation.studentNumber == sn).order_by(Reservation.dateFrom.desc()).count()
     print(type(reservationss))
@@ -911,11 +1271,11 @@ def addTime(res_id):
 
     return redirect(url_for('resDashboard'))
 
-@app.route('/equipment/<int:equip_id>/delete',  methods=['POST'])
+@app.route('/equipment/<int:equip_id>/delete',  methods=['POST','GET'])
 @a_is_logged_in
 def delete_equipment(equip_id):
-    equipments = Equipment.query.get_or_404(equip_id)
-    db.session.delete(equipments)
+    equipment = Equipment.query.get_or_404(equip_id)
+    db.session.delete(equipment)
     db.session.commit()
     flash("Equipment Deleted",'success')
 
@@ -932,6 +1292,7 @@ def send_reset_email(student):
 If this is not you. Just ignore this e-mail.
 '''
     mail.send(msg)
+
 
 @app.route("/reset_password", methods=['GET','POST'])
 def reset_request():
@@ -988,6 +1349,55 @@ def printToday():
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'attachment; filename=Reservations for '+str(today)+'.pdf'
     return response
+
+@app.route("/reservations/data", methods=['GET','POST'])
+@a_is_logged_in
+def getData():
+    form = DateForm()
+    if form.validate_on_submit():
+        first = datetime.datetime.strptime(form.firstDate.data, '%Y-%m-%d').date()
+        second = datetime.datetime.strptime(form.secondDate.data, '%Y-%m-%d').date()
+
+        reservations = Reservation.query.filter(Reservation.dateFrom.between(str(first),str(second)))
+
+        path_wkthmltopdf = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+        config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
+        rendered = render_template('reservationData.html',reservations=reservations,first=first,second=second)
+        pdf = pdfkit.from_string(rendered, False ,configuration=config)
+        response = make_response(pdf)
+        response.headers['Content-Type'] = 'application/pdf'
+        response.headers['Content-Disposition'] = 'attachment; filename=Reservations from '+str(first)+' to ' +str(second)+'.pdf'
+        return response
+
+    return render_template('filterReservations.html', form=form)
+
+@app.route('/professors/data')
+def prof():
+    professors = Professor.query.all()
+
+    profArray =[]
+
+    for prof in professors:
+        profObj = {}
+        profObj['id'] = prof.id
+        profObj['name'] = 'Prof. '+prof.firstName+' '+prof.lastName
+        profArray.append(profObj)
+
+    return jsonify({'professors' : profArray})
+
+@app.route('/organizations/data')
+def org():
+    organizations = Organization.query.all()
+
+    orgArray =[]
+
+    for org in organizations:
+        orgObj = {}
+        orgObj['id'] = org.id
+        orgObj['name'] = org.name
+        orgArray.append(orgObj)
+
+    return jsonify({'organizations' : orgArray})
 
 
 if __name__ == '__main__':

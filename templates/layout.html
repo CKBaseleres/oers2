@@ -361,7 +361,7 @@
       {% include 'includes/_navbar.html' %}
       <div class="container">
           {% if session.logged_in %}
-          <h2 class="m-3">Welcome
+          <h2 class="m-3 mt-2">Welcome
             <small class="text-muted">
               {{session.firstName}} {{session.lastName}}
             </small>
@@ -482,37 +482,37 @@ eventMouseout: function(calEvent, jsEvent) {
     //   });
     // },
     });
-    // for create reservation
-  let purpose = document.getElementById('purpose');
-  let prof = document.getElementById('prof');
-  let input = document.getElementById('test');
-  const change = document.getElementById('changee')
-  const newSelect = document.createElement('select');
-  newSelect.id = 'test';
-  newSelect.name = 'test';
-  newSelect.classList = 'form-control';
+  let select_purpose = document.getElementById('purpose');
+  let select_profOrg = document.getElementById('test');
+  let profOrg_title = document.getElementById('help');
 
-  options = ['--','Student Assembly','Governing League of IT Challengers(GLITCH)','Junior Philippine Institute of Accountants(JPIA)','JFINEX','CEO',"Young Educator's Society(YES)",'HM Society','Paraseist'];
-  options.sort();
-  options.forEach((option) => {
-    optionss = document.createElement('option');
-    optionss.innerHTML = option;
-    newSelect.appendChild(optionss);
-  });
+  select_purpose.onchange = () => {
+    purp = select_purpose.value;
 
-  purpose.onchange = function(){
-  val = purpose.value;
-  // alert(val);
-  
-  if(val === 'Academic'){
-    prof.innerHTML = "<h5> Professor </h5>"
-    change.replaceChild(input,newSelect);
-    
-  } else {
-    prof.innerHTML = "<h5> Organization </h5>";
-    change.replaceChild(newSelect,input); 
-  }
-  
+    if(purp == 'Academic'){
+      profOrg_title.innerHTML = 'Professor'
+      fetch('/professors/data').then((response) => {
+        response.json().then((data) => {
+          let optionHTML = '';
+          for(let prof of data.professors){
+            optionHTML += '<option value="' + prof.name + '">' + prof.name + '</option>';
+          }
+
+          select_profOrg.innerHTML = optionHTML;
+        }
+      )});
+    } else {
+      profOrg_title.innerHTML = 'Organization'
+      fetch('/organizations/data').then((response) => {
+        response.json().then((data) => {
+          let optionHTML = '';
+          for(let org of data.organizations){
+            optionHTML += '<option value="' + org.name + '">' + org.name + '</option>';
+          }
+          select_profOrg.innerHTML = optionHTML;
+        })
+      })
+    }
   }
   </script>
   <script>

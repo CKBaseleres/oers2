@@ -1,10 +1,10 @@
 {% extends 'admin_layout.html'%}
 {% block body  %}
-<header id="main-header" class="py-2 bg-success text-white mb-3">
+<header id="main-header" class="py-2 text-white mb-3" style="background-color: maroon;">
   <div class="container">
     <div class="row">
       <div class="col-md-6">
-        <h1><i data-feather="speaker"></i> Equipments</h1>
+        <h1><i data-feather="users"></i> Organizations</h1>
       </div>
     </div>
   </div>
@@ -15,44 +15,43 @@
   <div class="card">
     <div class="card-header">
     <h4>
-    <a href="/equipment/add" class="btn btn-success float-right">
+    <a href="/organizations/new" class="btn btn-success float-right">
     <span class="small" data-feather="plus"></span>
-      Equipment</a>
+      Organization</a>
     </h4>
   </div>
   <table class="table table-striped">
     <tr>
-      <th>Property Number</th>
+      <th>ID</th>
       <th>Name</th>
-      <th>Category</th>
+      <th>Course</th>
       <th></th>
-      <th style="column-span: 2;"></th>
+      <th></th>
     </tr>
-    {% for equipment in equipments.items %}
+    {% for org in organizations.items %}
     <tr>
-      <td>{{equipment.equipmentPropertyNumber}}</td>
-      <td>{{equipment.equipmentName}}</td>
-      <td>{{equipment.categoryId}}</td>
+      <td>{{org.id}}</td>
+      <td>{{org.name}}</td>
+      <td>{{org.course}}</td>
       <td>
-        <a href="/equipment/{{equipment.id}}/edit" class="btn btn-primary btn-sm float-right">
+        <a href="/organizations/{{org.id}}/edit" class="btn btn-primary btn-sm float-right">
           <span class="small" data-feather="edit-2"></span>
           Edit</a>
       </td>
       <td>
-        <!--  -->
-        <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
+        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-ng-href="/organizations/{{org.id}}/delete">Delete</button>
         <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Delete Equipment?</h5>
+                <h5 class="modal-title" id="deleteModalLabel">Delete Organization?</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form action="{{ url_for('delete_equipment', equip_id=equipment.id) }}" method="POST">
+                <form action="{{ url_for('delete_org', org_id=org.id) }}" method="POST">
                   <input class="btn btn-danger" type="submit" value="Delete">
                 </form>
               </div>
@@ -64,12 +63,12 @@
     {% endfor%}
   </table>
   </div>
-  {% for page_num in equipments.iter_pages() %}
+  {% for page_num in organizations.iter_pages() %}
   {% if page_num %}
-    {% if equipments.page == page_num%}
-      <a class="btn btn-success mb-4 mt-4" href="{{url_for('EquipmentDashboard', page=page_num) }}">{{ page_num}}</a>
+    {% if organizations.page == page_num%}
+      <a class="btn btn-success mb-4 mt-4" href="{{url_for('AllOrgranizations', page=page_num) }}">{{ page_num}}</a>
     {% else %}
-      <a class="btn btn-outline-success mt-4 mb-4" href="{{url_for('EquipmentDashboard', page=page_num) }}">{{ page_num}}</a>
+      <a class="btn btn-outline-success mt-4 mb-4" href="{{url_for('AllOrgranizations', page=page_num) }}">{{ page_num}}</a>
     {% endif %}
   {% else %}
   ...

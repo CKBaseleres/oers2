@@ -1,0 +1,38 @@
+{% extends "admin_layout.html"%}
+{% block body %}
+<header id="main-header" class="py-2 bg-danger text-white mb-3">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h1><i data-feather="archive"></i> Reservations</h1>
+        </div>
+      </div>
+    </div>
+  </header>
+
+<div class="container mt-3">
+    {% include 'includes/_messages.html' %}
+    <div class="row">
+  <div class="col-4">
+  
+  </div>
+<div class="content-section mb-5 mt-3 shadow float-center col-lg-4">
+    <form method="POST" id="resForm">
+      <h3> Get Reservation Data</h3><hr>
+        {{ form.hidden_tag()}}
+      <div class="form-group">
+        <h5>{{ form.firstDate.label }}</h5>
+        {{ form.firstDate(class="form-control")}}
+      </div>
+        <div class="form-group">
+          <h5>{{ form.secondDate.label()}}</h5>
+          {{ form.secondDate(class="form-control") }}
+        </div>
+      <p><input type="submit" class="btn btn-primary" value="Submit"></p>
+    </form>
+    </div>
+    <div class="col-4"> </div>
+  </div>
+    </div>
+
+{% endblock %}
