@@ -1,6 +1,7 @@
 {% extends "admin_layout.html"%}
 
 {% block body %}
+
 <header id="main-header" class="py-2 bg-danger text-white mb-3">
     <div class="container">
       <div class="row">
@@ -10,60 +11,102 @@
       </div>
     </div>
   </header>
-<div class="container mt-3">
-    {% include 'includes/_messages.html' %}
-<div class="content-section mb-5 mt-3 shadow">
+  <div class="container">
+  <div class="content-section mb-5 shadow">
     <form method="POST" id="resForm">
-      <h3>Reservation</h3><hr>
+      <h3 class="mt-2">Reservation</h3><hr>
         {{ form.hidden_tag()}}
-      <div class="form-group">
-       <label for="equips"><h5>Equipments</h5></label>
-       <select class="form-control" id="equips" name="equips" value="{{request.form.equips}}">
-         <option>--</option>
-          {% for equi,id in equip.items() %}
-          <option>{{equi}}</option>
-          {% endfor %}
-       </select>
-     </div>
-     <div class="form-group">
-      <label for="facs"><h5>Facilities</h5></label>
-      <select class="form-control" id="facs" name="facs" value="{{request.form.facs}}">
-        <option>--</option>
-         {% for fa,id in fac.items() %}
-         <option>{{fa}}</option>
-         {% endfor %}
-      </select>
-      </div>
-      <!-- <div class="form-group mb-1">
-      </div> -->
-        <div class="form-group">
-          <h5>{{ form.resFrom.label()}}</h5>
-          {{ form.resFrom(class="form-control") }}
-        </div>
       <div class="form-row">
-        <div class="form-group col-6">
-          <h5>{{ form.reseFrom.label()}}</h5>
-          {{ form.reseFrom(class="form-control", id="basicExample") }}
+      <div class="form-group col-6">
+          {{ form.equipment.label(class="form-control-label h5") }}
+          {% if form.equipment.errors %}
+              {{ form.equipment(class="form-control input-shadow form-control-md is-invalid ") }}
+              <div class="invalid-feedback">
+                  {% for error in form.equipment.errors %}
+                      <span>{{ error }}</span>
+                  {% endfor %}
+              </div>
+          {% else %}
+              {{ form.equipment(class="form-control form-control-md input-shadow") }}
+          {% endif %}
+      </div>
+      <div class="form-group col-6">
+          {{ form.facility.label(class="form-control-label h5") }}
+          {% if form.facility.errors %}
+              {{ form.facility(class="form-control input-shadow form-control-md is-invalid ") }}
+              <div class="invalid-feedback">
+                  {% for error in form.facility.errors %}
+                      <span>{{ error }}</span>
+                  {% endfor %}
+              </div>
+          {% else %}
+              {{ form.facility(class="form-control form-control-md input-shadow") }}
+          {% endif %}
+      </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-4">
+            {{ form.resFrom.label(class="form-control-label h5") }}
+            {% if form.resFrom.errors %}
+                {{ form.resFrom(class="form-control input-shadow form-control-md is-invalid ") }}
+                <div class="invalid-feedback">
+                    {% for error in form.resFrom.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.resFrom(class="form-control form-control-md input-shadow") }}
+            {% endif %}
         </div>
-        <div class="form-group col-6">
-          <h5> {{form.resTo.label}}</h5> {{ form.resTo(class="form-control", id="basicExample") }}
+      
+        <div class="form-group col-4">
+            {{ form.reseFrom.label(class="form-control-label h5") }}
+            {% if form.reseFrom.errors %}
+                {{ form.reseFrom(class="form-control input-shadow form-control-md is-invalid ") }}
+                <div class="invalid-feedback">
+                    {% for error in form.reseFrom.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.reseFrom(class="form-control form-control-md input-shadow") }}
+            {% endif %}
+        </div>
+        <div class="form-group col-4">
+            {{ form.resTo.label(class="form-control-label h5") }}
+            {% if form.resTo.errors %}
+                {{ form.resTo(class="form-control input-shadow form-control-md is-invalid ") }}
+                <div class="invalid-feedback">
+                    {% for error in form.resTo.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.resTo(class="form-control form-control-md input-shadow") }}
+            {% endif %}
         </div>
       </div>
       <div class="form-group">
-        <h5>{{form.purpose.label}}</h5> {{ form.purpose(class="form-control", id="purpose") }}
-      </div>
-      <div class="form-group" id="changee">
-        <h5 id="prof">Professor</h5>
-        <input type="text" class="form-control" id="test" name="test">
-      </div>
-      <div class="form-group">
-        <h5>Description</h5>
-        <textarea name="desc" id="desc" cols="30" rows="5" class="form-control"></textarea>
-      </div>
+          {{ form.purpose.label(class="form-control-label h5") }}
+          {% if form.purpose.errors %}
+              {{ form.purpose(class="form-control input-shadow form-control-md is-invalid ") }}
+              <div class="invalid-feedback">
+                  {% for error in form.purpose.errors %}
+                      <span>{{ error }}</span>
+                  {% endfor %}
+              </div>
+          {% else %}
+              {{ form.purpose(class="form-control form-control-md input-shadow") }}
+          {% endif %}
+        </div>
+        <div class="form-group">
+            <h5 id="help">Professor</h5>
+            <select type="select" name="test" class="form-control mb-2" id="test">
+        </div>
       
       <p><input type="submit" class="btn btn-primary" value="Submit"></p>
     </form>
     </div>
-    </div>
-
-{% endblock %}
+</div>
+    {% endblock %}
+    

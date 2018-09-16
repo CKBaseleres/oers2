@@ -23,7 +23,7 @@
     <tr>
       <th>ID</th>
       <th>Name</th>
-      <th>Availability</th>
+      <th>Accessible</th>
       <th></th>
     </tr>
     {% for facility in facilities.items %}
@@ -32,7 +32,7 @@
       <td>{{facility.facilityName}}</td>
       <td>{{facility.availability}}</td>
       <td>
-        <a href="{{facility.id}}/edit" class="btn btn-primary float-left">
+        <a href="{{facility.id}}/edit" class="btn btn-primary btn-sm float-left">
           <span class="small"data-feather="edit-2"></span>
           Edit</a>
       </td>

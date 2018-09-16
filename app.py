@@ -221,6 +221,8 @@ class StudentRegisterForm(FlaskForm):
             raise ValueError('Invalid Student Number.')
         elif student:
             raise ValueError('That Student Number has already signed up.')
+        elif len(field.data) > 15:
+            raise ValueError('Invalid ')
     
 
 
@@ -309,24 +311,28 @@ class AddEquipmentForm(FlaskForm):
                                         validators=[DataRequired(),Length(min=5, max=50)])
     equipmentName = StringField('Equipment Name',
                                 validators=[DataRequired(),Length(min=1, max=50)])
-    categoryId = StringField('Category',
-                            validators=[DataRequired(),])
+    categoryId = SelectField('Category',
+                            validators=[DataRequired()],
+                            choices=[])
 
 class AddFacilityForm(FlaskForm):
     def validate_email(form,field):
-        fac = Facility.query.filter_by(facilityPropertyNumber=field.data).first()
+        fac = Facility.query.filter_by(facilityName=field.data).first()
         if fac:
-            raise ValueError('That Property number is already used.')
+            raise ValueError('That Facility Name is already used.')
 
     facilityName = StringField('Facility Name',
                                 validators=[DataRequired(), Length(min=3, max=50)])
-    availability = SelectField('Availability',validators=[DataRequired()],
+    availability = SelectField('Accessible',validators=[DataRequired()],
                                 choices = [('Yes','Yes'),('No','No')])
     submit = SubmitField('Sign Up')
 
 class DateForm(FlaskForm):
     firstDate = StringField('From', validators=[DataRequired()])
     secondDate = StringField('To', validators=[DataRequired()])
+
+class FieldOfStudyForm(FlaskForm):
+    name = StringField('Field', validators=[DataRequired()])
 
 class ReservationForm(FlaskForm):
     checkbox = BooleanField('Agree?',)
@@ -344,6 +350,7 @@ class ReservationForm(FlaskForm):
         ), DataRequired()])
     purpose = SelectField('Purpose',validators=[DataRequired()],
         choices = [])
+    desc = TextAreaField('Description*')
     
 
 class RequestResetForm(FlaskForm):
@@ -372,8 +379,9 @@ class ProfessorForm(FlaskForm):
                         validators=[DataRequired()])
     lastName = StringField('Last Name',
                         validators=[DataRequired()])
-    fieldOfStudy = StringField('Field Of Study',
-                                validators=[DataRequired()])
+    fieldOfStudy = SelectField('Field Of Study',
+                                validators=[DataRequired()],
+                                choices=[])
 
 class OrganizationForm(FlaskForm):
     name = StringField('Organization Name',
@@ -384,6 +392,106 @@ class OrganizationForm(FlaskForm):
 class PurposeForm(FlaskForm):
     name = StringField('Purpose',
                         validators=[DataRequired()])
+
+class CategoryForm(FlaskForm):
+    name = StringField('Category',
+                        validators=[DataRequired()])
+###################### EQUIP CATEGORY ####################
+@app.route('/category', methods=['GET','POST'])
+@a_is_logged_in
+def AllCategory():
+    page = request.args.get('page',1,type=int)
+    categories = Equipment_Category.query.filter(Equipment_Category.categoryName != '--').paginate(page=page,per_page=5)
+    if categories is None:
+        msg = "No Categories Found."
+        return render_template('dashboardCategory.html', msg=msg)
+    else:
+        return render_template('dashboardCategory.html', categories=categories)
+
+@app.route('/category/new', methods=['GET','POST'])
+@a_is_logged_in
+def NewCategory():
+    form = CategoryForm()
+    title = "Add Category"
+    if form.validate_on_submit():
+        name = form.name.data
+        field = Equipment_Category(name=name)
+        db.session.add(field)
+        db.session.commit()
+
+        flash("Equipment Category Added!","success")
+
+        return redirect(url_for('AllCategory'))
+    return render_template('add_category.html', form=form, title=title)
+
+@app.route('/category/<int:category_id>/edit', methods=['GET', 'POST'])
+@a_is_logged_in
+def editCategory(category_id):
+    field = Equipment_Category.query.get_or_404(category_id)
+    title = "Edit Category"
+    form = CategoryForm()
+    if form.validate_on_submit():
+        field.categoryName = form.name.data
+        db.session.commit()
+        flash("Category Updated.","success")
+        return redirect(url_for('AllCategory', category_id=Equipment_Category.id))
+    elif request.method == 'GET':
+        # Populate Fields
+        form.name.data = field.categoryName
+    return render_template('add_category.html', form=form, title=title)
+###################### FIELD OF STUDY ####################
+@app.route('/fieldOfStudy', methods=['GET','POST'])
+@a_is_logged_in
+def AllFields():
+    page = request.args.get('page',1,type=int)
+    studies = FieldOfStudy.query.filter(FieldOfStudy.name != '--').paginate(page=page,per_page=5)
+    if studies is None:
+        msg = "No Fields Found."
+        return render_template('dashboardFieldOfStudy.html', msg=msg)
+    else:
+        return render_template('dashboardFieldOfStudy.html', studies=studies)
+
+@app.route('/fieldOfStudy/new', methods=['GET','POST'])
+@a_is_logged_in
+def NewField():
+    form = FieldOfStudyForm()
+    title = "Add Field Of Study"
+    if form.validate_on_submit():
+        name = form.name.data
+        field = FieldOfStudy(name=name)
+        db.session.add(field)
+        db.session.commit()
+
+        flash("Field of Study Added!","success")
+
+        return redirect(url_for('AllFields'))
+    return render_template('add_field.html', form=form, title=title)
+
+@app.route('/fieldOfStudy/<int:field_id>/edit', methods=['GET', 'POST'])
+@a_is_logged_in
+def editField(field_id):
+    field = FieldOfStudy.query.get_or_404(field_id)
+    title = "Edit Field of Study"
+    form = FieldOfStudyForm()
+    if form.validate_on_submit():
+        field.name = form.name.data
+        db.session.commit()
+        flash("Field of Study Updated.","success")
+        return redirect(url_for('AllField', field_id=field.id))
+    elif request.method == 'GET':
+        # Populate Fields
+        form.name.data = field.name
+    return render_template('add_field.html', form=form, title=title)
+
+@app.route('/fieldOfStudy/<int:field_id>/delete',  methods=['POST'])
+@a_is_logged_in
+def delete_field(field_id):
+    field = FieldOfStudy.query.get_or_404(field_id)
+    db.session.delete(field)
+    db.session.commit()
+    flash("Course Deleted",'success')
+
+    return redirect(url_for('AllCourses'))
 
 
 ###################### COURSES ######################
@@ -464,7 +572,7 @@ def delete_course(course_id):
 
 def AllPurposes():
     page = request.args.get('page',1,type=int)
-    purposes = Purpose.query.paginate(page=page,per_page=5)
+    purposes = Purpose.query.filter(Purpose.name != '--').paginate(page=page,per_page=5)
     if purposes is None:
         msg = "No Courses Found."
         return render_template('purposesDashboard.html', msg=msg)
@@ -579,7 +687,7 @@ def delete_org(org_id):
 @a_is_logged_in
 def AllProfessors():
     page = request.args.get('page',1,type=int)
-    professors = Professor.query.paginate(page=page,per_page=5)
+    professors = Professor.query.order_by(Professor.id.desc()).paginate(page=page,per_page=5)
     if professors is None:
         msg = "No Professors Found."
         return render_template('professorsDashboard.html', msg=msg)
@@ -590,6 +698,7 @@ def AllProfessors():
 @a_is_logged_in
 def NewProfessor():
     form = ProfessorForm()
+    form.fieldOfStudy.choices = [(field.name,field.name) for field in FieldOfStudy.query.order_by(FieldOfStudy.name.asc()).all()]
     title = "Add Professor"
     if form.validate_on_submit():
         fname = form.firstName.data
@@ -710,7 +819,7 @@ def editFacility(fac_id):
     facility = Facility.query.get_or_404(fac_id)
     form = AddFacilityForm()
     if form.validate_on_submit():
-        facility.facilityPropertyNumber = form.facilityPropertyNumber.data
+        # facility.facilityPropertyNumber = form.facilityPropertyNumber.data
         facility.facilityName = form.facilityName.data
         facility.availability = form.availability.data
         db.session.commit()
@@ -720,7 +829,7 @@ def editFacility(fac_id):
         # Populate Fields
         form.facilityName.data = facility.facilityName
         form.availability.data = facility.availability
-        form.facilityPropertyNumber.data = facility.facilityPropertyNumber
+        # form.facilityPropertyNumber.data = facility.facilityPropertyNumber
     return render_template('editFacility.html', form=form)
 
 
@@ -750,43 +859,40 @@ def editEquipment(equip_id):
     
     
 
-@app.route('/reservation/<int:res_id>/edit', methods=['GET','POST'])
-@is_logged_in
+@app.route('/reservations/<int:res_id>/edit', methods=['GET','POST'])
+@a_is_logged_in
 def editRes(res_id):
     res = Reservation.query.get_or_404(res_id)
     form = ReservationForm()
 
-    equip = {}
-    fac = {}
-    # GET DATA FROM DATABASE FOR EQUIPMENTS
-    equipments = Equipment.query.all()
-    for resu in equipments:
-        equip[resu.categoryId] = resu.equipmentPropertyNumber
-    # GET DATA FROM DATABASE FOR FACILITIES
-    facilities = Facility.query.filter(Facility.availability == 'Yes')
-    for r in facilities:
-        fac[r.facilityName] = r.facilityPropertyNumber
-    
-    form.equipment.choices = [(equipment.equipmentName,equipment.equipmentName) for equipment in Equipment.query.all()]
+    # equip = {}
+    # fac = {}
+    # # GET DATA FROM DATABASE FOR EQUIPMENTS
+    # equipments = Equipment.query.all()
+    # for resu in equipments:
+    #     equip[resu.categoryId] = resu.equipmentPropertyNumber
+    # # GET DATA FROM DATABASE FOR FACILITIES
+    # facilities = Facility.query.filter(Facility.availability == 'Yes')
+    # for r in facilities:
+    #     fac[r.facilityName] = r.facilityPropertyNumber
+    form.purpose.choices = [(purp.name,purp.name) for purp in Purpose.query.order_by(Purpose.name.asc()).all()]
+    form.equipment.choices = [(equipment.categoryName,equipment.categoryName) for equipment in Equipment_Category.query.order_by(Equipment_Category.categoryName.asc()).all()]
 
     form.facility.choices = [(facility.facilityName, facility.facilityName) for facility in Facility.query.filter(Facility.availability == 'Yes')]
-    
-    print(res.dateFrom)
-    print(res.purpose)
-    print(res.description)
 
     if form.validate_on_submit():
-        datee = form.resFrom.data
+        datee = datetime.datetime.strptime(form.resFrom.data, '%Y-%m-%d').date()
         ftime = form.reseFrom.data
+        reference = id_generator()
         timeto = form.resTo.data
         purpose = form.purpose.data
-        selectEquip= request.form['equips']
-        selectFac = request.form['facs']
+        selectEquip= form.equipment.data
+        selectFac = form.facility.data
         orgOrProf = request.form['test']
         desc = request.form['desc']
         db.session.commit()
         flash('Reservation Updated','success')
-        return redirect(url_for('UserDashboard', res_id=res.id))
+        return redirect(url_for('resDashboard', res_id=res.id))
     elif request.method == 'GET':
         form.resFrom.data = res.dateFrom
         form.reseFrom.data = res.timeFrom
@@ -800,13 +906,14 @@ def editRes(res_id):
         # request.args.get('equips','') = res.equipment_name
         # request.args.get('facs',' ') = res.facility_name
         
-    return render_template('createReservation.html', form=form, equip=equip,fac=fac)
+    return render_template('adminReservation.html', form=form)
 
 @app.route('/equipment/add', methods=['POST','GET'])
 @a_is_logged_in
 def addEquipment():
     form = AddEquipmentForm()
     title = 'Add Equipment'
+    form.categoryId.choices = [(equipment.categoryName,equipment.categoryName) for equipment in Equipment_Category.query.order_by(Equipment_Category.categoryName.asc()).all()]
     if form.validate_on_submit():
         epn = form.equipmentPropertyNumber.data
         en = form.equipmentName.data
@@ -859,20 +966,15 @@ def send_letter(resFrom,resTime,resTo,today,equip,facility,purpose):
 @a_is_logged_in
 def adminReservation():
     form = ReservationForm()
-    equip = {}
-    fac = {}
 
     def id_generator(size=12, chars=string.ascii_uppercase + string.digits):
         return ''.join(random.choice(chars) for _ in range(size))
     
-    equipments = Equipment.query.all()
-    for res in equipments:
-        equip[res.equipmentName] = res.equipmentPropertyNumber
-    facilities = Facility.query.filter(Facility.availability == 'Yes')
-    for r in facilities:
-        fac[r.facilityName] = r.facilityPropertyNumber
+    form.purpose.choices = [(purp.name,purp.name) for purp in Purpose.query.order_by(Purpose.name.asc()).all()]
+    form.equipment.choices = [(equipment.categoryName,equipment.categoryName) for equipment in Equipment_Category.query.order_by(Equipment_Category.categoryName.asc()).all()]
+
+    form.facility.choices = [(facility.facilityName, facility.facilityName) for facility in Facility.query.order_by(Facility.facilityName.asc()).filter(Facility.availability == 'Yes')]
     now = datetime.datetime.now()
-    # datetoday = datetime.date.now()
     today = now.strftime("%d %B %Y")
     # print(today)
     if form.validate_on_submit():
@@ -915,7 +1017,7 @@ def adminReservation():
             return (redirect(url_for('UserDashboard')))
 
     return render_template('adminReservation.html',
-        form=form,equip=equip,fac=fac)
+        form=form)
 
 def send_confirmation(student):
     msg = Message('PUPSJ:OFERS Confirmed Reservation',
@@ -958,18 +1060,15 @@ def addReservation():
 
         if(selectEquip == '--' and selectFac == '--'):
             flash("No equipment or facility has been selected.","danger")
-        elif(selectEquip != '--' and selectFac != '--'):
-            if(countReservationEquip == countEquip):
-                flash("Sorry, no more available slots for "+ selectEquip+" on that day.","danger")
-            if(countReservationFac == countFac):
-                print(countReservationFac)
-                flash("Sorry, no more available slots for "+selectFac+" on that day.","danger")
+        elif(countReservationEquip == countEquip):
+            flash("Sorry, no more available slots for "+ selectEquip+" on that day.","danger")
+        elif(countReservationFac == countFac):
+            print(countReservationFac)
+            flash("Sorry, no more available slots for "+selectFac+" on that day.","danger")
         elif(selectFac == '--' and countReservationEquip == countEquip):
             flash("Sorry, no more available slots for "+ selectEquip+" on that day.","danger")
         elif(selectEquip == '--' and countReservationFac == countFac):
             flash("Sorry, no more avalable slots for "+selectFac+" on that day.","danger")
-            print(countReservationFac)
-            print(countFac)
         elif(datee < datetime.date.today()):
             flash("Invalid Date.",'danger')
         elif datee < (datetime.date.today() + timedelta(days=3)):
@@ -1115,10 +1214,10 @@ updateReservationStatus()
 @a_is_logged_in
 def admin():
     page = request.args.get('page',1,type=int)
-    reservations = Reservation.query.order_by(Reservation.dateFrom.asc()).filter(Reservation.res_status == 'Active').paginate(page=page,per_page=7)
+    reservations = Reservation.query.order_by(Reservation.dateFrom.asc()).filter(Reservation.res_status == 'Active').limit(9)
     reservationss = Reservation.query.all()
-    equipments = Equipment.query.all()
-    facilities = Facility.query.all()
+    equipments = Equipment.query.filter(Equipment.equipmentName != '--').all()
+    facilities = Facility.query.filter(Facility.facilityName != '--').all()
     return render_template('adminindex.html',equip=equipments,fac=facilities, reservations=reservations, reservationss=reservationss)
 
 @app.route('/logout')
@@ -1205,9 +1304,9 @@ def UserDashboard():
     for res in equipments:
         equip[res.equipmentName] = res.equipmentPropertyNumber
     # GET DATA FROM DATABASE FOR FACILITIES
-    facilities = Facility.query.filter(Facility.availability == 'Yes')
-    for r in facilities:
-        fac[r.facilityName] = r.facilityPropertyNumber
+    # facilities = Facility.query.filter(Facility.availability == 'Yes')
+    # for r in facilities:
+    #     fac[r.facilityName] = r.facilityPropertyNumber
 
     sn = str(session.get("studentNumber"))
     page = request.args.get('page',1,type=int)
@@ -1226,7 +1325,7 @@ def UserDashboard():
 @is_logged_in
 def allReservations():
     page = request.args.get('page',1,type=int)
-    reservations = Reservation.query.filter(Reservation.res_status == 'Active').paginate(page=page,per_page=5)
+    reservations = Reservation.query.filter(Reservation.res_status == 'Active').order_by(Reservation.reservation_date.desc()).paginate(page=page,per_page=5)
     # reservations = Reservation.query.paginate(page=page,per_page=6)
 
     if reservations is None:

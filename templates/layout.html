@@ -361,13 +361,13 @@
       {% include 'includes/_navbar.html' %}
       <div class="container">
           {% if session.logged_in %}
-          <h2 class="m-3 mt-2">Welcome
-            <small class="text-muted">
+          <h2 class="m-2 pt-3 h1">Welcome
+            <small class="h4">
               {{session.firstName}} {{session.lastName}}
             </small>
           </h2>
           {% endif %}
-        <div class="row mb-2 mt-4" id="body">
+        <div class="row mb-2 mt-2" id="body">
           <div class="contents-section col-sm-12 col-lg-3 mb-2 h-25 shadow" style="background-color: maroon;">
             <h1 class="h2" style="color: white">Menu
               <hr class="bg-white">

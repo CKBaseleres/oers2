@@ -279,6 +279,38 @@
         }
         
       });
+      let select_purpose = document.getElementById('purpose');
+  let select_profOrg = document.getElementById('test');
+  let profOrg_title = document.getElementById('help');
+
+  select_purpose.onchange = () => {
+    purp = select_purpose.value;
+
+    if(purp == 'Academic'){
+      profOrg_title.innerHTML = 'Professor'
+      fetch('/professors/data').then((response) => {
+        response.json().then((data) => {
+          let optionHTML = '';
+          for(let prof of data.professors){
+            optionHTML += '<option value="' + prof.name + '">' + prof.name + '</option>';
+          }
+
+          select_profOrg.innerHTML = optionHTML;
+        }
+      )});
+    } else {
+      profOrg_title.innerHTML = 'Organization'
+      fetch('/organizations/data').then((response) => {
+        response.json().then((data) => {
+          let optionHTML = '';
+          for(let org of data.organizations){
+            optionHTML += '<option value="' + org.name + '">' + org.name + '</option>';
+          }
+          select_profOrg.innerHTML = optionHTML;
+        })
+      })
+    }
+  }
 
     </script>
 </body>

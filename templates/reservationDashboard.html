@@ -14,7 +14,7 @@
   {% include 'includes/_messages.html' %}
 <div class="card">
   <div class="card-header">
-    <h4>Latest Reservations
+    <h4> Reservations
         <a href="/reservations/data" class="btn btn-primary float-right">Get Data</a>
     </h4>
     
@@ -28,6 +28,7 @@
       <th>Date</th>
       <th>Time</th>
       <th>Claim/Return</th>
+      <th></th>
       <th></th>
       <th></th>
     </tr>
@@ -52,6 +53,13 @@
       {% elif res.claimed_at != ' ' %}
       <td>{{res.claimed_at}}</td>
       
+      {% endif %}
+      {% if res.res_status == 'Active' %}
+      <td>
+      <a href="/reservations/{{res.id}}/edit" class="btn btn-primary btn-sm float-right">
+        <span class="small" data-feather="edit-2"></span>
+        Edit</a>
+      </td>
       {% endif %}
       {% if res.claimed_at == ' ' and res.returned_at == ' '%}
       {% if res.res_status == 'Active' %}
@@ -78,7 +86,7 @@
           </div>
         </td>
         {% else %}
-        <td></td>
+        <td> </td>
         {% endif %}
         {% else %}
         <td> </td>
@@ -96,14 +104,36 @@
           {% if res.claimed_at == " " %}
         <td> 
           <form action="{{ url_for('addTime', res_id=res.id) }}" method="POST">
-            <input class="btn btn-primary btn-sm" type="submit" value="Claimed">
+            <input class="btn btn-primary btn-sm" type="submit" value="Claim">
           </form>
         </td>
           {% else %}
-        <td> 
-          <form action="{{ url_for('addTime', res_id=res.id) }}" method="POST">
-            <input class="btn btn-success btn-sm" type="submit" value="Returned">
-          </form>
+        <td>
+            <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#deleteModals" data-ng-href="reservations/dashboard/{{res.id}}/cancel">Return</button>
+            <div class="modal fade" id="deleteModals" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <form action="">
+                      <h2>Feedback</h2>
+                      <textarea name="" id="" cols="50" rows="4"></textarea>
+                    </form>
+                    </div>  
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    <form action="{{ url_for('addTime', res_id=res.id) }}" method="POST">
+                        <input class="btn btn-success btn-sm" type="submit" value="Submit">
+                      </form>
+                  </div>
+                </div>
+              </div>
+          
         </td>
           {% endif %}
           {% endif %}
