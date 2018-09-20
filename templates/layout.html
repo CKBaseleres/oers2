@@ -260,9 +260,9 @@
     min-height: 100%;
   }
 
-  /* #body 
+  /* #body
    padding:10px;
-   padding-bottom:70px;   /* Height of the footer 
+   padding-bottom:70px;   /* Height of the footer
 } */
 
   #footer {
@@ -282,7 +282,7 @@
 
   .headerContainer {
     position: fixed;
-    top: 0px; 
+    top: 0px;
     height: 90px;
     width: 100%;
     background-color: maroon;
@@ -373,7 +373,7 @@
               <hr class="bg-white">
             </h1>
             {% if session.logged_in %}
-            
+
             <div class="">
               <h5>
                 <a href="/dashboard" style="color: white;">Dashboard</a>
@@ -431,7 +431,7 @@
   <script src="https://cdn.jsdelivr.net/npm/timepicker@1.11.12/jquery.timepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js"></script>
   <script>
-    
+
 //     $('#basicExample').timepicker({
 //     'minTime': '7:30am',
 //     'maxTime': '5:00pm',
@@ -445,10 +445,10 @@
         center: 'title',
         right: 'month,agendaWeek,agendaDay'
       },
-    
+
       eventLimit: true,
       eventColor: '#800000',
-      eventTextColor: '#ffffff', 
+      eventTextColor: '#ffffff',
       events: {
         url: 'data'
       },
@@ -471,7 +471,7 @@ eventMouseout: function(calEvent, jsEvent) {
     $(this).css('z-index', 8);
     $('.tooltipevent').remove();
 },
- 
+
     //   eventRender: function(eventObj, element) {
     //   element.popover({
     //     title: eventObj.title,
@@ -545,8 +545,8 @@ eventMouseout: function(calEvent, jsEvent) {
             return formatDate(dx);
         }
       }
-      
-    }); 
+
+    });
   </script>
 
   <script>
@@ -563,7 +563,7 @@ function changeEventHandler(event) {
     else alert('You like ' + event.target.value + ' ice cream.');
 
     if(event.target.value == 'Academic') {
-      var theForm = document.getElementsByTagName("form");  
+      var theForm = document.getElementsByTagName("form");
       var divProf = document.createElement("div");
       divProf.className = 'form-group';
       var inputProf = document.createElement("input");
